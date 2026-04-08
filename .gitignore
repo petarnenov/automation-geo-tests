@@ -1,0 +1,26 @@
+# Dependencies
+node_modules/
+
+# Playwright
+playwright-report/
+test-results/
+.playwright-mcp/
+tests/.auth/
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
+
+# Ad-hoc debugging screenshots in repo root
+/*.png
+
+# Editor / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
