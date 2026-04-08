@@ -14,6 +14,9 @@ const { setupWorkerFirm } = require('./tests/_helpers/worker-firm');
 //   _featureLock — auto fixture; acquires a feature-area mutex while the
 //                  remaining specs still hardcode firm 106. Removed once
 //                  every spec is migrated to per-worker dummy firms.
+//                  { timeout: 0 } = fixture phase does not consume the per-test
+//                  timeout (mutex queue wait is unbounded; stale locks cleared
+//                  in feature-mutex.js after 5m).
 //
 //   workerFirm   — opt-in worker-scoped fixture; provisions a fresh dummy
 //                  firm via /qa/createDummyFirm.do on first use within a
@@ -38,7 +41,7 @@ playwrightTest.test = baseTest.extend({
         featureMutex.release(lockPath);
       }
     },
-    { auto: true },
+    { auto: true, timeout: 0 },
   ],
   workerFirm: [
     async ({}, use, workerInfo) => {
