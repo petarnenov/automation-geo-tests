@@ -134,23 +134,29 @@ async function setMultiGroupBucket(page, rowIndex, bucketKey, optionText) {
     .first();
   // Retry the combo open: synthetic onClick events occasionally drop on the
   // first attempt right after a row was added or after the parent re-rendered.
-  for (let attempt = 0; attempt < 5; attempt++) {
-    await div.evaluate((el) => {
-      /** @type {HTMLElement} */ (el).scrollIntoView({ block: 'center' });
-      const k = Object.keys(el).find((kk) => kk.startsWith('__reactProps'));
-      if (!k) throw new Error(`no react props on ${el.id}`);
-      /** @type {any} */ (el)[k].onClick({
-        target: el,
-        currentTarget: el,
-        preventDefault: () => {},
-        stopPropagation: () => {},
-        nativeEvent: new MouseEvent('click'),
-      });
-    });
-    if (await option.isVisible().catch(() => false)) break;
-    await page.waitForTimeout(200);
-  }
-  await expect(option).toBeVisible({ timeout: 5000 });
+  // expect.poll runs the open+check pair on its own interval schedule
+  // (replaces a previous waitForTimeout(200) raw sleep) and exits as soon as
+  // the option list becomes visible.
+  await expect
+    .poll(
+      async () => {
+        await div.evaluate((el) => {
+          /** @type {HTMLElement} */ (el).scrollIntoView({ block: 'center' });
+          const k = Object.keys(el).find((kk) => kk.startsWith('__reactProps'));
+          if (!k) throw new Error(`no react props on ${el.id}`);
+          /** @type {any} */ (el)[k].onClick({
+            target: el,
+            currentTarget: el,
+            preventDefault: () => {},
+            stopPropagation: () => {},
+            nativeEvent: new MouseEvent('click'),
+          });
+        });
+        return await option.isVisible().catch(() => false);
+      },
+      { timeout: 5000, intervals: [100, 200, 400, 800] }
+    )
+    .toBe(true);
   await reactClick(option);
   await expect(div.locator('header')).toContainText(optionText, {
     timeout: 5000,

@@ -116,11 +116,26 @@ test('@pepi C26306 Copy a billing specification to another firm', async ({ page,
     await expect(page.locator('#specificationDescriptionField')).toHaveValue(sourceSpecName, {
       timeout: 10_000,
     });
-    // Give the form a beat to fully hydrate React state — without this the
-    // subsequent triple-click + pressSequentially can land before the
-    // controlled-input handlers are wired and the typed value never makes it
-    // into the React store, so the POST submits the original spec name.
-    await page.waitForTimeout(5_000);
+    // Wait for React to attach its onChange handler to the controlled input.
+    // Until this is wired, pressSequentially/fill() update the DOM but the
+    // React state never captures the value, and the form POSTs the original
+    // spec name. Modern React (16+) stores component props on a fiber key
+    // named `__reactProps$<random>` directly on the DOM node — once that key
+    // exists with an `onChange` function, the controlled-input round-trip
+    // works. This replaces an earlier blind 5s waitForTimeout with a real
+    // hydration signal that exits as soon as React is ready (typically
+    // 200-1500ms locally, occasionally up to ~5s under parallel load).
+    await page.waitForFunction(
+      () => {
+        const input = document.querySelector('#specificationDescriptionField');
+        if (!input) return false;
+        const propsKey = Object.keys(input).find((k) => k.startsWith('__reactProps$'));
+        if (!propsKey) return false;
+        const props = input[propsKey];
+        return !!props && typeof props.onChange === 'function';
+      },
+      { timeout: 15_000 }
+    );
   });
 
   // ORDER NOTE: TestRail's manual order is "change firm, then update spec

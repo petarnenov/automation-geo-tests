@@ -54,18 +54,26 @@ async function setReactDatePicker(page, pickerSection, mmddyyyy) {
   // retry until the popup actually appears.
   const calendarBtn = pickerSection.locator('button.react-date-picker__calendar-button');
   const calendar = page.locator('.react-calendar');
-  for (let attempt = 0; attempt < 10; attempt++) {
-    await calendarBtn.evaluate((btn) => {
-      /** @type {HTMLElement} */ (btn).scrollIntoView({ block: 'center' });
-      /** @type {HTMLElement} */ (btn).focus();
-      for (const t of ['mousedown', 'mouseup', 'click']) {
-        btn.dispatchEvent(new MouseEvent(t, { bubbles: true, cancelable: true, view: window }));
-      }
-    });
-    if (await calendar.isVisible().catch(() => false)) break;
-    await page.waitForTimeout(200);
-  }
-  await expect(calendar).toBeVisible({ timeout: 5000 });
+  // Click+check loop: react-date-picker's open handler ignores synthetic
+  // clicks, so we have to retry the dispatched-MouseEvent burst until the
+  // calendar actually opens. expect.poll runs the action+check pair on its
+  // own interval schedule (replaces a previous waitForTimeout(200) raw
+  // sleep) and exits as soon as the calendar becomes visible.
+  await expect
+    .poll(
+      async () => {
+        await calendarBtn.evaluate((btn) => {
+          /** @type {HTMLElement} */ (btn).scrollIntoView({ block: 'center' });
+          /** @type {HTMLElement} */ (btn).focus();
+          for (const t of ['mousedown', 'mouseup', 'click']) {
+            btn.dispatchEvent(new MouseEvent(t, { bubbles: true, cancelable: true, view: window }));
+          }
+        });
+        return await calendar.isVisible().catch(() => false);
+      },
+      { timeout: 5000, intervals: [100, 200, 400, 800] }
+    )
+    .toBe(true);
 
   // Read the displayed month from the calendar header — when the picker has
   // no value, the spinbuttons are empty but the calendar opens at today.

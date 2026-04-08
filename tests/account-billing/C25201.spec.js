@@ -46,12 +46,20 @@ async function setCommissionFee(page, value) {
   // fails to re-open the dropdown.
   await page.locator('body').click({ position: { x: 0, y: 0 } });
   const option = page.locator(`[role="combo-box-list-item"]:text-is("${value}")`);
-  for (let attempt = 0; attempt < 5; attempt++) {
-    await page.locator('#commissionFreeFlagDiv').click();
-    if (await option.isVisible().catch(() => false)) break;
-    await page.waitForTimeout(200);
-  }
-  await expect(option).toBeVisible({ timeout: 5000 });
+  // Click + check loop: this combo's React onChange ignores synthetic clicks,
+  // so we have to retry the real CDP click until the dropdown actually opens.
+  // expect.poll runs the action+check pair on its own interval schedule
+  // (replaces a previous waitForTimeout(200) raw sleep) and exits as soon as
+  // the option becomes visible.
+  await expect
+    .poll(
+      async () => {
+        await page.locator('#commissionFreeFlagDiv').click();
+        return await option.isVisible().catch(() => false);
+      },
+      { timeout: 5000, intervals: [100, 200, 400, 800] }
+    )
+    .toBe(true);
   await option.click();
 }
 

@@ -17,6 +17,7 @@
  *   });
  */
 
+const { expect } = require('@playwright/test');
 const fs = require('fs');
 const path = require('path');
 
@@ -232,9 +233,14 @@ async function provisionProspectInPlace(page, context, workerFirm, opts = {}) {
   await page.locator('#firstNameField').fill(firstName);
   await page.locator('#lastNameField').fill(lastName);
   await page.getByRole('button', { name: 'Create Prospect' }).click();
-  // The form clears after submit but URL does not change; wait briefly for
-  // the POST to complete server-side before the next step.
-  await page.waitForTimeout(3_000);
+  // The Create Prospect flow surfaces a "Prospect Contact Created Successfully"
+  // success modal once the server confirms the create, then the SPA navigates
+  // to the new prospect's overview. Wait for the modal text — it's the
+  // earliest deterministic signal that the create round-trip is done.
+  // Replaces an earlier blind waitForTimeout(3_000).
+  await expect(page.getByText(/Prospect Contact Created Successfully/i)).toBeVisible({
+    timeout: 15_000,
+  });
 
   // Drop the dummy firm admin's cookies so the caller starts from a clean slate.
   await context.clearCookies();
