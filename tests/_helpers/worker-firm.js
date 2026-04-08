@@ -238,8 +238,13 @@ async function provisionProspectInPlace(page, context, workerFirm, opts = {}) {
   // to the new prospect's overview. Wait for the modal text — it's the
   // earliest deterministic signal that the create round-trip is done.
   // Replaces an earlier blind waitForTimeout(3_000).
+  // 60s — under full @pepi suite parallel load (8 workers all spinning up
+  // dummy firms + provisioning prospects), qa2 can queue create-prospect
+  // requests serially server-side. Verified in a parallel run where the
+  // failure snapshot showed the modal visible at timeout time, meaning the
+  // surface lag exceeded the original 15s.
   await expect(page.getByText(/Prospect Contact Created Successfully/i)).toBeVisible({
-    timeout: 15_000,
+    timeout: 60_000,
   });
 
   // Drop the dummy firm admin's cookies so the caller starts from a clean slate.
