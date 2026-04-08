@@ -94,9 +94,7 @@ test('@pepi C25378 Bucket Exclusions - missing required fields trigger validatio
           await uploadBtn.click();
           // Some forms still pop the "Yes, Proceed" confirmation even on bad files.
           try {
-            await page
-              .getByRole('button', { name: 'Yes, Proceed' })
-              .click({ timeout: 3000 });
+            await page.getByRole('button', { name: 'Yes, Proceed' }).click({ timeout: 3000 });
           } catch {
             /* none */
           }
@@ -110,9 +108,7 @@ test('@pepi C25378 Bucket Exclusions - missing required fields trigger validatio
       }
 
       // Verify we did NOT get a success modal.
-      await expect(
-        page.getByText(/imported successfully/i)
-      ).toHaveCount(0, { timeout: 1000 });
+      await expect(page.getByText(/imported successfully/i)).toHaveCount(0, { timeout: 1000 });
     });
   }
 });

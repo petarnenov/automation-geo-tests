@@ -58,9 +58,9 @@ test('@pepi C25209 Account Unmanaged Assets - Update Exclude from Billing', asyn
   await test.step('Phase 1.1: ensure AAPL exists and update one of its bucket values', async () => {
     await loginAsAdmin(context, page);
     await page.goto(UA_URL);
-    await expect(
-      page.getByRole('button', { name: 'Manage Unmanaged Assets' })
-    ).toBeVisible({ timeout: 30_000 });
+    await expect(page.getByRole('button', { name: 'Manage Unmanaged Assets' })).toBeVisible({
+      timeout: 30_000,
+    });
 
     await openManageDialog(page);
 
@@ -117,8 +117,6 @@ test('@pepi C25209 Account Unmanaged Assets - Update Exclude from Billing', asyn
   await test.step('Phase 2: non-admin tyler does not see Manage Unmanaged Assets', async () => {
     await loginAsNonAdmin(context, page);
     await page.goto(UA_URL);
-    await expect(
-      page.getByRole('button', { name: 'Manage Unmanaged Assets' })
-    ).toHaveCount(0);
+    await expect(page.getByRole('button', { name: 'Manage Unmanaged Assets' })).toHaveCount(0);
   });
 });

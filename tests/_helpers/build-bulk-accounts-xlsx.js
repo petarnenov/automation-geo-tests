@@ -233,22 +233,17 @@ function buildBulkAccountsXlsx(rows, opts = {}) {
   }
   const ssList = [...HEADERS, ...valueStrings];
   const ssIdx = new Map(ssList.map((s, i) => [s, i]));
-  const escape = (s) =>
-    String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;');
+  const escape = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;');
 
   const ssXml =
     `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>` +
     `<sst xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" count="${ssList.length}" uniqueCount="${ssList.length}">` +
-    ssList
-      .map((s) => `<si><t xml:space="preserve">${escape(s)}</t></si>`)
-      .join('') +
+    ssList.map((s) => `<si><t xml:space="preserve">${escape(s)}</t></si>`).join('') +
     `</sst>`;
 
   const colLetter = (i) => String.fromCharCode(65 + i);
-  const ssCell = (ref, str) =>
-    `<c r="${ref}" t="s"><v>${ssIdx.get(str)}</v></c>`;
-  const dateCell = (ref, serial) =>
-    `<c r="${ref}" s="1"><v>${serial}</v></c>`;
+  const ssCell = (ref, str) => `<c r="${ref}" t="s"><v>${ssIdx.get(str)}</v></c>`;
+  const dateCell = (ref, serial) => `<c r="${ref}" s="1"><v>${serial}</v></c>`;
 
   const sheetRows = [];
   sheetRows.push(

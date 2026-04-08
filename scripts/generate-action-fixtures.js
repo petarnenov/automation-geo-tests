@@ -33,8 +33,7 @@ function readZip(buf) {
 
   let p = cdOffset;
   for (let i = 0; i < cdEntries; i++) {
-    if (buf.readUInt32LE(p) !== 0x02014b50)
-      throw new Error('Bad central dir signature at ' + p);
+    if (buf.readUInt32LE(p) !== 0x02014b50) throw new Error('Bad central dir signature at ' + p);
     const method = buf.readUInt16LE(p + 10);
     const compSize = buf.readUInt32LE(p + 20);
     const uncSize = buf.readUInt32LE(p + 24);
@@ -55,8 +54,7 @@ function readZip(buf) {
     if (method === 0) data = compData;
     else if (method === 8) data = zlib.inflateRawSync(compData);
     else throw new Error('Unknown method ' + method + ' for ' + name);
-    if (data.length !== uncSize)
-      throw new Error('Decompressed size mismatch for ' + name);
+    if (data.length !== uncSize) throw new Error('Decompressed size mismatch for ' + name);
     files.set(name, data);
     p += 46 + nameLen + extraLen + commentLen;
   }

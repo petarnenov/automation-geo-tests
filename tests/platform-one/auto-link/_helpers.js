@@ -38,29 +38,23 @@ async function runAutoLinkCreateUserSmoke({ page, firmCode }) {
     await page.goto(`/react/indexReact.do#platformOne/firmAdmin/users/${firmCode}`);
     // 30s — qa2 can be slow under parallel load (8 workers hitting Firm Admin
     // pages concurrently); the legacy 15s was a single-worker assumption.
-    await expect(
-      page.getByRole('button', { name: 'Create New User' })
-    ).toBeVisible({ timeout: 30_000 });
+    await expect(page.getByRole('button', { name: 'Create New User' })).toBeVisible({
+      timeout: 30_000,
+    });
   });
 
   await test.step('Open Create New User modal and verify form fields', async () => {
     await page.getByRole('button', { name: 'Create New User' }).click();
 
     // Modal title
-    await expect(
-      page.getByText('Create New User', { exact: true }).first()
-    ).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByText('Create New User', { exact: true }).first()).toBeVisible({
+      timeout: 10_000,
+    });
 
     // Required fields the auto-link logic depends on
-    await expect(
-      page.getByRole('textbox', { name: /First Name/i }).first()
-    ).toBeVisible();
-    await expect(
-      page.getByRole('textbox', { name: /Username/i }).first()
-    ).toBeVisible();
-    await expect(
-      page.getByRole('textbox', { name: /Email Address/i }).first()
-    ).toBeVisible();
+    await expect(page.getByRole('textbox', { name: /First Name/i }).first()).toBeVisible();
+    await expect(page.getByRole('textbox', { name: /Username/i }).first()).toBeVisible();
+    await expect(page.getByRole('textbox', { name: /Email Address/i }).first()).toBeVisible();
 
     // The GW Admin toggle is the linchpin of the auto-link behaviour.
     await expect(page.getByText('GW Admin').first()).toBeVisible();
@@ -69,9 +63,7 @@ async function runAutoLinkCreateUserSmoke({ page, firmCode }) {
     await expect(page.getByText('All Employees (Mandatory)').first()).toBeVisible();
 
     // Create button exists (disabled until form is valid).
-    await expect(
-      page.getByRole('button', { name: 'Create', exact: true })
-    ).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Create', exact: true })).toBeVisible();
   });
 
   await test.step('SAFETY: close modal without creating', async () => {
@@ -81,9 +73,9 @@ async function runAutoLinkCreateUserSmoke({ page, firmCode }) {
     await page.keyboard.press('Escape');
     // Verify we are back on the Users page (Create New User button visible)
     // and not stuck in the modal.
-    await expect(
-      page.getByRole('button', { name: 'Create New User' })
-    ).toBeVisible({ timeout: 5000 });
+    await expect(page.getByRole('button', { name: 'Create New User' })).toBeVisible({
+      timeout: 5000,
+    });
   });
 }
 

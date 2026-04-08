@@ -37,8 +37,7 @@ const {
 } = require('../_helpers/ui');
 const { buildBulkAccountsXlsx } = require('../_helpers/build-bulk-accounts-xlsx');
 
-const CREATE_ACCOUNT_URL =
-  '/react/indexReact.do#platformOne/backOffice/createAccount';
+const CREATE_ACCOUNT_URL = '/react/indexReact.do#platformOne/backOffice/createAccount';
 
 /**
  * Add a manual row with the given account number, populating every required
@@ -66,9 +65,9 @@ async function fillManualRow(page, workerFirm, accountNumber, nickname) {
 async function openBulkUpload(page, mode) {
   await page.getByRole('button', { name: 'Open multiple accounts in bulk' }).click();
   // The reset/keep prompt only appears when the grid already has rows.
-  await expect(
-    page.getByText(/Would you like to reset grid rows before uploading/i)
-  ).toBeVisible({ timeout: 5000 });
+  await expect(page.getByText(/Would you like to reset grid rows before uploading/i)).toBeVisible({
+    timeout: 5000,
+  });
   if (mode === 'keep') {
     // Heads up: the modal renders `closeTxt` as a `<a>` (role=link), not a
     // button. Verified via the failure snapshot for the first run of this
@@ -88,8 +87,7 @@ async function uploadXlsx(page, buffer, displayName) {
   const fileChooser = await fileChooserPromise;
   await fileChooser.setFiles({
     name: displayName,
-    mimeType:
-      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
     buffer,
   });
   await expect(page.getByText(displayName)).toBeVisible();
@@ -100,9 +98,9 @@ async function uploadXlsx(page, buffer, displayName) {
 
 async function clickCreateAndConfirm(page) {
   await page.getByRole('button', { name: 'Create', exact: true }).click();
-  await expect(
-    page.getByText(/All accounts have been created successfully/i)
-  ).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByText(/All accounts have been created successfully/i)).toBeVisible({
+    timeout: 30_000,
+  });
   await page.getByRole('button', { name: 'OK', exact: true }).click();
 }
 
@@ -156,14 +154,10 @@ test('@pepi C24997 Create new accounts using grid input and bulk upload', async 
     });
     await expect(page.locator('.ag-row[row-index="1"]')).toBeVisible();
     await expect(
-      page.locator(
-        `.ag-row [role="gridcell"][col-id="accountNumber"]:has-text("${aManual}")`
-      )
+      page.locator(`.ag-row [role="gridcell"][col-id="accountNumber"]:has-text("${aManual}")`)
     ).toBeVisible();
     await expect(
-      page.locator(
-        `.ag-row [role="gridcell"][col-id="accountNumber"]:has-text("${aUpload}")`
-      )
+      page.locator(`.ag-row [role="gridcell"][col-id="accountNumber"]:has-text("${aUpload}")`)
     ).toBeVisible();
   });
 
@@ -195,14 +189,10 @@ test('@pepi C24997 Create new accounts using grid input and bulk upload', async 
     await expect(page.locator('.ag-row[row-index="1"]')).not.toBeVisible();
     // The manual row's account number must NOT be in the grid.
     await expect(
-      page.locator(
-        `.ag-row [role="gridcell"][col-id="accountNumber"]:has-text("${bManual}")`
-      )
+      page.locator(`.ag-row [role="gridcell"][col-id="accountNumber"]:has-text("${bManual}")`)
     ).toHaveCount(0);
     await expect(
-      page.locator(
-        `.ag-row [role="gridcell"][col-id="accountNumber"]:has-text("${bUpload}")`
-      )
+      page.locator(`.ag-row [role="gridcell"][col-id="accountNumber"]:has-text("${bUpload}")`)
     ).toBeVisible();
   });
 
@@ -213,12 +203,10 @@ test('@pepi C24997 Create new accounts using grid input and bulk upload', async 
   // ── Verification: advisor portal sees A-manual, A-upload, B-upload (NOT B-manual)
   await test.step('Switch to advisor, verify all created accounts are present', async () => {
     await switchToAdvisor(context, page, workerFirm.advisor.loginName);
-    await page.goto(
-      `/react/indexReact.do#/client/1/${workerFirm.client.uuid}/accounts`
-    );
-    await expect(
-      page.getByText(aManual, { exact: false }).first()
-    ).toBeVisible({ timeout: 30_000 });
+    await page.goto(`/react/indexReact.do#/client/1/${workerFirm.client.uuid}/accounts`);
+    await expect(page.getByText(aManual, { exact: false }).first()).toBeVisible({
+      timeout: 30_000,
+    });
     await expect(page.getByText(aUpload, { exact: false }).first()).toBeVisible();
     await expect(page.getByText(bUpload, { exact: false }).first()).toBeVisible();
     // The dropped manual row from Phase B must NOT exist on the advisor side.

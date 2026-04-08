@@ -8,576 +8,448 @@
       "case_id": 25441,
       "title": "Unmanaged Assets – the template can be downloaded added and uploaded via drag & drop",
       "status_id": 1,
-      "labels": [
-        "Pepi"
-      ]
+      "labels": ["Pepi"]
     },
     {
       "test_id": 53230,
       "case_id": 25445,
       "title": "Unmanaged Assets – a correctly filled template can be added and uploaded using file explorer",
       "status_id": 1,
-      "labels": [
-        "Pepi"
-      ]
+      "labels": ["Pepi"]
     },
     {
       "test_id": 53231,
       "case_id": 25446,
       "title": "Unmanaged Assets – validation is triggered when a template is incorrectly filled with invalid data",
       "status_id": 1,
-      "labels": [
-        "Pepi"
-      ]
+      "labels": ["Pepi"]
     },
     {
       "test_id": 53232,
       "case_id": 25447,
       "title": "Unmanaged Assets – validation is triggered when a template is with wrong file format",
       "status_id": 1,
-      "labels": [
-        "Pepi"
-      ]
+      "labels": ["Pepi"]
     },
     {
       "test_id": 53233,
       "case_id": 25448,
       "title": "Unmanaged Assets - Required Fields Validation",
       "status_id": 1,
-      "labels": [
-        "Pepi"
-      ]
+      "labels": ["Pepi"]
     },
     {
       "test_id": 53234,
       "case_id": 25449,
       "title": "Unmanaged Assets – Validation of Ignore Firm Values",
       "status_id": 1,
-      "labels": [
-        "Pepi"
-      ]
+      "labels": ["Pepi"]
     },
     {
       "test_id": 53235,
       "case_id": 25450,
       "title": "Unmanaged Assets – Consistency Validation for Ignore Firm per Account",
       "status_id": 1,
-      "labels": [
-        "Pepi"
-      ]
+      "labels": ["Pepi"]
     },
     {
       "test_id": 53236,
       "case_id": 25451,
       "title": "Unmanaged Assets – Validation of Action Values",
       "status_id": 1,
-      "labels": [
-        "Pepi"
-      ]
+      "labels": ["Pepi"]
     },
     {
       "test_id": 53279,
       "case_id": 26073,
       "title": "Unmanaged Assets [Update/Add action ]  verified that the user is able to create a new record using U action",
       "status_id": 1,
-      "labels": [
-        "Pepi"
-      ]
+      "labels": ["Pepi"]
     },
     {
       "test_id": 53280,
       "case_id": 26074,
       "title": "Unmanaged Assets [Delete action ] verified that the user is able to delete a record using D action",
       "status_id": 1,
-      "labels": [
-        "Pepi"
-      ]
+      "labels": ["Pepi"]
     },
     {
       "test_id": 53281,
       "case_id": 26075,
       "title": "Unmanaged Assets [Remove All action ] verified that the user is able to remove all records using RA action",
       "status_id": 1,
-      "labels": [
-        "Pepi"
-      ]
+      "labels": ["Pepi"]
     },
     {
       "test_id": 53218,
       "case_id": 25363,
       "title": "Bucket Exclusions – a correctly filled template can be added and uploaded via drag & drop",
       "status_id": 1,
-      "labels": [
-        "Pepi"
-      ]
+      "labels": ["Pepi"]
     },
     {
       "test_id": 53219,
       "case_id": 25364,
       "title": "Bucket Exclusions – Multiple templates can be added and uploaded via drag and drop",
       "status_id": 1,
-      "labels": [
-        "Pepi"
-      ]
+      "labels": ["Pepi"]
     },
     {
       "test_id": 53220,
       "case_id": 25377,
       "title": "Bucket Exclusions – a correctly filled template can be added and uploaded using file explorer",
       "status_id": 1,
-      "labels": [
-        "Pepi"
-      ]
+      "labels": ["Pepi"]
     },
     {
       "test_id": 53221,
       "case_id": 25378,
       "title": "Bucket Exclusions – validation is triggered when a template is incorrectly filled with invalid required fields",
       "status_id": 1,
-      "labels": [
-        "Pepi"
-      ]
+      "labels": ["Pepi"]
     },
     {
       "test_id": 53222,
       "case_id": 25379,
       "title": "Bucket Exclusions – validation is triggered when a template is with wrong file format",
       "status_id": 1,
-      "labels": [
-        "Pepi"
-      ]
+      "labels": ["Pepi"]
     },
     {
       "test_id": 53223,
       "case_id": 25380,
       "title": "Bucket Exclusions – validation is triggered when a template is with wrong Values",
       "status_id": 1,
-      "labels": [
-        "Pepi"
-      ]
+      "labels": ["Pepi"]
     },
     {
       "test_id": 53224,
       "case_id": 25381,
       "title": "Bucket Exclusions – the user is allowed to use all billing buckets and perform Y/N/I excluded actions.",
       "status_id": 1,
-      "labels": [
-        "Pepi"
-      ]
+      "labels": ["Pepi"]
     },
     {
       "test_id": 53269,
       "case_id": 25789,
       "title": "Bucket Exclusions - ‘Set All Accts to I = Y’ –  all accounts under hh/client inherit the setting",
       "status_id": 1,
-      "labels": [
-        "Pepi"
-      ]
+      "labels": ["Pepi"]
     },
     {
       "test_id": 53270,
       "case_id": 25790,
       "title": "Bucket Exclusions - ‘Set All Accts to I = N’ or blank  accounts retain their current settings",
       "status_id": 1,
-      "labels": [
-        "Pepi"
-      ]
+      "labels": ["Pepi"]
     },
     {
       "test_id": 53271,
       "case_id": 25791,
       "title": "Bucket Exclusions  - Verify that the ‘Set All Accts to I’ column is optional and defaults to N",
       "status_id": 1,
-      "labels": [
-        "Pepi"
-      ]
+      "labels": ["Pepi"]
     },
     {
       "test_id": 53272,
       "case_id": 25792,
       "title": "Bucket Exclusions - Verify that individual account UUID records can override the setting if included after hh/client record",
       "status_id": 1,
-      "labels": [
-        "Pepi"
-      ]
+      "labels": ["Pepi"]
     },
     {
       "test_id": 53273,
       "case_id": 25793,
       "title": "Bucket Exclusions - Verify appropriate error message for invalid combinations or missing data",
       "status_id": 1,
-      "labels": [
-        "Pepi"
-      ]
+      "labels": ["Pepi"]
     },
     {
       "test_id": 53275,
       "case_id": 26057,
       "title": "Platform One - Merge prospect with empty client from Platform One with prospect with all data (MERGE PROSPECT permissions enabled) site 61",
       "status_id": 1,
-      "labels": [
-        "Pepi"
-      ]
+      "labels": ["Pepi"]
     },
     {
       "test_id": 53276,
       "case_id": 26058,
       "title": "Platform One - Merge prospect with client which has accounts and documents from Platform One with prospect with all data (MERGE PROSPECT permissions enabled) site 61",
       "status_id": 1,
-      "labels": [
-        "Pepi"
-      ]
+      "labels": ["Pepi"]
     },
     {
       "test_id": 53277,
       "case_id": 26059,
       "title": "Platform One - Merge prospect with client which has document with same name with prospect document from Platform One with prospect (MERGE PROSPECT permissions enabled) site 61",
       "status_id": 1,
-      "labels": [
-        "Pepi"
-      ]
+      "labels": ["Pepi"]
     },
     {
       "test_id": 53278,
       "case_id": 26060,
       "title": "Platform One - Merge prospect with empty client from Platform One with empty prospect (MERGE PROSPECT permissions disabled by default) site 61",
       "status_id": 2,
-      "labels": [
-        "Pepi"
-      ]
+      "labels": ["Pepi"]
     },
     {
       "test_id": 53286,
       "case_id": 26082,
       "title": "Platform One - Merge prospect with empty client from Platform One with prospect with all data (MERGE PROSPECT permissions enabled) site 1",
       "status_id": 1,
-      "labels": [
-        "Pepi"
-      ]
+      "labels": ["Pepi"]
     },
     {
       "test_id": 53287,
       "case_id": 26083,
       "title": "Platform One - Merge prospect with client which has accounts and documents from Platform One with prospect with all data (MERGE PROSPECT permissions enabled) site 1",
       "status_id": 1,
-      "labels": [
-        "Pepi"
-      ]
+      "labels": ["Pepi"]
     },
     {
       "test_id": 53288,
       "case_id": 26084,
       "title": "Platform One - Merge prospect with client which has document with same name with prospect document from Platform One with prospect (MERGE PROSPECT permissions enabled) site 1",
       "status_id": 1,
-      "labels": [
-        "Pepi"
-      ]
+      "labels": ["Pepi"]
     },
     {
       "test_id": 53289,
       "case_id": 26085,
       "title": "Platform One - Merge prospect with empty client from Platform One with empty prospect (MERGE PROSPECT permissions disabled by default) site 1",
       "status_id": 2,
-      "labels": [
-        "Pepi"
-      ]
+      "labels": ["Pepi"]
     },
     {
       "test_id": 53282,
       "case_id": 26077,
       "title": "Platform One - Auto-link new GW Admin user with matching Site 1 account",
       "status_id": 1,
-      "labels": [
-        "Pepi"
-      ]
+      "labels": ["Pepi"]
     },
     {
       "test_id": 53283,
       "case_id": 26078,
       "title": "Platform One - Auto-link after admin email update to match Site 1 account",
       "status_id": 1,
-      "labels": [
-        "Pepi"
-      ]
+      "labels": ["Pepi"]
     },
     {
       "test_id": 53284,
       "case_id": 26079,
       "title": "Platform One - Auto-link not allowed for non-GW Admin user to link with Site 1 account",
       "status_id": 1,
-      "labels": [
-        "Pepi"
-      ]
+      "labels": ["Pepi"]
     },
     {
       "test_id": 53285,
       "case_id": 26080,
       "title": "Platform One - Auto-link new GW Admin user with non matching email from Site 1 account",
       "status_id": 1,
-      "labels": [
-        "Pepi"
-      ]
+      "labels": ["Pepi"]
     },
     {
       "test_id": 53290,
       "case_id": 26093,
       "title": "Platform One - Auto-link new GW Admin user with Site 1 account both saved without email addresses",
       "status_id": 1,
-      "labels": [
-        "Pepi"
-      ]
+      "labels": ["Pepi"]
     },
     {
       "test_id": 53291,
       "case_id": 26094,
       "title": "Platform One - Auto-link new GW Admin user with empty email with Site 1 account",
       "status_id": 1,
-      "labels": [
-        "Pepi"
-      ]
+      "labels": ["Pepi"]
     },
     {
       "test_id": 53295,
       "case_id": 26100,
       "title": "Platform One - Auto-link new GW Admin user with matching Site 1 account Delink and Link again",
       "status_id": 1,
-      "labels": [
-        "Pepi"
-      ]
+      "labels": ["Pepi"]
     },
     {
       "test_id": 53373,
       "case_id": 26490,
       "title": "Verify UI message on the Open account pages for deprecation of the back office page",
       "status_id": 1,
-      "labels": [
-        "Pepi"
-      ]
+      "labels": ["Pepi"]
     },
     {
       "test_id": 53139,
       "case_id": 24935,
       "title": "Billing Specification - Edit Specification for a firm",
       "status_id": 1,
-      "labels": [
-        "Pepi"
-      ]
+      "labels": ["Pepi"]
     },
     {
       "test_id": 53176,
       "case_id": 25084,
       "title": "Billing Spec Grid Shows Account Min/Max Columns",
       "status_id": 1,
-      "labels": [
-        "Pepi"
-      ]
+      "labels": ["Pepi"]
     },
     {
       "test_id": 53177,
       "case_id": 25085,
       "title": "Billing Spec Upload/Download Includes Account Min/Max",
       "status_id": 1,
-      "labels": [
-        "Pepi"
-      ]
+      "labels": ["Pepi"]
     },
     {
       "test_id": 53307,
       "case_id": 26306,
       "title": "Copy a billing specification to another firm",
       "status_id": 3,
-      "labels": [
-        "Pepi"
-      ]
+      "labels": ["Pepi"]
     },
     {
       "test_id": 53178,
       "case_id": 25193,
       "title": "Account - Billing Inception Date - Admin and Non-Admin",
       "status_id": 1,
-      "labels": [
-        "Pepi"
-      ]
+      "labels": ["Pepi"]
     },
     {
       "test_id": 53179,
       "case_id": 25194,
       "title": "Account - Billing method - Admin and Non-Admin",
       "status_id": 1,
-      "labels": [
-        "Pepi"
-      ]
+      "labels": ["Pepi"]
     },
     {
       "test_id": 53180,
       "case_id": 25195,
       "title": "Account - Account for Billing - Admin and Non-Admin",
       "status_id": 1,
-      "labels": [
-        "Pepi"
-      ]
+      "labels": ["Pepi"]
     },
     {
       "test_id": 53181,
       "case_id": 25196,
       "title": "Account - Spec Name/Active Date - Admin and Non-Admin",
       "status_id": 1,
-      "labels": [
-        "Pepi"
-      ]
+      "labels": ["Pepi"]
     },
     {
       "test_id": 53182,
       "case_id": 25197,
       "title": "Account - Exclude from billing - Admin and Non-Admin",
       "status_id": 1,
-      "labels": [
-        "Pepi"
-      ]
+      "labels": ["Pepi"]
     },
     {
       "test_id": 53183,
       "case_id": 25198,
       "title": "Account - Adjustment/Expiration Date - Percent [%] - Admin and Non-Admin",
       "status_id": 1,
-      "labels": [
-        "Pepi"
-      ]
+      "labels": ["Pepi"]
     },
     {
       "test_id": 53184,
       "case_id": 25199,
       "title": "Account - Adjustment/Expiration Date - Amount [$] - Admin and Non-Admin",
       "status_id": 1,
-      "labels": [
-        "Pepi"
-      ]
+      "labels": ["Pepi"]
     },
     {
       "test_id": 53185,
       "case_id": 25200,
       "title": "Account - Advisor Split/Inactive Date - Create -  Admin and Non-Admin",
       "status_id": 1,
-      "labels": [
-        "Pepi"
-      ]
+      "labels": ["Pepi"]
     },
     {
       "test_id": 53201,
       "case_id": 25249,
       "title": "Account - Advisor Split/Inactive Date - Update -  Admin and Non-Admin",
       "status_id": 1,
-      "labels": [
-        "Pepi"
-      ]
+      "labels": ["Pepi"]
     },
     {
       "test_id": 53186,
       "case_id": 25201,
       "title": "Account - Commission Fee- Admin and Non-Admin",
       "status_id": 1,
-      "labels": [
-        "Pepi"
-      ]
+      "labels": ["Pepi"]
     },
     {
       "test_id": 53189,
       "case_id": 25206,
       "title": "Account - Unmanaged Assets - Create - Exclude from Performance - Admin and Non-Admin",
       "status_id": 1,
-      "labels": [
-        "Pepi"
-      ]
+      "labels": ["Pepi"]
     },
     {
       "test_id": 53190,
       "case_id": 25207,
       "title": "Account - Unmanaged Assets - Update - Exclude from Performance - Admin and Non-Admin",
       "status_id": 1,
-      "labels": [
-        "Pepi"
-      ]
+      "labels": ["Pepi"]
     },
     {
       "test_id": 53191,
       "case_id": 25208,
       "title": "Account - Unmanaged Assets - Create - Exclude from Billing - Admin and Non-Admin",
       "status_id": 1,
-      "labels": [
-        "Pepi"
-      ]
+      "labels": ["Pepi"]
     },
     {
       "test_id": 53192,
       "case_id": 25209,
       "title": "Account - Unmanaged Assets - Update - Exclude from Billing - Admin and Non-Admin",
       "status_id": 1,
-      "labels": [
-        "Pepi"
-      ]
+      "labels": ["Pepi"]
     },
     {
       "test_id": 55568,
       "case_id": 24941,
       "title": "Open new account trough Platform One - UI elements",
       "status_id": 1,
-      "labels": [
-        "Pepi"
-      ]
+      "labels": ["Pepi"]
     },
     {
       "test_id": 55569,
       "case_id": 24940,
       "title": "Create new account manually",
       "status_id": 1,
-      "labels": [
-        "Pepi"
-      ]
+      "labels": ["Pepi"]
     },
     {
       "test_id": 55570,
       "case_id": 24943,
       "title": "Create new account using upload",
       "status_id": 1,
-      "labels": [
-        "Pepi"
-      ]
+      "labels": ["Pepi"]
     },
     {
       "test_id": 55571,
       "case_id": 24996,
       "title": "Create new accounts with wrong data",
       "status_id": 1,
-      "labels": [
-        "Pepi"
-      ]
+      "labels": ["Pepi"]
     },
     {
       "test_id": 55572,
       "case_id": 25065,
       "title": "Create new accounts using an upload file that contains missing data",
       "status_id": 1,
-      "labels": [
-        "Pepi"
-      ]
+      "labels": ["Pepi"]
     },
     {
       "test_id": 55573,
       "case_id": 24997,
       "title": "Create new accounts using grid input and bulk upload functionalities",
       "status_id": 1,
-      "labels": [
-        "Pepi"
-      ]
+      "labels": ["Pepi"]
     },
     {
       "test_id": 55574,
       "case_id": 25102,
       "title": "Create accounts using different CLIENT types",
       "status_id": 1,
-      "labels": [
-        "Pepi"
-      ]
+      "labels": ["Pepi"]
     }
   ]
 }

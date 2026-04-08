@@ -38,9 +38,7 @@ const { loginPlatformOneAdmin } = require('../_helpers/qa3');
 const FIRM_CODE = 1;
 const SPECS_URL = `/react/indexReact.do#platformOne/billingCenter/specifications/${FIRM_CODE}`;
 
-test('@pepi C24935 Billing Specification - Edit Specification for a firm', async ({
-  page,
-}) => {
+test('@pepi C24935 Billing Specification - Edit Specification for a firm', async ({ page }) => {
   test.setTimeout(180_000);
 
   await loginPlatformOneAdmin(page);
@@ -49,9 +47,9 @@ test('@pepi C24935 Billing Specification - Edit Specification for a firm', async
     await page.goto(SPECS_URL);
     // The page title "Billing Specifications" is rendered as a styled <span>,
     // not a real heading element — match by text instead of role.
-    await expect(
-      page.getByText('Billing Specifications', { exact: true }).first()
-    ).toBeVisible({ timeout: 30_000 });
+    await expect(page.getByText('Billing Specifications', { exact: true }).first()).toBeVisible({
+      timeout: 30_000,
+    });
   });
 
   let firstRow;

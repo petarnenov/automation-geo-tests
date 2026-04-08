@@ -9,9 +9,7 @@
  */
 
 const { expect } = require('@playwright/test');
-const {
-  buildUnmanagedAssetsXlsx,
-} = require('../_helpers/build-unmanaged-assets-xlsx');
+const { buildUnmanagedAssetsXlsx } = require('../_helpers/build-unmanaged-assets-xlsx');
 const { loginPlatformOneAdmin } = require('../_helpers/qa3');
 const { validationErrorRegex } = require('../_helpers/ui');
 
@@ -20,15 +18,9 @@ const APPLE_INSTRUMENT_UUID = '5F5FE5576175486BAE2DA9932CEEDD6A';
 const APPLE_SYMBOL = 'US037833EN61';
 const APPLE_HOLDINGS = 'APPLE INC.';
 
-const XLSX_MIME =
-  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+const XLSX_MIME = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
 
-const ERROR_RX = validationErrorRegex(
-  'conflict',
-  'inconsistent',
-  'ignore',
-  'action'
-);
+const ERROR_RX = validationErrorRegex('conflict', 'inconsistent', 'ignore', 'action');
 
 /**
  * Build the deep upload URL for a worker firm.
@@ -114,9 +106,7 @@ async function uploadAndExpectError(page, workerFirm, rows, label) {
     if (await uploadBtn.isEnabled().catch(() => false)) {
       await uploadBtn.click();
       try {
-        await page
-          .getByRole('button', { name: 'Yes, Proceed' })
-          .click({ timeout: 3000 });
+        await page.getByRole('button', { name: 'Yes, Proceed' }).click({ timeout: 3000 });
       } catch {
         /* none */
       }

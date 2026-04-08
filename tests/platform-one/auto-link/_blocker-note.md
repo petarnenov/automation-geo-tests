@@ -5,10 +5,10 @@ C26100) verify that creating a GW Admin user with a specific email in any qa3
 firm automatically links that user to a matching Site 1 admin account. Each
 case is a destructive end-to-end flow:
 
-  1. Pre-existing GW Admin user in Site 1 with email **X**
-  2. Create a new GW Admin user in firm Y with email **X**
-  3. Verify the new user is linked to the Site 1 user (via the User Management
-     filter showing both rows joined)
+1. Pre-existing GW Admin user in Site 1 with email **X**
+2. Create a new GW Admin user in firm Y with email **X**
+3. Verify the new user is linked to the Site 1 user (via the User Management
+   filter showing both rows joined)
 
 Why a UI smoke (similar to the Merge Prospect safety stop) is NOT useful here:
 

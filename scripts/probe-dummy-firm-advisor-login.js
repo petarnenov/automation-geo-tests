@@ -13,9 +13,7 @@ const fs = require('fs');
 const path = require('path');
 
 const STORAGE = path.join(__dirname, '..', 'tests', '.auth', 'tim1.json');
-const cfg = JSON.parse(
-  fs.readFileSync(path.join(__dirname, '..', 'testrail.config.json'), 'utf8')
-);
+const cfg = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'testrail.config.json'), 'utf8'));
 const BASE = cfg.appUnderTest.url.replace(/\/$/, '');
 const STANDARD_PASSWORD = cfg.appUnderTest.password;
 
@@ -55,7 +53,10 @@ async function tryLogin(username, password) {
       // Try to capture any visible error message on the login page.
       try {
         const errText = await page.locator('body').innerText({ timeout: 1000 });
-        const lines = errText.split('\n').map((l) => l.trim()).filter(Boolean);
+        const lines = errText
+          .split('\n')
+          .map((l) => l.trim())
+          .filter(Boolean);
         const errLine = lines.find((l) => /invalid|incorrect|fail|error/i.test(l));
         if (errLine) result.error = errLine;
       } catch {
@@ -73,9 +74,7 @@ async function tryLogin(username, password) {
 (async () => {
   console.log('1. Creating dummy firm…');
   const firm = await createDummyFirm();
-  console.log(
-    `   firmCd=${firm.firm.firmCd}  firmName=${firm.firm.firmName}`
-  );
+  console.log(`   firmCd=${firm.firm.firmCd}  firmName=${firm.firm.firmName}`);
   const advisorLogins = firm.users.map((u) => u.loginName);
   const adminLogin = firm.adminUser.loginName;
   console.log(`   adminUser=${adminLogin}`);

@@ -55,10 +55,7 @@ async function assertDeprecationBanner(page) {
   });
 }
 
-test('@pepi C26490 Open Account back-office deprecation message', async ({
-  page,
-  context,
-}) => {
+test('@pepi C26490 Open Account back-office deprecation message', async ({ page, context }) => {
   test.setTimeout(180_000);
 
   await loginAsAdmin(context, page);

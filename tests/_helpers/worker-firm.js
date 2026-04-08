@@ -21,10 +21,7 @@ const fs = require('fs');
 const path = require('path');
 
 const cfg = JSON.parse(
-  fs.readFileSync(
-    path.join(__dirname, '..', '..', 'testrail.config.json'),
-    'utf8'
-  )
+  fs.readFileSync(path.join(__dirname, '..', '..', 'testrail.config.json'), 'utf8')
 );
 const STORAGE = path.join(__dirname, '..', '.auth', 'tim1.json');
 const BASE = cfg.appUnderTest.url.replace(/\/$/, '');
@@ -44,9 +41,7 @@ function cookieHeaderFromStorage() {
     );
   }
   const state = JSON.parse(fs.readFileSync(STORAGE, 'utf8'));
-  return (state.cookies || [])
-    .map((c) => `${c.name}=${c.value}`)
-    .join('; ');
+  return (state.cookies || []).map((c) => `${c.name}=${c.value}`).join('; ');
 }
 
 /**
@@ -74,9 +69,7 @@ async function createDummyFirm() {
     );
   }
   if (!data.success) {
-    throw new Error(
-      `worker-firm: ${ENDPOINT} returned success=false: ${text.slice(0, 300)}`
-    );
+    throw new Error(`worker-firm: ${ENDPOINT} returned success=false: ${text.slice(0, 300)}`);
   }
   return data;
 }

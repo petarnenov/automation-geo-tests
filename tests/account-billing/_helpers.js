@@ -27,11 +27,7 @@
 
 const { test, expect } = require('@playwright/test');
 const { login } = require('../_helpers/qa3');
-const {
-  setReactDatePicker,
-  setComboBoxValue,
-  setReactNumericInput,
-} = require('../_helpers/ui');
+const { setReactDatePicker, setComboBoxValue, setReactNumericInput } = require('../_helpers/ui');
 
 const ADMIN_USERNAME = 'tim106';
 const NON_ADMIN_USERNAME = 'tyler@plimsollfp.com';
@@ -67,9 +63,9 @@ async function gotoAccountBilling(page) {
   // The Billing tab takes a couple of seconds to render its content; the
   // History button is present for both admin and non-admin and is the most
   // stable signal that the tab finished loading.
-  await expect(
-    page.getByRole('button', { name: 'History', exact: true })
-  ).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByRole('button', { name: 'History', exact: true })).toBeVisible({
+    timeout: 30_000,
+  });
 }
 
 /**
@@ -100,49 +96,47 @@ async function gotoWorkerFirmAccountBilling(page, workerFirm) {
   await page.goto(
     `/react/indexReact.do#/client/1/${workerFirm.client.uuid}/accounts/${workerFirm.accounts[0].uuid}/billing`
   );
-  await expect(
-    page.getByRole('button', { name: 'History', exact: true })
-  ).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByRole('button', { name: 'History', exact: true })).toBeVisible({
+    timeout: 30_000,
+  });
 }
 
 async function openEditBillingSettings(page) {
   await page.getByRole('button', { name: 'Edit Billing Settings' }).click();
-  await expect(
-    page.getByText('Edit Account Billing Settings').first()
-  ).toBeVisible({ timeout: 10_000 });
+  await expect(page.getByText('Edit Account Billing Settings').first()).toBeVisible({
+    timeout: 10_000,
+  });
   // The modal title appears immediately, but the form content (date pickers,
   // radios, dropdowns) is fetched async — wait for the Save button to be
   // present, which only renders once the form is fully populated.
-  await expect(
-    page.getByRole('button', { name: 'Save', exact: true })
-  ).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByRole('button', { name: 'Save', exact: true })).toBeVisible({
+    timeout: 30_000,
+  });
 }
 
 async function saveEditBillingSettings(page) {
   await page.getByRole('button', { name: 'Save', exact: true }).click();
   // After Save the Edit modal closes and a Success modal appears
   // ("Account Billing Successfully Updated!"). Dismiss it via Close.
-  await expect(
-    page.getByText(/Account Billing Successfully Updated/i).first()
-  ).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByText(/Account Billing Successfully Updated/i).first()).toBeVisible({
+    timeout: 30_000,
+  });
   await page.getByRole('button', { name: 'Close', exact: true }).click();
-  await expect(
-    page.getByText(/Account Billing Successfully Updated/i)
-  ).toBeHidden({ timeout: 5000 });
+  await expect(page.getByText(/Account Billing Successfully Updated/i)).toBeHidden({
+    timeout: 5000,
+  });
 }
 
 async function openHistory(page) {
   await page.getByRole('button', { name: 'History', exact: true }).click();
-  await expect(
-    page.getByText(/Billing Settings History/i).first()
-  ).toBeVisible({ timeout: 10_000 });
+  await expect(page.getByText(/Billing Settings History/i).first()).toBeVisible({
+    timeout: 10_000,
+  });
 }
 
 async function closeHistory(page) {
   await page.getByRole('button', { name: 'Close', exact: true }).click();
-  await expect(
-    page.getByText(/Billing Settings History/i)
-  ).toBeHidden({ timeout: 5000 });
+  await expect(page.getByText(/Billing Settings History/i)).toBeHidden({ timeout: 5000 });
 }
 
 /**

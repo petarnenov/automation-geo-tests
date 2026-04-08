@@ -34,11 +34,7 @@ test('@pepi C26075 Unmanaged Assets - Remove All (RA action) clears all exclusio
 
   await test.step('Setup: ensure at least one exclusion exists for the firm', async () => {
     await loginPlatformOneAdmin(page);
-    await uploadUnmanagedAssetsExclusions(
-      page,
-      workerFirm.firmCd,
-      buildXlsxFor(workerFirm)
-    );
+    await uploadUnmanagedAssetsExclusions(page, workerFirm.firmCd, buildXlsxFor(workerFirm));
   });
 
   await test.step('Phase 1: upload RA-action file', async () => {
@@ -51,15 +47,11 @@ test('@pepi C26075 Unmanaged Assets - Remove All (RA action) clears all exclusio
 
   await test.step(`Phase 2: verify the table is empty in Advisor Portal as ${workerFirm.advisor.loginName}`, async () => {
     await switchToAdvisor(context, page, workerFirm.advisor.loginName);
-    await gotoAccountUnmanagedAssets(
-      page,
-      workerFirm.client.uuid,
-      workerFirm.accounts[0].uuid
-    );
+    await gotoAccountUnmanagedAssets(page, workerFirm.client.uuid, workerFirm.accounts[0].uuid);
 
     // After RA, no instrument rows should remain for this account.
-    await expect(
-      page.getByRole('row', { name: new RegExp(APPLE_SYMBOL) })
-    ).toHaveCount(0, { timeout: 15_000 });
+    await expect(page.getByRole('row', { name: new RegExp(APPLE_SYMBOL) })).toHaveCount(0, {
+      timeout: 15_000,
+    });
   });
 });

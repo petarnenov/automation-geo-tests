@@ -122,8 +122,6 @@ test('@pepi C25193 Account Billing Inception Date - Admin and Non-Admin', async 
     // Read-only check on shared firm 106 — no race since tyler never mutates.
     await loginAsNonAdmin(context, page);
     await gotoAccountBilling(page);
-    await expect(
-      page.getByRole('button', { name: 'Edit Billing Settings' })
-    ).toHaveCount(0);
+    await expect(page.getByRole('button', { name: 'Edit Billing Settings' })).toHaveCount(0);
   });
 });

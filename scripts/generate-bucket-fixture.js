@@ -50,7 +50,9 @@ const accounts = arg('account', true);
 const accountExcluded = arg('account-excluded') || 'I';
 
 if (!out || !firm || !bucket) {
-  console.error('Required: --out FILE --firm N --bucket N (and at least one of --hh/--client/--account)');
+  console.error(
+    'Required: --out FILE --firm N --bucket N (and at least one of --hh/--client/--account)'
+  );
   process.exit(1);
 }
 
@@ -202,7 +204,10 @@ const ssXml =
   `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>` +
   `<sst xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" count="${ssList.length}" uniqueCount="${ssList.length}">` +
   ssList
-    .map((s) => `<si><t xml:space="preserve">${s.replace(/&/g, '&amp;').replace(/</g, '&lt;')}</t></si>`)
+    .map(
+      (s) =>
+        `<si><t xml:space="preserve">${s.replace(/&/g, '&amp;').replace(/</g, '&lt;')}</t></si>`
+    )
     .join('') +
   `</sst>`;
 files.set('xl/sharedStrings.xml', Buffer.from(ssXml, 'utf8'));

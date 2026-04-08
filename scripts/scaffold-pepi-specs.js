@@ -125,7 +125,9 @@ function buildHeader(c, blockReason) {
     lines.push(' *');
   }
 
-  lines.push(' * IMPLEMENTATION STATUS: scaffolded only — test.fixme() until blockers are resolved.');
+  lines.push(
+    ' * IMPLEMENTATION STATUS: scaffolded only — test.fixme() until blockers are resolved.'
+  );
   lines.push(' * Blockers:');
   for (const w of wrap(blockReason)) lines.push(` *   ${w}`);
   lines.push(' */');

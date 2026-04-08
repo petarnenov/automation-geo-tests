@@ -66,7 +66,7 @@ test('@pepi C25198 Account Adjustment/Expiration Date - Percent', async ({
     // already expanded (because a prior run saved an adjustment) the link is
     // gone and the click is a no-op.
     const addLink = page.locator('a', { hasText: 'Add An Adjustment' }).first();
-    if (await addLink.count() && await addLink.isVisible()) {
+    if ((await addLink.count()) && (await addLink.isVisible())) {
       await addLink.click();
     }
     await expect(page.locator('#adviserBillingDiscountTypeDiv')).toBeVisible({
@@ -75,11 +75,7 @@ test('@pepi C25198 Account Adjustment/Expiration Date - Percent', async ({
 
     await setComboBoxValue(page, 'adviserBillingDiscountType', 'Percent [%]');
     await setReactNumericInput(page, 'adviserBillingDiscountAmountField', PERCENT_VALUE);
-    await setReactDatePicker(
-      page,
-      page.locator('#adviserBillingDiscountDate'),
-      EXPIRATION_DATE
-    );
+    await setReactDatePicker(page, page.locator('#adviserBillingDiscountDate'), EXPIRATION_DATE);
     await saveEditBillingSettings(page);
 
     // The Advisor billing card section should now show the new percent and date.
@@ -98,8 +94,6 @@ test('@pepi C25198 Account Adjustment/Expiration Date - Percent', async ({
   await test.step('Phase 2: non-admin tyler cannot see Edit Billing Settings', async () => {
     await loginAsNonAdmin(context, page);
     await gotoAccountBilling(page);
-    await expect(
-      page.getByRole('button', { name: 'Edit Billing Settings' })
-    ).toHaveCount(0);
+    await expect(page.getByRole('button', { name: 'Edit Billing Settings' })).toHaveCount(0);
   });
 });

@@ -197,8 +197,7 @@ function buildUnmanagedAssetsXlsx(rows, opts = {}) {
   }
   const ssList = [...HEADERS, ...valueStrings];
   const ssIdx = new Map(ssList.map((s, i) => [s, i]));
-  const escape = (s) =>
-    String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;');
+  const escape = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;');
 
   const ssXml =
     `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>` +

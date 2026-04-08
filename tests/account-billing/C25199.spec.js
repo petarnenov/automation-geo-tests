@@ -57,11 +57,7 @@ test('@pepi C25199 Account Adjustment/Expiration Date - Amount', async ({
 
     await setComboBoxValue(page, 'adviserBillingDiscountType', 'Amount [$]');
     await setReactNumericInput(page, 'adviserBillingDiscountAmountField', AMOUNT_VALUE);
-    await setReactDatePicker(
-      page,
-      page.locator('#adviserBillingDiscountDate'),
-      EXPIRATION_DATE
-    );
+    await setReactDatePicker(page, page.locator('#adviserBillingDiscountDate'), EXPIRATION_DATE);
     await saveEditBillingSettings(page);
 
     await expect(
@@ -74,8 +70,6 @@ test('@pepi C25199 Account Adjustment/Expiration Date - Amount', async ({
   await test.step('Phase 2: non-admin tyler cannot see Edit Billing Settings', async () => {
     await loginAsNonAdmin(context, page);
     await gotoAccountBilling(page);
-    await expect(
-      page.getByRole('button', { name: 'Edit Billing Settings' })
-    ).toHaveCount(0);
+    await expect(page.getByRole('button', { name: 'Edit Billing Settings' })).toHaveCount(0);
   });
 });

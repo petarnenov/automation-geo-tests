@@ -18,7 +18,6 @@ test('@pepi C26084 Platform One Merge Prospect - client with same-named document
   page,
   workerFirm,
   context,
-  
 }) => {
   await runMergeProspectSmokeWithProvisionedProspect({ page, context, workerFirm });
 });

@@ -95,9 +95,7 @@ test('@pepi C25380 Bucket Exclusions - wrong values trigger validation', async (
         if (await uploadBtn.isEnabled().catch(() => false)) {
           await uploadBtn.click();
           try {
-            await page
-              .getByRole('button', { name: 'Yes, Proceed' })
-              .click({ timeout: 3000 });
+            await page.getByRole('button', { name: 'Yes, Proceed' }).click({ timeout: 3000 });
           } catch {
             /* none */
           }
@@ -110,9 +108,7 @@ test('@pepi C25380 Bucket Exclusions - wrong values trigger validation', async (
         });
       }
 
-      await expect(
-        page.getByText(/imported successfully/i)
-      ).toHaveCount(0, { timeout: 1000 });
+      await expect(page.getByText(/imported successfully/i)).toHaveCount(0, { timeout: 1000 });
     });
   }
 });

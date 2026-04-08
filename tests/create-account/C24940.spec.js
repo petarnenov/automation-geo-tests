@@ -43,14 +43,9 @@ const {
   pickFirstAgGridRichSelect,
 } = require('../_helpers/ui');
 
-const CREATE_ACCOUNT_URL =
-  '/react/indexReact.do#platformOne/backOffice/createAccount';
+const CREATE_ACCOUNT_URL = '/react/indexReact.do#platformOne/backOffice/createAccount';
 
-test('@pepi C24940 Create new account manually', async ({
-  page,
-  context,
-  workerFirm,
-}) => {
+test('@pepi C24940 Create new account manually', async ({ page, context, workerFirm }) => {
   test.setTimeout(240_000);
 
   const accountNumber = `PA${Date.now()}`;
@@ -88,9 +83,9 @@ test('@pepi C24940 Create new account manually', async ({
 
   await test.step('Click Create, confirm success modal', async () => {
     await page.getByRole('button', { name: 'Create', exact: true }).click();
-    await expect(
-      page.getByText(/All accounts have been created successfully/i)
-    ).toBeVisible({ timeout: 30_000 });
+    await expect(page.getByText(/All accounts have been created successfully/i)).toBeVisible({
+      timeout: 30_000,
+    });
     await page.getByRole('button', { name: 'OK', exact: true }).click();
   });
 
@@ -99,11 +94,9 @@ test('@pepi C24940 Create new account manually', async ({
     // The Client Overview page does NOT list account numbers — only totals and
     // snapshots. The dedicated Accounts tab does. Verified via the page
     // snapshot in C24940's first failure: tab href is `#/client/1/<uuid>/accounts`.
-    await page.goto(
-      `/react/indexReact.do#/client/1/${workerFirm.client.uuid}/accounts`
-    );
-    await expect(
-      page.getByText(accountNumber, { exact: false }).first()
-    ).toBeVisible({ timeout: 30_000 });
+    await page.goto(`/react/indexReact.do#/client/1/${workerFirm.client.uuid}/accounts`);
+    await expect(page.getByText(accountNumber, { exact: false }).first()).toBeVisible({
+      timeout: 30_000,
+    });
   });
 });

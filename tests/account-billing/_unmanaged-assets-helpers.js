@@ -106,10 +106,7 @@ async function pickInstrumentSymbol(page, rowIndex, symbol, optionText) {
   const input = rowLocator(page, rowIndex).locator(SYMBOL_INPUT_SELECTOR);
   await input.click();
   await input.pressSequentially(symbol);
-  const option = page
-    .locator('[role="option"]')
-    .filter({ hasText: optionText })
-    .first();
+  const option = page.locator('[role="option"]').filter({ hasText: optionText }).first();
   await expect(option).toBeVisible({ timeout: 5000 });
   await reactClick(option);
 }

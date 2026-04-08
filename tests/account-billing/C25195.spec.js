@@ -89,10 +89,7 @@ test('@pepi C25195 Account for Billing - Admin and Non-Admin', async ({
     await saveEditBillingSettings(page);
 
     await expect(
-      page
-        .locator('text=Account for Billing')
-        .first()
-        .locator('xpath=following-sibling::*[1]')
+      page.locator('text=Account for Billing').first().locator('xpath=following-sibling::*[1]')
     ).toHaveText(firstValue, { timeout: 15_000 });
   });
 
@@ -101,18 +98,13 @@ test('@pepi C25195 Account for Billing - Admin and Non-Admin', async ({
     await setComboBoxValue(page, 'autoSelectClientAccount', secondValue);
     await saveEditBillingSettings(page);
     await expect(
-      page
-        .locator('text=Account for Billing')
-        .first()
-        .locator('xpath=following-sibling::*[1]')
+      page.locator('text=Account for Billing').first().locator('xpath=following-sibling::*[1]')
     ).toHaveText(secondValue, { timeout: 15_000 });
   });
 
   await test.step('Phase 2: non-admin tyler cannot see Edit Billing Settings', async () => {
     await loginAsNonAdmin(context, page);
     await gotoAccountBilling(page);
-    await expect(
-      page.getByRole('button', { name: 'Edit Billing Settings' })
-    ).toHaveCount(0);
+    await expect(page.getByRole('button', { name: 'Edit Billing Settings' })).toHaveCount(0);
   });
 });

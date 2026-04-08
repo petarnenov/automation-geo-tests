@@ -158,9 +158,7 @@ function buildBucketXlsx(rows, opts = {}) {
   const buf = fs.readFileSync(TEMPLATE);
   const files = readZip(buf);
 
-  const headers = opts.includeSetAllAccts
-    ? [...HEADERS, SET_ALL_ACCTS_HEADER]
-    : [...HEADERS];
+  const headers = opts.includeSetAllAccts ? [...HEADERS, SET_ALL_ACCTS_HEADER] : [...HEADERS];
   const lastColLetter = String.fromCharCode(65 + headers.length - 1);
 
   // Collect every shared string we need.
@@ -175,8 +173,7 @@ function buildBucketXlsx(rows, opts = {}) {
   }
   const ssList = [...headers, ...valueStrings];
   const ssIdx = new Map(ssList.map((s, i) => [s, i]));
-  const escape = (s) =>
-    String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;');
+  const escape = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;');
 
   const ssXml =
     `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>` +

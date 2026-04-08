@@ -32,14 +32,9 @@ const { loginPlatformOneAdmin, switchToAdvisor } = require('../_helpers/qa3');
 const { selectFirmInTypeAhead } = require('../_helpers/ui');
 const { buildBulkAccountsXlsx } = require('../_helpers/build-bulk-accounts-xlsx');
 
-const CREATE_ACCOUNT_URL =
-  '/react/indexReact.do#platformOne/backOffice/createAccount';
+const CREATE_ACCOUNT_URL = '/react/indexReact.do#platformOne/backOffice/createAccount';
 
-test('@pepi C24943 Create new account using upload', async ({
-  page,
-  context,
-  workerFirm,
-}) => {
+test('@pepi C24943 Create new account using upload', async ({ page, context, workerFirm }) => {
   test.setTimeout(240_000);
 
   const stamp = Date.now();
@@ -79,17 +74,13 @@ test('@pepi C24943 Create new account using upload', async ({
   });
 
   await test.step('Open the bulk upload modal and upload the xlsx', async () => {
-    await page
-      .getByRole('button', { name: 'Open multiple accounts in bulk' })
-      .click();
+    await page.getByRole('button', { name: 'Open multiple accounts in bulk' }).click();
     // The "concatenate vs replace" picker only appears when the grid already
     // has rows. With a fresh page load there's no existing data, so the
     // upload modal opens immediately. If a confirmation modal does appear
     // (e.g. on retries), pick "Concatenate" — the safer of the two.
     try {
-      await page
-        .getByRole('button', { name: /concatenate/i })
-        .click({ timeout: 2000 });
+      await page.getByRole('button', { name: /concatenate/i }).click({ timeout: 2000 });
     } catch {
       // No confirmation prompt — modal opened straight to the upload view.
     }
@@ -99,8 +90,7 @@ test('@pepi C24943 Create new account using upload', async ({
     const fileChooser = await fileChooserPromise;
     await fileChooser.setFiles({
       name: 'BulkAccounts.xlsx',
-      mimeType:
-        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
       buffer: xlsxBuffer,
     });
     await expect(page.getByText('BulkAccounts.xlsx')).toBeVisible();
@@ -142,30 +132,24 @@ test('@pepi C24943 Create new account using upload', async ({
         const text = (await c.innerText()).trim();
         details.push(`col=${colId} value="${text}" tooltip="${tooltip}"`);
       }
-      throw new Error(
-        `uploaded rows have validation errors:\n${details.join('\n')}`
-      );
+      throw new Error(`uploaded rows have validation errors:\n${details.join('\n')}`);
     }
 
     const createBtn = page.getByRole('button', { name: 'Create', exact: true });
     await expect(createBtn).toBeEnabled();
     await createBtn.click();
-    await expect(
-      page.getByText(/All accounts have been created successfully/i)
-    ).toBeVisible({ timeout: 30_000 });
+    await expect(page.getByText(/All accounts have been created successfully/i)).toBeVisible({
+      timeout: 30_000,
+    });
     await page.getByRole('button', { name: 'OK', exact: true }).click();
   });
 
   await test.step('Switch to advisor, verify both accounts under the client', async () => {
     await switchToAdvisor(context, page, workerFirm.advisor.loginName);
-    await page.goto(
-      `/react/indexReact.do#/client/1/${workerFirm.client.uuid}/accounts`
-    );
-    await expect(
-      page.getByText(accountNumberA, { exact: false }).first()
-    ).toBeVisible({ timeout: 30_000 });
-    await expect(
-      page.getByText(accountNumberB, { exact: false }).first()
-    ).toBeVisible();
+    await page.goto(`/react/indexReact.do#/client/1/${workerFirm.client.uuid}/accounts`);
+    await expect(page.getByText(accountNumberA, { exact: false }).first()).toBeVisible({
+      timeout: 30_000,
+    });
+    await expect(page.getByText(accountNumberB, { exact: false }).first()).toBeVisible();
   });
 });

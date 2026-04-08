@@ -52,13 +52,9 @@ const { loginPlatformOneAdmin } = require('../_helpers/qa3');
 const { selectFirmInTypeAhead } = require('../_helpers/ui');
 const { buildBulkAccountsXlsx } = require('../_helpers/build-bulk-accounts-xlsx');
 
-const CREATE_ACCOUNT_URL =
-  '/react/indexReact.do#platformOne/backOffice/createAccount';
+const CREATE_ACCOUNT_URL = '/react/indexReact.do#platformOne/backOffice/createAccount';
 
-test('@pepi C25102 Create accounts using different CLIENT types', async ({
-  page,
-  workerFirm,
-}) => {
+test('@pepi C25102 Create accounts using different CLIENT types', async ({ page, workerFirm }) => {
   test.setTimeout(240_000);
 
   const stamp = Date.now();
@@ -96,16 +92,13 @@ test('@pepi C25102 Create accounts using different CLIENT types', async ({
   });
 
   await test.step('Upload mixed-entity-type xlsx via bulk upload', async () => {
-    await page
-      .getByRole('button', { name: 'Open multiple accounts in bulk' })
-      .click();
+    await page.getByRole('button', { name: 'Open multiple accounts in bulk' }).click();
     const fileChooserPromise = page.waitForEvent('filechooser');
     await page.getByRole('button', { name: /Browse For File/i }).click();
     const fileChooser = await fileChooserPromise;
     await fileChooser.setFiles({
       name: 'BulkAccountsClientTypes.xlsx',
-      mimeType:
-        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
       buffer: xlsxBuffer,
     });
     await expect(page.getByText('BulkAccountsClientTypes.xlsx')).toBeVisible();
@@ -142,7 +135,9 @@ test('@pepi C25102 Create accounts using different CLIENT types', async ({
     // The allowed-type half: the row containing the regular CLIENT uuid must
     // not carry any error-cell markings on any of its required columns.
     const clientRow = page
-      .locator(`.ag-row:has([role="gridcell"][col-id="accountNumber"]:has-text("${clientRowNumber}"))`)
+      .locator(
+        `.ag-row:has([role="gridcell"][col-id="accountNumber"]:has-text("${clientRowNumber}"))`
+      )
       .first();
     await expect(clientRow).toBeVisible();
     await expect(clientRow.locator('.error-cell')).toHaveCount(0);
@@ -152,8 +147,6 @@ test('@pepi C25102 Create accounts using different CLIENT types', async ({
     // The Create button uses CSS class `disabled___HMSKi` instead of the
     // native `disabled` attribute (Playwright `toBeDisabled()` won't catch
     // it). With one row in error, Create is locked.
-    await expect(
-      page.getByRole('button', { name: 'Create', exact: true })
-    ).toHaveClass(/disabled/);
+    await expect(page.getByRole('button', { name: 'Create', exact: true })).toHaveClass(/disabled/);
   });
 });

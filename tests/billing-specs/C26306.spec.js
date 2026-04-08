@@ -46,10 +46,7 @@ const { loginPlatformOneAdmin } = require('../_helpers/qa3');
 const FIRM_A = 1;
 const FIRM_A_URL = `/react/indexReact.do#platformOne/billingCenter/specifications/${FIRM_A}`;
 
-test('@pepi C26306 Copy a billing specification to another firm', async ({
-  page,
-  workerFirm,
-}) => {
+test('@pepi C26306 Copy a billing specification to another firm', async ({ page, workerFirm }) => {
   const FIRM_B = workerFirm.firmCd;
   const FIRM_B_DISPLAY = workerFirm.firmName;
   const FIRM_B_URL = `/react/indexReact.do#platformOne/billingCenter/specifications/${FIRM_B}`;
@@ -63,7 +60,10 @@ test('@pepi C26306 Copy a billing specification to another firm', async ({
       const m = body.match(/name="specificationDescription"\s+([\s\S]*?)------/);
       if (m) {
         // eslint-disable-next-line no-console
-        console.log('[C26306 debug] POST sent specificationDescription =', JSON.stringify(m[1].trim()));
+        console.log(
+          '[C26306 debug] POST sent specificationDescription =',
+          JSON.stringify(m[1].trim())
+        );
       }
     }
   });
@@ -76,9 +76,9 @@ test('@pepi C26306 Copy a billing specification to another firm', async ({
   let newSpecName;
   await test.step('Navigate to Billing Specifications grid for firm A', async () => {
     await page.goto(FIRM_A_URL);
-    await expect(
-      page.getByText('Billing Specifications', { exact: true }).first()
-    ).toBeVisible({ timeout: 30_000 });
+    await expect(page.getByText('Billing Specifications', { exact: true }).first()).toBeVisible({
+      timeout: 30_000,
+    });
     await expect(page.locator('.ag-row').first()).toBeVisible({
       timeout: 60_000,
     });
@@ -113,10 +113,9 @@ test('@pepi C26306 Copy a billing specification to another firm', async ({
       { timeout: 30_000 }
     );
     // The Spec Name input is pre-filled with the source spec's name.
-    await expect(page.locator('#specificationDescriptionField')).toHaveValue(
-      sourceSpecName,
-      { timeout: 10_000 }
-    );
+    await expect(page.locator('#specificationDescriptionField')).toHaveValue(sourceSpecName, {
+      timeout: 10_000,
+    });
     // Give the form a beat to fully hydrate React state — without this the
     // subsequent triple-click + pressSequentially can land before the
     // controlled-input handlers are wired and the typed value never makes it
@@ -166,9 +165,10 @@ test('@pepi C26306 Copy a billing specification to another firm', async ({
       if (!scroller) return { status: 'no-scroller' };
       const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
       const optSel = `[role="combo-box-list-item"][data-value="${firmCd}"]`;
-      const dump = () => Array.from(
-        scroller.querySelectorAll('[role="combo-box-list-item"]')
-      ).map((el) => el.getAttribute('data-value'));
+      const dump = () =>
+        Array.from(scroller.querySelectorAll('[role="combo-box-list-item"]')).map((el) =>
+          el.getAttribute('data-value')
+        );
       const initial = dump();
       if (document.querySelector(optSel)) {
         return { status: 'already-rendered', initialCount: initial.length, initial };
@@ -221,9 +221,6 @@ test('@pepi C26306 Copy a billing specification to another firm', async ({
       found.status,
       `dummy firm ${FIRM_B} option must render in dropdown — ${JSON.stringify(found)}`
     ).not.toBe('not-found');
-    expect(found, `dummy firm ${FIRM_B} option must render in dropdown`).not.toBe(
-      'not-found'
-    );
     const targetOption = page.locator(`[data-value="${FIRM_B}"]`).first();
     await expect(targetOption).toBeVisible({ timeout: 10_000 });
     await targetOption.click();
@@ -233,9 +230,7 @@ test('@pepi C26306 Copy a billing specification to another firm', async ({
     ).toBeVisible({ timeout: 5_000 });
     // Sanity-check that the spec name input STILL holds our typed value —
     // i.e. firm change didn't reset it (it shouldn't, in this order).
-    await expect(page.locator('#specificationDescriptionField')).toHaveValue(
-      newSpecName
-    );
+    await expect(page.locator('#specificationDescriptionField')).toHaveValue(newSpecName);
   });
 
   await test.step('Click Create Spec to save the copy', async () => {
@@ -243,16 +238,16 @@ test('@pepi C26306 Copy a billing specification to another firm', async ({
     // qa3 keeps the user on the /copy/ URL after save and shows a "Create
     // Successful" confirmation heading instead of navigating. Wait for that
     // confirmation rather than a URL transition.
-    await expect(
-      page.getByRole('heading', { name: 'Create Successful' })
-    ).toBeVisible({ timeout: 60_000 });
+    await expect(page.getByRole('heading', { name: 'Create Successful' })).toBeVisible({
+      timeout: 60_000,
+    });
   });
 
   await test.step(`Switch firm view to firm ${FIRM_B} and locate the new spec`, async () => {
     await page.goto(FIRM_B_URL);
-    await expect(
-      page.getByText('Billing Specifications', { exact: true }).first()
-    ).toBeVisible({ timeout: 30_000 });
+    await expect(page.getByText('Billing Specifications', { exact: true }).first()).toBeVisible({
+      timeout: 30_000,
+    });
     await expect(page.locator('.ag-row').first()).toBeVisible({
       timeout: 60_000,
     });

@@ -66,9 +66,9 @@ test('@pepi C25206 Account Unmanaged Assets - Create Exclude from Performance', 
   await test.step('Phase 1.1: ensure MSFT row exists with all 6 buckets = All and Exclude from Performance = Yes', async () => {
     await loginAsAdmin(context, page);
     await page.goto(UA_URL);
-    await expect(
-      page.getByRole('button', { name: 'Manage Unmanaged Assets' })
-    ).toBeVisible({ timeout: 30_000 });
+    await expect(page.getByRole('button', { name: 'Manage Unmanaged Assets' })).toBeVisible({
+      timeout: 30_000,
+    });
 
     await openManageDialog(page);
 
@@ -102,9 +102,9 @@ test('@pepi C25206 Account Unmanaged Assets - Create Exclude from Performance', 
 
     await saveManageDialog(page);
 
-    await expect(
-      page.getByRole('row', { name: /MSFT.*Microsoft/ })
-    ).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByRole('row', { name: /MSFT.*Microsoft/ })).toBeVisible({
+      timeout: 15_000,
+    });
   });
 
   await test.step('Phase 1.2: trigger 2nd save on MSFT row so the History parser emits Create rows', async () => {
@@ -143,8 +143,6 @@ test('@pepi C25206 Account Unmanaged Assets - Create Exclude from Performance', 
   await test.step('Phase 2: non-admin tyler does not see Manage Unmanaged Assets', async () => {
     await loginAsNonAdmin(context, page);
     await page.goto(UA_URL);
-    await expect(
-      page.getByRole('button', { name: 'Manage Unmanaged Assets' })
-    ).toHaveCount(0);
+    await expect(page.getByRole('button', { name: 'Manage Unmanaged Assets' })).toHaveCount(0);
   });
 });

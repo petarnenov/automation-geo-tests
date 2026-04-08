@@ -98,10 +98,7 @@ function parseBillingSpecExport(buf) {
   const files = readZip(buf);
   const ssXml = files.get('xl/sharedStrings.xml')?.toString('utf8') || '';
   const strings = [...ssXml.matchAll(/<t[^>]*>([^<]*)<\/t>/g)].map((m) =>
-    m[1]
-      .replace(/&amp;/g, '&')
-      .replace(/&lt;/g, '<')
-      .replace(/&gt;/g, '>')
+    m[1].replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>')
   );
   const sheetXml = files.get('xl/worksheets/sheet1.xml')?.toString('utf8') || '';
 
@@ -148,18 +145,16 @@ function parseBillingSpecExport(buf) {
   return { headers, rowsByCol };
 }
 
-test('@pepi C25085 Billing Spec Upload/Download Includes Account Min/Max', async ({
-  page,
-}) => {
+test('@pepi C25085 Billing Spec Upload/Download Includes Account Min/Max', async ({ page }) => {
   test.setTimeout(180_000);
 
   await loginPlatformOneAdmin(page);
 
   await test.step('Navigate to Billing Specifications grid for firm 1', async () => {
     await page.goto(SPECS_URL);
-    await expect(
-      page.getByText('Billing Specifications', { exact: true }).first()
-    ).toBeVisible({ timeout: 30_000 });
+    await expect(page.getByText('Billing Specifications', { exact: true }).first()).toBeVisible({
+      timeout: 30_000,
+    });
     await expect(page.locator('.ag-row').first()).toBeVisible({
       timeout: 60_000,
     });
@@ -169,9 +164,9 @@ test('@pepi C25085 Billing Spec Upload/Download Includes Account Min/Max', async
     // Open Customize Columns panel.
     await page.locator('span#customizeColumns').click();
     const overlay = page.locator('[class*="showGridOverlay"]').first();
-    await expect(
-      page.getByText('Customize Columns', { exact: true }).first()
-    ).toBeVisible({ timeout: 5_000 });
+    await expect(page.getByText('Customize Columns', { exact: true }).first()).toBeVisible({
+      timeout: 5_000,
+    });
 
     // Toggle Account Min/Max ON if not already (the column visibility state
     // is persisted per-user, so the checkboxes may already be checked from a
@@ -179,22 +174,18 @@ test('@pepi C25085 Billing Spec Upload/Download Includes Account Min/Max', async
     const minCb = overlay.locator('input#applyMinFeesOnAccountLevelFlagField');
     const maxCb = overlay.locator('input#applyMaxFeesOnAccountLevelFlagField');
     if (!(await minCb.isChecked())) {
-      await overlay
-        .locator('label[for="applyMinFeesOnAccountLevelFlagField"]')
-        .click();
+      await overlay.locator('label[for="applyMinFeesOnAccountLevelFlagField"]').click();
     }
     if (!(await maxCb.isChecked())) {
-      await overlay
-        .locator('label[for="applyMaxFeesOnAccountLevelFlagField"]')
-        .click();
+      await overlay.locator('label[for="applyMaxFeesOnAccountLevelFlagField"]').click();
     }
     await expect(minCb).toBeChecked();
     await expect(maxCb).toBeChecked();
     await overlay.getByRole('button', { name: 'Confirm & Reload' }).click();
     // Confirm the columns are now in the grid header.
-    await expect(
-      page.getByRole('columnheader', { name: 'Account Min' }).first()
-    ).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByRole('columnheader', { name: 'Account Min' }).first()).toBeVisible({
+      timeout: 10_000,
+    });
   });
 
   let exportPath;
@@ -215,12 +206,8 @@ test('@pepi C25085 Billing Spec Upload/Download Includes Account Min/Max', async
     const buf = fs.readFileSync(exportPath);
     const { headers, rowsByCol } = parseBillingSpecExport(buf);
 
-    expect(headers, 'export must include Account Min header').toContain(
-      'Account Min'
-    );
-    expect(headers, 'export must include Account Max header').toContain(
-      'Account Max'
-    );
+    expect(headers, 'export must include Account Min header').toContain('Account Min');
+    expect(headers, 'export must include Account Max header').toContain('Account Max');
 
     const minValues = rowsByCol['Account Min'];
     const maxValues = rowsByCol['Account Max'];

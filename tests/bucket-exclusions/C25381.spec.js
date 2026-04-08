@@ -75,8 +75,6 @@ test('@pepi C25381 Bucket Exclusions - all 6 buckets accept Y/N/I excluded actio
       .first()
       .locator('..')
       .locator('..');
-    await expect(
-      advisorSection.getByText(/\bYes\b/).first()
-    ).toBeVisible({ timeout: 15_000 });
+    await expect(advisorSection.getByText(/\bYes\b/).first()).toBeVisible({ timeout: 15_000 });
   });
 });

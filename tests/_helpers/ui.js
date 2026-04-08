@@ -52,18 +52,14 @@ async function setReactDatePicker(page, pickerSection, mmddyyyy) {
   // change) silently swallow .click() because their React onClick hasn't
   // re-attached yet. Dispatch a full mousedown/mouseup/click sequence and
   // retry until the popup actually appears.
-  const calendarBtn = pickerSection.locator(
-    'button.react-date-picker__calendar-button'
-  );
+  const calendarBtn = pickerSection.locator('button.react-date-picker__calendar-button');
   const calendar = page.locator('.react-calendar');
   for (let attempt = 0; attempt < 10; attempt++) {
     await calendarBtn.evaluate((btn) => {
       /** @type {HTMLElement} */ (btn).scrollIntoView({ block: 'center' });
       /** @type {HTMLElement} */ (btn).focus();
       for (const t of ['mousedown', 'mouseup', 'click']) {
-        btn.dispatchEvent(
-          new MouseEvent(t, { bubbles: true, cancelable: true, view: window })
-        );
+        btn.dispatchEvent(new MouseEvent(t, { bubbles: true, cancelable: true, view: window }));
       }
     });
     if (await calendar.isVisible().catch(() => false)) break;
@@ -92,14 +88,10 @@ async function setReactDatePicker(page, pickerSection, mmddyyyy) {
     displayed = (await navLabel.textContent())?.trim() || '';
   }
   if (displayed !== targetMonthYear) {
-    throw new Error(
-      `calendar nav stuck at ${displayed}, target ${targetMonthYear}`
-    );
+    throw new Error(`calendar nav stuck at ${displayed}, target ${targetMonthYear}`);
   }
 
-  await page
-    .locator(`.react-calendar abbr[aria-label="${targetLabel}"]`)
-    .click();
+  await page.locator(`.react-calendar abbr[aria-label="${targetLabel}"]`).click();
   await expect(page.locator('.react-calendar')).toBeHidden({ timeout: 5000 });
 }
 
@@ -195,10 +187,7 @@ async function setReactNumericInput(page, inputId, value) {
   await page.locator(`#${inputId}`).evaluate((el, v) => {
     const input = /** @type {HTMLInputElement} */ (el);
     input.focus();
-    const setter = Object.getOwnPropertyDescriptor(
-      window.HTMLInputElement.prototype,
-      'value'
-    )?.set;
+    const setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value')?.set;
     setter?.call(input, v);
     input.dispatchEvent(new Event('input', { bubbles: true }));
     input.dispatchEvent(new Event('change', { bubbles: true }));
@@ -248,9 +237,9 @@ async function selectFirmInTypeAhead(page, workerFirm, options = {}) {
       timeout: 5000,
     });
   } else if (confirm === 'bulkUploadButton') {
-    await expect(
-      page.getByRole('button', { name: 'Open multiple accounts in bulk' })
-    ).toBeEnabled({ timeout: 5000 });
+    await expect(page.getByRole('button', { name: 'Open multiple accounts in bulk' })).toBeEnabled({
+      timeout: 5000,
+    });
   }
 }
 
@@ -272,16 +261,7 @@ async function selectFirmInTypeAhead(page, workerFirm, options = {}) {
  * @returns {RegExp}
  */
 function validationErrorRegex(...extraTokens) {
-  const base = [
-    'error',
-    'invalid',
-    'required',
-    'missing',
-    'wrong',
-    'must',
-    'cannot',
-    'failed',
-  ];
+  const base = ['error', 'invalid', 'required', 'missing', 'wrong', 'must', 'cannot', 'failed'];
   return new RegExp([...base, ...extraTokens].join('|'), 'i');
 }
 

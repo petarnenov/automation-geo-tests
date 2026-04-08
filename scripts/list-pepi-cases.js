@@ -11,9 +11,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const cfg = JSON.parse(
-  fs.readFileSync(path.join(__dirname, '..', 'testrail.config.json'), 'utf8')
-);
+const cfg = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'testrail.config.json'), 'utf8'));
 
 const runId = cfg.testrail.focusedRun.runId;
 const labelName = (cfg.testrail.filter.label || '').toLowerCase();
@@ -25,9 +23,7 @@ const apiKey = process.env.TESTRAIL_API_KEY;
 const password = process.env.TESTRAIL_PASSWORD;
 
 if (!user || (!apiKey && !password)) {
-  console.error(
-    'Missing TESTRAIL_USER + (TESTRAIL_API_KEY or TESTRAIL_PASSWORD) in env.'
-  );
+  console.error('Missing TESTRAIL_USER + (TESTRAIL_API_KEY or TESTRAIL_PASSWORD) in env.');
   process.exit(1);
 }
 
@@ -82,9 +78,7 @@ async function trGetPaginated(endpoint, collectionKey) {
 }
 
 (async () => {
-  console.log(
-    `[list-pepi-cases] host=${baseUrl} run=${runId} label="${labelName}"`
-  );
+  console.log(`[list-pepi-cases] host=${baseUrl} run=${runId} label="${labelName}"`);
 
   // 1. Pull all tests in the run.
   const tests = await trGetPaginated(`get_tests/${runId}`, 'tests');
@@ -110,9 +104,7 @@ async function trGetPaginated(endpoint, collectionKey) {
   // 3. If the label info isn't on the test payload, fall back to fetching each
   //    underlying case and checking its labels there.
   if (matched.length === 0) {
-    console.log(
-      `[list-pepi-cases] no labels on test payloads, falling back to per-case fetch...`
-    );
+    console.log(`[list-pepi-cases] no labels on test payloads, falling back to per-case fetch...`);
     let checked = 0;
     for (const t of tests) {
       checked++;
@@ -162,9 +154,7 @@ function extractLabels(obj) {
   const raw = obj.labels;
   if (!raw) return [];
   if (Array.isArray(raw)) {
-    return raw
-      .map((l) => (typeof l === 'string' ? l : l && (l.title || l.name)))
-      .filter(Boolean);
+    return raw.map((l) => (typeof l === 'string' ? l : l && (l.title || l.name))).filter(Boolean);
   }
   if (typeof raw === 'string') return [raw];
   return [];

@@ -14,10 +14,7 @@
  */
 
 const { test } = require('@playwright/test');
-const {
-  loginPlatformOneAdmin,
-  uploadBillingBucketExclusions,
-} = require('../_helpers/qa3');
+const { loginPlatformOneAdmin, uploadBillingBucketExclusions } = require('../_helpers/qa3');
 const { buildBucketXlsx } = require('../_helpers/build-bucket-xlsx');
 
 test('@pepi C25791 Bucket Exclusions - Set All Accts to I column is optional (column omitted)', async ({

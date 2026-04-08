@@ -43,11 +43,7 @@ test('@pepi C25789 Bucket Exclusions - Set All Accts to I = Y propagates to all 
 
   await test.step('Phase 1: upload Billing Bucket Exclusions file', async () => {
     await loginPlatformOneAdmin(page);
-    await uploadBillingBucketExclusions(
-      page,
-      workerFirm.firmCd,
-      buildDefaultXlsx(workerFirm)
-    );
+    await uploadBillingBucketExclusions(page, workerFirm.firmCd, buildDefaultXlsx(workerFirm));
   });
 
   await test.step(`Phase 2: verify HH Billing Settings as ${workerFirm.advisor.loginName}`, async () => {
@@ -58,13 +54,8 @@ test('@pepi C25789 Bucket Exclusions - Set All Accts to I = Y propagates to all 
     // EXCLUDED=Y at the household level, the "Exclude from Advisor billing" row
     // should no longer show "Inherit from Firm (No)" — it should show an
     // explicit Yes (or "Inherit from Firm (Yes)") set at the household level.
-    const advisorSection = page
-      .locator('text=ADVISOR BILLING SPEC')
-      .locator('..')
-      .locator('..');
+    const advisorSection = page.locator('text=ADVISOR BILLING SPEC').locator('..').locator('..');
     await expect(advisorSection).toContainText(/Exclude from Advisor billing/i);
-    await expect(
-      advisorSection.getByText(/\bYes\b/).first()
-    ).toBeVisible({ timeout: 15_000 });
+    await expect(advisorSection.getByText(/\bYes\b/).first()).toBeVisible({ timeout: 15_000 });
   });
 });

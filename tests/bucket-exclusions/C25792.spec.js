@@ -63,8 +63,6 @@ test('@pepi C25792 Bucket Exclusions - account record after hh/client overrides 
       .first()
       .locator('..')
       .locator('..');
-    await expect(
-      advisorSection.getByText(/\bYes\b/).first()
-    ).toBeVisible({ timeout: 15_000 });
+    await expect(advisorSection.getByText(/\bYes\b/).first()).toBeVisible({ timeout: 15_000 });
   });
 });

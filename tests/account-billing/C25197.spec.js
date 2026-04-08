@@ -79,19 +79,22 @@ const VALUE_LABELS = { 0: 'No', 1: 'Yes', 2: 'Inherit' };
  * a Map<formKey, "0"|"1"|"2">.
  */
 async function captureExcludeState(page) {
-  return await page.evaluate((bucketKeys) => {
-    const out = {};
-    for (const key of bucketKeys) {
-      for (const v of ['0', '1', '2']) {
-        const el = document.getElementById(`${key}_${v}`);
-        if (el && el.checked) {
-          out[key] = v;
-          break;
+  return await page.evaluate(
+    (bucketKeys) => {
+      const out = {};
+      for (const key of bucketKeys) {
+        for (const v of ['0', '1', '2']) {
+          const el = document.getElementById(`${key}_${v}`);
+          if (el && el.checked) {
+            out[key] = v;
+            break;
+          }
         }
       }
-    }
-    return out;
-  }, BUCKETS.map((b) => b.formKey));
+      return out;
+    },
+    BUCKETS.map((b) => b.formKey)
+  );
 }
 
 /**
@@ -175,8 +178,6 @@ test('@pepi C25197 Account Exclude from billing - Admin and Non-Admin', async ({
     // Edit-button-hidden assertion below.
     await loginAsNonAdmin(context, page);
     await gotoAccountBilling(page);
-    await expect(
-      page.getByRole('button', { name: 'Edit Billing Settings' })
-    ).toHaveCount(0);
+    await expect(page.getByRole('button', { name: 'Edit Billing Settings' })).toHaveCount(0);
   });
 });

@@ -49,8 +49,6 @@ test('@pepi C25249 Account Advisor Split - Update', async ({ page, context }) =>
   await test.step('Phase 2: non-admin tyler cannot see Edit Billing Settings', async () => {
     await loginAsNonAdmin(context, page);
     await gotoAccountBilling(page);
-    await expect(
-      page.getByRole('button', { name: 'Edit Billing Settings' })
-    ).toHaveCount(0);
+    await expect(page.getByRole('button', { name: 'Edit Billing Settings' })).toHaveCount(0);
   });
 });

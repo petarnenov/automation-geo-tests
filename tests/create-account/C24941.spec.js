@@ -41,8 +41,7 @@
 const { test, expect } = require('@playwright/test');
 const { loginPlatformOneAdmin } = require('../_helpers/qa3');
 
-const CREATE_ACCOUNT_URL =
-  '/react/indexReact.do#platformOne/backOffice/createAccount';
+const CREATE_ACCOUNT_URL = '/react/indexReact.do#platformOne/backOffice/createAccount';
 
 // A small, ordered subset of the TestRail expected list — picking a few
 // distinctive types confirms the dropdown is populated without making the
@@ -165,28 +164,21 @@ test('@pepi C24941 Open Account UI elements', async ({ page }) => {
     await expect(
       page.getByRole('button', { name: 'Open multiple accounts in bulk' })
     ).toBeVisible();
-    await expect(
-      page.getByRole('button', { name: 'Add New Row' })
-    ).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Add New Row' })).toBeVisible();
     await expect(page.getByRole('button', { name: 'Reset' })).toBeVisible();
     await expect(page.getByRole('button', { name: 'Create' })).toBeVisible();
   });
 
   await test.step('Click Add New Row, assert a new row appears in the grid', async () => {
     await page.getByRole('button', { name: 'Add New Row' }).click();
-    await expect(
-      page.locator('.ag-row[row-index="0"]')
-    ).toBeVisible({ timeout: 5000 });
+    await expect(page.locator('.ag-row[row-index="0"]')).toBeVisible({ timeout: 5000 });
   });
 
   await test.step('Account Type cell opens with the expected options', async () => {
     await openRowCellEditor(page, 0, 'accountTypeCd');
     const options = await getVisibleRichSelectOptions(page);
     for (const expected of EXPECTED_ACCOUNT_TYPES_SAMPLE) {
-      expect(
-        options,
-        `Account Type dropdown should contain "${expected}"`
-      ).toContain(expected);
+      expect(options, `Account Type dropdown should contain "${expected}"`).toContain(expected);
     }
     await page.keyboard.press('Escape');
   });
@@ -195,10 +187,7 @@ test('@pepi C24941 Open Account UI elements', async ({ page }) => {
     await openRowCellEditor(page, 0, 'eBrokerCd');
     const options = await getVisibleRichSelectOptions(page);
     for (const expected of EXPECTED_CUSTODIANS_SAMPLE) {
-      expect(
-        options,
-        `Custodian dropdown should contain "${expected}"`
-      ).toContain(expected);
+      expect(options, `Custodian dropdown should contain "${expected}"`).toContain(expected);
     }
     await page.keyboard.press('Escape');
   });

@@ -19,7 +19,6 @@ test('@pepi C26082 Platform One Merge Prospect - empty client + prospect with da
   page,
   workerFirm,
   context,
-  
 }) => {
   await runMergeProspectSmokeWithProvisionedProspect({ page, context, workerFirm });
 });

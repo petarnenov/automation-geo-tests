@@ -8,10 +8,7 @@
  */
 
 const { test } = require('@playwright/test');
-const {
-  loginPlatformOneAdmin,
-  uploadUnmanagedAssetsExclusions,
-} = require('../_helpers/qa3');
+const { loginPlatformOneAdmin, uploadUnmanagedAssetsExclusions } = require('../_helpers/qa3');
 const { buildXlsxFor } = require('./_helpers');
 
 test('@pepi C25445 Unmanaged Assets - correctly filled template uploaded using file explorer', async ({
@@ -20,9 +17,5 @@ test('@pepi C25445 Unmanaged Assets - correctly filled template uploaded using f
 }) => {
   test.setTimeout(180_000);
   await loginPlatformOneAdmin(page);
-  await uploadUnmanagedAssetsExclusions(
-    page,
-    workerFirm.firmCd,
-    buildXlsxFor(workerFirm)
-  );
+  await uploadUnmanagedAssetsExclusions(page, workerFirm.firmCd, buildXlsxFor(workerFirm));
 });

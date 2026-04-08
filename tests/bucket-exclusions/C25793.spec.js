@@ -24,8 +24,7 @@ const { validationErrorRegex } = require('../_helpers/ui');
 const { buildBucketXlsx } = require('../_helpers/build-bucket-xlsx');
 
 const ERROR_RX = validationErrorRegex('empty', 'combination');
-const XLSX_MIME =
-  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+const XLSX_MIME = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
 
 async function uploadAndExpectError(page, workerFirm, rows, label) {
   test.setTimeout(180_000);
@@ -57,9 +56,7 @@ async function uploadAndExpectError(page, workerFirm, rows, label) {
     if (await uploadBtn.isEnabled().catch(() => false)) {
       await uploadBtn.click();
       try {
-        await page
-          .getByRole('button', { name: 'Yes, Proceed' })
-          .click({ timeout: 3000 });
+        await page.getByRole('button', { name: 'Yes, Proceed' }).click({ timeout: 3000 });
       } catch {
         /* none */
       }

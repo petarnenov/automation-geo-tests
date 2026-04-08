@@ -20,9 +20,7 @@ const path = require('path');
 const fs = require('fs');
 const { setupWorkerFirm } = require('../tests/_helpers/worker-firm');
 
-const cfg = JSON.parse(
-  fs.readFileSync(path.join(__dirname, '..', 'testrail.config.json'), 'utf8')
-);
+const cfg = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'testrail.config.json'), 'utf8'));
 const STORAGE = path.join(__dirname, '..', 'tests', '.auth', 'tim1.json');
 const PASSWORD = cfg.appUnderTest.password;
 
@@ -50,7 +48,9 @@ async function loginAs(page, username) {
   });
   const adminPage = await adminCtx.newPage();
   await loginAs(adminPage, wf.admin.loginName);
-  await adminPage.goto('https://qa2.geowealth.com/react/indexReact.do#directories/prospects/create');
+  await adminPage.goto(
+    'https://qa2.geowealth.com/react/indexReact.do#directories/prospects/create'
+  );
   await adminPage.locator('#firstNameField').waitFor({ timeout: 30000 });
   const prospectFirst = 'PepiPF';
   const prospectLast = 'PepiPL' + wf.firmCd;
@@ -96,7 +96,9 @@ async function loginAs(page, username) {
   await searchBox.fill(lastName);
   await tim1Page.waitForTimeout(2000);
 
-  const clientOption = tim1Page.getByText(new RegExp(`${lastName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}.*\\(C\\)`)).first();
+  const clientOption = tim1Page
+    .getByText(new RegExp(`${lastName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}.*\\(C\\)`))
+    .first();
   const clientVisible = await clientOption.isVisible({ timeout: 10000 }).catch(() => false);
   console.log('   client option visible:', clientVisible);
   if (!clientVisible) {
@@ -134,7 +136,11 @@ async function loginAs(page, username) {
     console.log('   ✅ autocomplete option visible:', text);
   } else {
     console.log('   ❌ no autocomplete option');
-    const list = await tim1Page.getByRole('listbox').last().innerText().catch(() => '<no listbox>');
+    const list = await tim1Page
+      .getByRole('listbox')
+      .last()
+      .innerText()
+      .catch(() => '<no listbox>');
     console.log('   listbox content:', list);
   }
 

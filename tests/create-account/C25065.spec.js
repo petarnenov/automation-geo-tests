@@ -32,8 +32,7 @@ const { loginPlatformOneAdmin } = require('../_helpers/qa3');
 const { selectFirmInTypeAhead } = require('../_helpers/ui');
 const { buildBulkAccountsXlsx } = require('../_helpers/build-bulk-accounts-xlsx');
 
-const CREATE_ACCOUNT_URL =
-  '/react/indexReact.do#platformOne/backOffice/createAccount';
+const CREATE_ACCOUNT_URL = '/react/indexReact.do#platformOne/backOffice/createAccount';
 
 test('@pepi C25065 Create new accounts using an upload file with missing data', async ({
   page,
@@ -82,9 +81,7 @@ test('@pepi C25065 Create new accounts using an upload file with missing data', 
   });
 
   await test.step('Open the bulk upload modal and submit the bad xlsx', async () => {
-    await page
-      .getByRole('button', { name: 'Open multiple accounts in bulk' })
-      .click();
+    await page.getByRole('button', { name: 'Open multiple accounts in bulk' }).click();
     // No "reset vs keep" prompt because the grid is empty.
 
     const fileChooserPromise = page.waitForEvent('filechooser');
@@ -92,8 +89,7 @@ test('@pepi C25065 Create new accounts using an upload file with missing data', 
     const fileChooser = await fileChooserPromise;
     await fileChooser.setFiles({
       name: 'BulkAccountsMissingData.xlsx',
-      mimeType:
-        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
       buffer: xlsxBuffer,
     });
     await expect(page.getByText('BulkAccountsMissingData.xlsx')).toBeVisible();
@@ -109,8 +105,8 @@ test('@pepi C25065 Create new accounts using an upload file with missing data', 
     // "Unable to parse line 3 in file due to: Cell at row [2] and column [5]
     // is null" — we don't pin the exact line/column to keep the test resilient
     // to template-row reorders.
-    await expect(
-      page.getByText(/Unable to parse line .* in file due to/i).first()
-    ).toBeVisible({ timeout: 30_000 });
+    await expect(page.getByText(/Unable to parse line .* in file due to/i).first()).toBeVisible({
+      timeout: 30_000,
+    });
   });
 });

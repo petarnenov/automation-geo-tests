@@ -18,10 +18,7 @@
  */
 
 const { test } = require('@playwright/test');
-const {
-  loginPlatformOneAdmin,
-  uploadBillingBucketExclusions,
-} = require('../_helpers/qa3');
+const { loginPlatformOneAdmin, uploadBillingBucketExclusions } = require('../_helpers/qa3');
 const { buildBucketXlsx } = require('../_helpers/build-bucket-xlsx');
 const { buildDefaultXlsx } = require('./_helpers');
 

@@ -39,17 +39,13 @@ const {
   pickFirstAgGridRichSelect,
 } = require('../_helpers/ui');
 
-const CREATE_ACCOUNT_URL =
-  '/react/indexReact.do#platformOne/backOffice/createAccount';
+const CREATE_ACCOUNT_URL = '/react/indexReact.do#platformOne/backOffice/createAccount';
 
 // 32 hex chars, valid UUID format, but no entity exists with this id in any
 // firm. Validated server-side via `NEntityDAO.getNEntity()` which returns null.
 const BOGUS_CLIENT_UUID = 'DEADBEEFDEADBEEFDEADBEEFDEADBEEF';
 
-test('@pepi C24996 Create new accounts with wrong data', async ({
-  page,
-  workerFirm,
-}) => {
+test('@pepi C24996 Create new accounts with wrong data', async ({ page, workerFirm }) => {
   test.setTimeout(180_000);
 
   const accountNumber = `PW${Date.now()}`;
@@ -86,17 +82,15 @@ test('@pepi C24996 Create new accounts with wrong data', async ({
 
     // The submit modal opens with "Creation Completed" header and the
     // partial-failure body. With our single bogus row, the count is 0.
-    await expect(
-      page.getByText(/Remaining rows contain issues and need correction/i)
-    ).toBeVisible({ timeout: 30_000 });
+    await expect(page.getByText(/Remaining rows contain issues and need correction/i)).toBeVisible({
+      timeout: 30_000,
+    });
 
     // Close the modal — the back-end has refreshed the grid with the bad row
     // re-mounted, so its clientUuid cell should now carry the `error-cell`
     // class. Tighter assertion than the modal text alone.
     await page.getByRole('button', { name: 'OK', exact: true }).click();
-    const badCell = page.locator(
-      '.ag-row [role="gridcell"][col-id="clientUuid"].error-cell'
-    );
+    const badCell = page.locator('.ag-row [role="gridcell"][col-id="clientUuid"].error-cell');
     await expect(badCell.first()).toBeVisible({ timeout: 10_000 });
   });
 });

@@ -59,9 +59,9 @@ test('@pepi C25208 Account Unmanaged Assets - Create Exclude from Billing', asyn
   await test.step('Phase 1.1: open Manage UA, ensure AAPL exists with all 6 buckets = All', async () => {
     await loginAsAdmin(context, page);
     await page.goto(UA_URL);
-    await expect(
-      page.getByRole('button', { name: 'Manage Unmanaged Assets' })
-    ).toBeVisible({ timeout: 30_000 });
+    await expect(page.getByRole('button', { name: 'Manage Unmanaged Assets' })).toBeVisible({
+      timeout: 30_000,
+    });
 
     await openManageDialog(page);
 
@@ -76,9 +76,10 @@ test('@pepi C25208 Account Unmanaged Assets - Create Exclude from Billing', asyn
         .inputValue();
       if (row0Value.trim() !== '') {
         await addNewRow(page);
-        aaplRow = (await findRowIndexBySymbol(page, /^$/)) >= 0
-          ? await findRowIndexBySymbol(page, /^$/)
-          : 1;
+        aaplRow =
+          (await findRowIndexBySymbol(page, /^$/)) >= 0
+            ? await findRowIndexBySymbol(page, /^$/)
+            : 1;
       } else {
         aaplRow = 0;
       }
@@ -99,9 +100,9 @@ test('@pepi C25208 Account Unmanaged Assets - Create Exclude from Billing', asyn
     await toggleExcludeFromPerformance(page, aaplRow);
     await saveManageDialog(page);
 
-    await expect(
-      page.getByRole('row', { name: /AAPL.*Apple Inc Ordinary Shares/ })
-    ).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByRole('row', { name: /AAPL.*Apple Inc Ordinary Shares/ })).toBeVisible({
+      timeout: 15_000,
+    });
   });
 
   await test.step('Phase 1.2: trigger 2nd save so the History parser emits Create rows', async () => {
@@ -132,11 +133,9 @@ test('@pepi C25208 Account Unmanaged Assets - Create Exclude from Billing', asyn
   await test.step('Phase 2: non-admin tyler does not see Manage Unmanaged Assets', async () => {
     await loginAsNonAdmin(context, page);
     await page.goto(UA_URL);
-    await expect(
-      page.getByRole('button', { name: 'Manage Unmanaged Assets' })
-    ).toHaveCount(0);
-    await expect(
-      page.getByRole('row', { name: /AAPL.*Apple Inc Ordinary Shares/ })
-    ).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByRole('button', { name: 'Manage Unmanaged Assets' })).toHaveCount(0);
+    await expect(page.getByRole('row', { name: /AAPL.*Apple Inc Ordinary Shares/ })).toBeVisible({
+      timeout: 15_000,
+    });
   });
 });

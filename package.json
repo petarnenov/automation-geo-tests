@@ -7,9 +7,19 @@
     "test": "playwright test",
     "test:pepi": "playwright test --grep @pepi",
     "test:pepi:dry": "TESTRAIL_REPORT_RESULTS=0 playwright test --grep @pepi",
-    "report": "playwright show-report"
+    "report": "playwright show-report",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
   },
   "devDependencies": {
-    "@playwright/test": "^1.47.0"
+    "@eslint/js": "^10.0.1",
+    "@playwright/test": "^1.47.0",
+    "eslint": "^10.2.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-playwright": "^2.10.1",
+    "globals": "^17.4.0",
+    "prettier": "^3.8.1"
   }
 }

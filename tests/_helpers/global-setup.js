@@ -34,12 +34,8 @@ async function globalSetup() {
     // before touching the form fields. The form uses placeholder-only inputs
     // (no role/name/label), so we match by placeholder.
     await page.waitForURL(/#login/, { timeout: 30_000 });
-    await page
-      .getByPlaceholder(/email|username/i)
-      .fill(cfg.appUnderTest.username);
-    await page
-      .getByPlaceholder(/password/i)
-      .fill(cfg.appUnderTest.password);
+    await page.getByPlaceholder(/email|username/i).fill(cfg.appUnderTest.username);
+    await page.getByPlaceholder(/password/i).fill(cfg.appUnderTest.password);
     await page.getByRole('button', { name: 'Login' }).click();
     // Wait until any post-login URL transition completes. tim1 may land on
     // either #platformOne (legacy admin landing) or #dashboard (advisor

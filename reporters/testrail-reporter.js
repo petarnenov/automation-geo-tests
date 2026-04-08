@@ -50,10 +50,7 @@ class TestRailReporter {
     if (!match) return;
     // Skipped/fixme tests are intentional placeholders for unfinished work,
     // not real blockers — drop them unless TESTRAIL_REPORT_SKIPPED is set.
-    if (
-      result.status === 'skipped' &&
-      process.env.TESTRAIL_REPORT_SKIPPED !== '1'
-    ) {
+    if (result.status === 'skipped' && process.env.TESTRAIL_REPORT_SKIPPED !== '1') {
       return;
     }
     const caseId = Number(match[1]);
@@ -165,9 +162,7 @@ class TestRailReporter {
         }
       }
       if (lastStatus === 401 && attempt !== attempts[attempts.length - 1]) {
-        console.warn(
-          `[testrail-reporter] 401 with ${attempt.label}, trying next credential...`
-        );
+        console.warn(`[testrail-reporter] 401 with ${attempt.label}, trying next credential...`);
         continue;
       }
       console.error(

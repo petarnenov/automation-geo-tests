@@ -45,9 +45,7 @@ async function setCommissionFee(page, value) {
   // Without the blur, a second invocation in the same modal session sometimes
   // fails to re-open the dropdown.
   await page.locator('body').click({ position: { x: 0, y: 0 } });
-  const option = page.locator(
-    `[role="combo-box-list-item"]:text-is("${value}")`
-  );
+  const option = page.locator(`[role="combo-box-list-item"]:text-is("${value}")`);
   for (let attempt = 0; attempt < 5; attempt++) {
     await page.locator('#commissionFreeFlagDiv').click();
     if (await option.isVisible().catch(() => false)) break;
@@ -93,10 +91,7 @@ test('@pepi C25201 Account Commission Fee - Admin and Non-Admin', async ({
     await saveEditBillingSettings(page);
 
     await expect(
-      page
-        .locator('text=Commission Fee')
-        .first()
-        .locator('xpath=following-sibling::*[1]')
+      page.locator('text=Commission Fee').first().locator('xpath=following-sibling::*[1]')
     ).toHaveText(testValue, { timeout: 15_000 });
   });
 
@@ -105,8 +100,6 @@ test('@pepi C25201 Account Commission Fee - Admin and Non-Admin', async ({
   await test.step('Phase 2: tyler (firm 106 non-admin) cannot see Edit Billing Settings', async () => {
     await loginAsNonAdmin(context, page);
     await gotoAccountBilling(page);
-    await expect(
-      page.getByRole('button', { name: 'Edit Billing Settings' })
-    ).toHaveCount(0);
+    await expect(page.getByRole('button', { name: 'Edit Billing Settings' })).toHaveCount(0);
   });
 });
