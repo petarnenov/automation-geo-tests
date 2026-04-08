@@ -114,8 +114,11 @@ test('@pepi C25102 Create accounts using different CLIENT types', async ({
     await submitBtn.click();
 
     // Both rows mount in the grid even though one will fail validation later.
+    // 60s — bulk-upload backend can lag 30-50s when the full @pepi suite runs
+    // 8 workers in parallel across multiple feature areas (account-billing,
+    // merge-prospect retry loops, etc.) saturating qa2 server side.
     await expect(page.locator('.ag-row[row-index="0"]')).toBeVisible({
-      timeout: 30_000,
+      timeout: 60_000,
     });
     await expect(page.locator('.ag-row[row-index="1"]')).toBeVisible();
   });

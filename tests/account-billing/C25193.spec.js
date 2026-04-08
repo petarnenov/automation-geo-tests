@@ -26,14 +26,31 @@
 
 const { test, expect } = require('@playwright/test');
 const {
-  loginAsAdmin,
+  loginAsWorkerFirmAdmin,
   loginAsNonAdmin,
+  gotoWorkerFirmAccountBilling,
   gotoAccountBilling,
   openEditBillingSettings,
   saveEditBillingSettings,
   setBillingInceptionDate,
   getDisplayedBillingInceptionDate,
 } = require('./_helpers');
+
+// HYBRID isolation pattern (2026-04-09):
+//
+//   Phase 1 (admin write/read flow) → workerFirm. The shared-firm-106 pattern
+//   races under 8-worker parallel load: every spec mutates the same Arnold/
+//   Delaney account, so workers overwrite each other's edits between "set"
+//   and "verify". Each worker now has its own dummy firm + admin + account,
+//   eliminating the race.
+//
+//   Phase 2 (non-admin Edit-button-hidden check) → STAYS on firm 106 + tyler.
+//   Empirically verified that the dummy-firm advisor (adv_<firmCd>_1) is NOT
+//   a drop-in for tyler@plimsollfp.com — the dummy advisor has full billing
+//   edit rights, while tyler has a Plimsoll-FP-specific restricted custom
+//   role. createDummyFirm.do has no way to provision a restricted role. The
+//   tyler check is read-only (assert button count == 0), so it cannot race —
+//   keeping it on firm 106 is safe under parallel load.
 
 /**
  * Pick a "different" date one month away from the current one (same day,
@@ -53,6 +70,7 @@ function nextMonthDate(mmddyyyy) {
 test('@pepi C25193 Account Billing Inception Date - Admin and Non-Admin', async ({
   page,
   context,
+  workerFirm,
 }) => {
   test.setTimeout(240_000);
 
@@ -61,15 +79,29 @@ test('@pepi C25193 Account Billing Inception Date - Admin and Non-Admin', async 
   /** @type {string} */
   let newDate;
 
-  await test.step('Phase 1.1: admin captures current Billing Inception Date', async () => {
-    await loginAsAdmin(context, page);
-    await gotoAccountBilling(page);
-    originalDate = (await getDisplayedBillingInceptionDate(page)).trim();
+  await test.step('Phase 1.1: admin captures (or seeds) Billing Inception Date', async () => {
+    await loginAsWorkerFirmAdmin(context, page, workerFirm);
+    await gotoWorkerFirmAccountBilling(page, workerFirm);
+    let displayed = (await getDisplayedBillingInceptionDate(page)).trim();
+    if (!displayed) {
+      // Dummy-firm accounts come with no inception date set; seed a baseline
+      // so the change-and-verify round-trip below has something to compare to.
+      await openEditBillingSettings(page);
+      await setBillingInceptionDate(page, '12/01/2024');
+      await saveEditBillingSettings(page);
+      await expect
+        .poll(async () => (await getDisplayedBillingInceptionDate(page)).trim(), {
+          timeout: 15_000,
+        })
+        .toBe('12/01/2024');
+      displayed = '12/01/2024';
+    }
+    originalDate = displayed;
     expect(originalDate).toMatch(/^\d{2}\/\d{2}\/\d{4}$/);
     newDate = nextMonthDate(originalDate);
     test.info().annotations.push({
       type: 'captured',
-      description: `original=${originalDate} new=${newDate}`,
+      description: `firmCd=${workerFirm.firmCd} original=${originalDate} new=${newDate}`,
     });
   });
 
@@ -83,19 +115,11 @@ test('@pepi C25193 Account Billing Inception Date - Admin and Non-Admin', async 
       })
       .toBe(newDate);
   });
+  // No cleanup revert step — each worker has its own dummy firm, so audit
+  // history accumulation per run is irrelevant.
 
-  await test.step('Phase 1.3: cleanup — revert Billing Inception Date to original', async () => {
-    await openEditBillingSettings(page);
-    await setBillingInceptionDate(page, originalDate);
-    await saveEditBillingSettings(page);
-    await expect
-      .poll(async () => (await getDisplayedBillingInceptionDate(page)).trim(), {
-        timeout: 15_000,
-      })
-      .toBe(originalDate);
-  });
-
-  await test.step('Phase 2: non-admin tyler cannot see Edit Billing Settings', async () => {
+  await test.step('Phase 2: tyler (firm 106 non-admin) cannot see Edit Billing Settings', async () => {
+    // Read-only check on shared firm 106 — no race since tyler never mutates.
     await loginAsNonAdmin(context, page);
     await gotoAccountBilling(page);
     await expect(

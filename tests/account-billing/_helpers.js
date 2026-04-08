@@ -72,6 +72,39 @@ async function gotoAccountBilling(page) {
   ).toBeVisible({ timeout: 30_000 });
 }
 
+/**
+ * Hybrid-isolation helper: log in as the auto-generated admin of a per-worker
+ * dummy firm. Used by the Phase 1 (write/read) flow of the Account Billing
+ * spec family to escape the firm 106 race under parallel load. The dummy
+ * admin lands on either #dashboard or #platformOne depending on qa branch.
+ *
+ * @param {import('@playwright/test').BrowserContext} context
+ * @param {import('@playwright/test').Page} page
+ * @param {{admin: {loginName: string}, password: string}} workerFirm
+ */
+async function loginAsWorkerFirmAdmin(context, page, workerFirm) {
+  await context.clearCookies();
+  await login(page, workerFirm.admin.loginName, workerFirm.password);
+  await expect(page).toHaveURL(/#(dashboard|platformOne)/, { timeout: 30_000 });
+}
+
+/**
+ * Navigate to the Billing tab of the worker firm's primary client/account.
+ * Same URL shape as ACCOUNT_BILLING_URL — the leading "1" is the client
+ * entityTypeCd (not a firm code), so it stays.
+ *
+ * @param {import('@playwright/test').Page} page
+ * @param {{client: {uuid: string}, accounts: Array<{uuid: string}>}} workerFirm
+ */
+async function gotoWorkerFirmAccountBilling(page, workerFirm) {
+  await page.goto(
+    `/react/indexReact.do#/client/1/${workerFirm.client.uuid}/accounts/${workerFirm.accounts[0].uuid}/billing`
+  );
+  await expect(
+    page.getByRole('button', { name: 'History', exact: true })
+  ).toBeVisible({ timeout: 30_000 });
+}
+
 async function openEditBillingSettings(page) {
   await page.getByRole('button', { name: 'Edit Billing Settings' }).click();
   await expect(
@@ -157,7 +190,9 @@ module.exports = {
   ACCOUNT_BILLING_URL,
   loginAsAdmin,
   loginAsNonAdmin,
+  loginAsWorkerFirmAdmin,
   gotoAccountBilling,
+  gotoWorkerFirmAccountBilling,
   openEditBillingSettings,
   saveEditBillingSettings,
   openHistory,

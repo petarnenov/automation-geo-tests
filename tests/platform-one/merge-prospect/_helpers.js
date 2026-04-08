@@ -47,7 +47,10 @@ async function runMergeProspectSmokeWithProvisionedProspect({
  * @param {{firstName: string, lastName: string}} args.prospect
  */
 async function runMergeProspectSmoke({ page, workerFirm, prospect }) {
-  test.setTimeout(180_000);
+  // 300s — under parallel load the qa2 contact-search indexer can lag 60-90s
+  // for a freshly-created dummy firm, and the retry loop in the "Open client"
+  // step alone budgets ~100s. Plus login (~10s), modal flow (~30s), Cancel.
+  test.setTimeout(300_000);
 
   const firmCode = workerFirm.firmCd;
   const firmDisplayName = workerFirm.firmName;
@@ -81,18 +84,37 @@ async function runMergeProspectSmoke({ page, workerFirm, prospect }) {
   });
 
   await test.step(`Open client "${clientLastName}"`, async () => {
-    const searchBox = page.getByRole('textbox', {
-      name: /Enter Client or Household/i,
-    });
-    await searchBox.click();
-    await searchBox.fill(clientLastName);
-
+    // Use placeholder, NOT getByRole({name}) — once the input has a value, its
+    // accessible name flips to that value, breaking re-querying inside the
+    // retry loop below.
+    const searchBox = page.locator(
+      'input[placeholder*="Enter Client or Household"]'
+    );
     const clientOption = page
       .getByText(new RegExp(`${escapedLast}.*\\(C\\)`))
       .first();
-    // 30s — under parallel load qa2's contact search can take 15-25s to
-    // surface results for a freshly-created dummy firm.
-    await expect(clientOption).toBeVisible({ timeout: 30_000 });
+    // qa2's contact search indexer lags 30-90s for a freshly-created dummy
+    // firm, especially under parallel load (multiple workers all hitting the
+    // search at the same time). A single fill + 30s wait often races the
+    // indexer and surfaces "No results for this search". Re-type the query
+    // every ~8s so each attempt re-issues the underlying search request once
+    // the indexer has caught up. 12 attempts × 8s ≈ 100s total budget.
+    let lastError;
+    for (let attempt = 0; attempt < 12; attempt++) {
+      await searchBox.click();
+      await searchBox.fill('');
+      await searchBox.fill(clientLastName);
+      try {
+        await expect(clientOption).toBeVisible({ timeout: 8_000 });
+        lastError = null;
+        break;
+      } catch (e) {
+        lastError = e;
+      }
+    }
+    if (lastError) {
+      throw lastError;
+    }
     await clientOption.click();
 
     await expect(
@@ -103,12 +125,14 @@ async function runMergeProspectSmoke({ page, workerFirm, prospect }) {
     ).toBeVisible();
   });
 
+  // Use getByPlaceholder, NOT getByRole('textbox', { name: 'Search Prospect Name' }):
+  // once you type into the input, its accessible name flips from the placeholder
+  // to the typed value, so the role+name locator stops matching mid-step.
+  const prospectSearch = page.getByPlaceholder('Search Prospect Name');
+
   await test.step('Open merge modal and verify prospect autocomplete', async () => {
     await page.getByRole('button', { name: 'Merge With Prospect' }).click();
 
-    const prospectSearch = page.getByRole('textbox', {
-      name: 'Search Prospect Name',
-    });
     await expect(prospectSearch).toBeVisible({ timeout: 10_000 });
     await prospectSearch.click();
     // Use the worker prospect's last-name prefix for an exact-ish match.
@@ -123,7 +147,26 @@ async function runMergeProspectSmoke({ page, workerFirm, prospect }) {
   });
 
   await test.step('SAFETY: cancel without merging', async () => {
-    await page.getByText('Cancel', { exact: true }).first().click();
+    // Two non-obvious traps in this step:
+    //   1. The downshift autocomplete listbox from the previous step renders
+    //      its <li role="option" id="downshift-..."> options as an overlay that
+    //      visually covers the modal's "Cancel" element, intercepting clicks.
+    //      Pressing Escape closes the listbox BUT also closes the parent modal
+    //      (the modal listens for Escape too) — leaving the page with a single
+    //      "Cancel | Reset" link belonging to the underlying Edit Client form.
+    //   2. `getByText('Cancel').first()` then matches THAT page-level Cancel
+    //      and navigates the user away from Edit Client back to Manage Contacts,
+    //      so the post-cancel "Merge With Prospect" assertion fails.
+    // Robust path: scope Cancel to the modal by anchoring on the sibling
+    // "Merge" button (only one such button on the page — the modal's submit),
+    // and force-click to bypass the autocomplete overlay without dismissing
+    // either the listbox or the modal beforehand.
+    const modalFooter = page
+      .getByRole('button', { name: 'Merge', exact: true })
+      .locator('..');
+    await modalFooter
+      .getByText('Cancel', { exact: true })
+      .click({ force: true });
     await expect(
       page.getByRole('button', { name: 'Merge With Prospect' })
     ).toBeVisible({ timeout: 5000 });

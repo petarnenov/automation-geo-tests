@@ -21,8 +21,9 @@
 
 const { test, expect } = require('@playwright/test');
 const {
-  loginAsAdmin,
+  loginAsWorkerFirmAdmin,
   loginAsNonAdmin,
+  gotoWorkerFirmAccountBilling,
   gotoAccountBilling,
   openEditBillingSettings,
   saveEditBillingSettings,
@@ -32,9 +33,12 @@ const {
 const VALUE_A = 'Electronic';
 const VALUE_B = 'Paper';
 
+// HYBRID isolation: Phase 1 uses workerFirm (race-free), Phase 2 stays on
+// firm 106 + tyler (read-only check, no race). See C25193 for full rationale.
 test('@pepi C25194 Account Billing method - Admin and Non-Admin', async ({
   page,
   context,
+  workerFirm,
 }) => {
   test.setTimeout(240_000);
 
@@ -44,8 +48,8 @@ test('@pepi C25194 Account Billing method - Admin and Non-Admin', async ({
   let secondValue;
 
   await test.step('Phase 1.1: change Billing Method', async () => {
-    await loginAsAdmin(context, page);
-    await gotoAccountBilling(page);
+    await loginAsWorkerFirmAdmin(context, page, workerFirm);
+    await gotoWorkerFirmAccountBilling(page, workerFirm);
 
     // Read the currently displayed Billing Method to decide which direction
     // to flip in. The card text node sits as a sibling of the "Billing Method"

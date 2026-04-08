@@ -24,22 +24,37 @@
 
 const { test, expect } = require('@playwright/test');
 const {
-  loginAsAdmin,
+  loginAsWorkerFirmAdmin,
   loginAsNonAdmin,
+  gotoWorkerFirmAccountBilling,
   gotoAccountBilling,
   openEditBillingSettings,
   saveEditBillingSettings,
   setComboBoxValue,
 } = require('./_helpers');
 
-const ACCOUNT_A = 'Arnold, Delaney (12287266)';
-const ACCOUNT_B = 'Arnold, Delaney (66629414)';
-
+// HYBRID isolation: Phase 1 uses workerFirm (race-free), Phase 2 stays on
+// firm 106 + tyler (read-only check, no race). See C25193 for full rationale.
+//
+// Dropdown values are derived dynamically from the worker firm's auto-created
+// accounts. Each dummy firm client has 2-3 accounts named accnum-YYYY...-N-M;
+// the combo renders them as "{accountTitle} ({accountNum})" which for dummy
+// firms boils down to "{num} ({num})" since title === num.
 test('@pepi C25195 Account for Billing - Admin and Non-Admin', async ({
   page,
   context,
+  workerFirm,
 }) => {
   test.setTimeout(240_000);
+
+  if (workerFirm.accounts.length < 2) {
+    throw new Error(
+      `C25195 needs at least 2 accounts on the worker firm's client; got ${workerFirm.accounts.length}`
+    );
+  }
+  const formatOption = (a) => `${a.title} (${a.num})`;
+  const ACCOUNT_A = formatOption(workerFirm.accounts[0]);
+  const ACCOUNT_B = formatOption(workerFirm.accounts[1]);
 
   /** @type {string} */
   let firstValue;
@@ -47,8 +62,8 @@ test('@pepi C25195 Account for Billing - Admin and Non-Admin', async ({
   let secondValue;
 
   await test.step('Phase 1.1: change Account for Billing', async () => {
-    await loginAsAdmin(context, page);
-    await gotoAccountBilling(page);
+    await loginAsWorkerFirmAdmin(context, page, workerFirm);
+    await gotoWorkerFirmAccountBilling(page, workerFirm);
 
     const current = (
       await page
@@ -66,7 +81,7 @@ test('@pepi C25195 Account for Billing - Admin and Non-Admin', async ({
     }
     test.info().annotations.push({
       type: 'captured',
-      description: `current=${current} first=${firstValue} second=${secondValue}`,
+      description: `firmCd=${workerFirm.firmCd} current=${current} first=${firstValue} second=${secondValue}`,
     });
 
     await openEditBillingSettings(page);

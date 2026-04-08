@@ -23,8 +23,9 @@
 
 const { test, expect } = require('@playwright/test');
 const {
-  loginAsAdmin,
+  loginAsWorkerFirmAdmin,
   loginAsNonAdmin,
+  gotoWorkerFirmAccountBilling,
   gotoAccountBilling,
   openEditBillingSettings,
   saveEditBillingSettings,
@@ -56,9 +57,12 @@ async function setCommissionFee(page, value) {
   await option.click();
 }
 
+// HYBRID isolation: Phase 1 uses workerFirm (race-free), Phase 2 stays on
+// firm 106 + tyler (read-only check, no race). See C25193 for full rationale.
 test('@pepi C25201 Account Commission Fee - Admin and Non-Admin', async ({
   page,
   context,
+  workerFirm,
 }) => {
   test.setTimeout(240_000);
 
@@ -68,8 +72,8 @@ test('@pepi C25201 Account Commission Fee - Admin and Non-Admin', async ({
   let testValue;
 
   await test.step('Phase 1.1: change Commission Fee', async () => {
-    await loginAsAdmin(context, page);
-    await gotoAccountBilling(page);
+    await loginAsWorkerFirmAdmin(context, page, workerFirm);
+    await gotoWorkerFirmAccountBilling(page, workerFirm);
 
     originalValue = (
       await page
@@ -96,19 +100,9 @@ test('@pepi C25201 Account Commission Fee - Admin and Non-Admin', async ({
     ).toHaveText(testValue, { timeout: 15_000 });
   });
 
-  await test.step('Phase 1.2: cleanup — revert Commission Fee', async () => {
-    await openEditBillingSettings(page);
-    await setCommissionFee(page, /** @type {'Yes'|'No'} */ (originalValue));
-    await saveEditBillingSettings(page);
-    await expect(
-      page
-        .locator('text=Commission Fee')
-        .first()
-        .locator('xpath=following-sibling::*[1]')
-    ).toHaveText(originalValue, { timeout: 15_000 });
-  });
+  // No cleanup revert step — each worker has its own dummy firm.
 
-  await test.step('Phase 2: non-admin tyler cannot see Edit Billing Settings', async () => {
+  await test.step('Phase 2: tyler (firm 106 non-admin) cannot see Edit Billing Settings', async () => {
     await loginAsNonAdmin(context, page);
     await gotoAccountBilling(page);
     await expect(

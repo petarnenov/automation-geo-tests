@@ -17,8 +17,9 @@
 
 const { test, expect } = require('@playwright/test');
 const {
-  loginAsAdmin,
+  loginAsWorkerFirmAdmin,
   loginAsNonAdmin,
+  gotoWorkerFirmAccountBilling,
   gotoAccountBilling,
   openEditBillingSettings,
   saveEditBillingSettings,
@@ -32,15 +33,18 @@ const EXPIRATION_DATE = '07/20/2027';
 // Card renders the amount as "$125.00" followed by " Exp. Date: 07/20/2027".
 const EXPECTED_CARD_FRAGMENT = /\$\s*125\.00[\s\S]*Exp\.\s*Date:\s*07\/20\/2027/;
 
+// HYBRID isolation: Phase 1 uses workerFirm (race-free), Phase 2 stays on
+// firm 106 + tyler (read-only check, no race). See C25193 for full rationale.
 test('@pepi C25199 Account Adjustment/Expiration Date - Amount', async ({
   page,
   context,
+  workerFirm,
 }) => {
   test.setTimeout(240_000);
 
   await test.step('Phase 1: admin sets Advisor billing Amount adjustment', async () => {
-    await loginAsAdmin(context, page);
-    await gotoAccountBilling(page);
+    await loginAsWorkerFirmAdmin(context, page, workerFirm);
+    await gotoWorkerFirmAccountBilling(page, workerFirm);
     await openEditBillingSettings(page);
 
     const addLink = page.locator('a', { hasText: 'Add An Adjustment' }).first();

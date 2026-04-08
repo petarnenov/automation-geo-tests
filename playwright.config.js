@@ -4,19 +4,11 @@ const { defineConfig, devices } = playwrightTest;
 const fs = require('fs');
 const path = require('path');
 const { STORAGE_STATE_PATH } = require('./tests/_helpers/global-setup');
-const featureMutex = require('./tests/_helpers/feature-mutex');
 const { setupWorkerFirm } = require('./tests/_helpers/worker-firm');
 
 // Monkey-patch the base `test` exported by @playwright/test so every spec
-// (regardless of import path) gets two extra fixtures for free, without
+// (regardless of import path) gets the workerFirm fixture for free, without
 // touching imports anywhere in tests/:
-//
-//   _featureLock — auto fixture; acquires a feature-area mutex while the
-//                  remaining specs still hardcode firm 106. Removed once
-//                  every spec is migrated to per-worker dummy firms.
-//                  { timeout: 0 } = fixture phase does not consume the per-test
-//                  timeout (mutex queue wait is unbounded; stale locks cleared
-//                  in feature-mutex.js after 5m).
 //
 //   workerFirm   — opt-in worker-scoped fixture; provisions a fresh dummy
 //                  firm via /qa/createDummyFirm.do on first use within a
@@ -27,22 +19,6 @@ const { setupWorkerFirm } = require('./tests/_helpers/worker-firm');
 // place by the time `require('@playwright/test')` resolves inside specs.
 const baseTest = playwrightTest.test;
 playwrightTest.test = baseTest.extend({
-  _featureLock: [
-    async ({}, use, testInfo) => {
-      const feature = featureMutex.deriveFeature(testInfo.file);
-      if (!feature) {
-        await use();
-        return;
-      }
-      const lockPath = await featureMutex.acquire(feature);
-      try {
-        await use();
-      } finally {
-        featureMutex.release(lockPath);
-      }
-    },
-    { auto: true, timeout: 0 },
-  ],
   workerFirm: [
     async ({}, use, workerInfo) => {
       const firm = await setupWorkerFirm();

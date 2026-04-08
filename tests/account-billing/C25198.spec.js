@@ -30,8 +30,9 @@
 
 const { test, expect } = require('@playwright/test');
 const {
-  loginAsAdmin,
+  loginAsWorkerFirmAdmin,
   loginAsNonAdmin,
+  gotoWorkerFirmAccountBilling,
   gotoAccountBilling,
   openEditBillingSettings,
   saveEditBillingSettings,
@@ -46,15 +47,18 @@ const EXPIRATION_DATE = '06/15/2027';
 // followed by "Exp. Date: 06/15/2027". The regex tolerates the formatting/spacing.
 const EXPECTED_CARD_FRAGMENT = /7\.00\s*%[\s\S]*Exp\.\s*Date:\s*06\/15\/2027/;
 
+// HYBRID isolation: Phase 1 uses workerFirm (race-free), Phase 2 stays on
+// firm 106 + tyler (read-only check, no race). See C25193 for full rationale.
 test('@pepi C25198 Account Adjustment/Expiration Date - Percent', async ({
   page,
   context,
+  workerFirm,
 }) => {
   test.setTimeout(240_000);
 
   await test.step('Phase 1: admin sets Advisor billing Percent adjustment', async () => {
-    await loginAsAdmin(context, page);
-    await gotoAccountBilling(page);
+    await loginAsWorkerFirmAdmin(context, page, workerFirm);
+    await gotoWorkerFirmAccountBilling(page, workerFirm);
     await openEditBillingSettings(page);
 
     // If no adjustment exists yet for Advisor billing, the "Add An Adjustment"

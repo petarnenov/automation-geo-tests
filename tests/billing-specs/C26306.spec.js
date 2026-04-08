@@ -159,32 +159,68 @@ test('@pepi C26306 Copy a billing specification to another firm', async ({
     // scrollIntoViewIfNeeded does NOT work because the element doesn't exist
     // in the DOM until the scroll position renders it.)
     const found = await page.evaluate(async (firmCd) => {
-      // Find the scroll container by walking up from any rendered option.
-      const anyOption = document.querySelector('[data-value]');
-      if (!anyOption) return 'no-options-rendered';
-      let scroller = anyOption.parentElement;
-      while (scroller && scroller.scrollHeight <= scroller.clientHeight) {
-        scroller = scroller.parentElement;
-      }
-      if (!scroller) return 'no-scroller';
+      // The LazyList scroller is the section[role="combo-box-list"] (see
+      // ComboBox.js renderList → LazyList attributes). Each option is a div
+      // with role="combo-box-list-item" and data-value="<firmCd>".
+      const scroller = document.querySelector('[role="combo-box-list"]');
+      if (!scroller) return { status: 'no-scroller' };
       const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
-      const sel = `[data-value="${firmCd}"]`;
-      // Try the easy case first.
-      if (document.querySelector(sel)) return 'already-rendered';
-      // Otherwise scroll in steps until the option appears or we run out.
-      for (let step = 0; step < 50; step++) {
-        scroller.scrollTop = scroller.scrollTop + scroller.clientHeight * 0.8;
-        await sleep(80);
-        if (document.querySelector(sel)) return 'scrolled-into-view';
-        if (
-          scroller.scrollTop + scroller.clientHeight >=
-          scroller.scrollHeight - 1
-        ) {
-          break;
+      const optSel = `[role="combo-box-list-item"][data-value="${firmCd}"]`;
+      const dump = () => Array.from(
+        scroller.querySelectorAll('[role="combo-box-list-item"]')
+      ).map((el) => el.getAttribute('data-value'));
+      const initial = dump();
+      if (document.querySelector(optSel)) {
+        return { status: 'already-rendered', initialCount: initial.length, initial };
+      }
+      // Force loadMore by jumping straight to the bottom each iteration. The
+      // LazyList onScroll handler only adds items when scrollTop >= scrollHeight - height.
+      let lastCount = initial.length;
+      let stagnant = 0;
+      for (let step = 0; step < 80; step++) {
+        scroller.scrollTop = scroller.scrollHeight;
+        await sleep(120);
+        if (document.querySelector(optSel)) {
+          return {
+            status: 'scrolled-into-view',
+            step,
+            initialCount: initial.length,
+            finalCount: dump().length,
+          };
+        }
+        const currentCount = dump().length;
+        if (currentCount === lastCount) {
+          stagnant++;
+          if (stagnant >= 4) {
+            return {
+              status: 'stagnated',
+              step,
+              initialCount: initial.length,
+              finalCount: currentCount,
+              tail: dump().slice(-10),
+              scrollHeight: scroller.scrollHeight,
+              clientHeight: scroller.clientHeight,
+              scrollTop: scroller.scrollTop,
+            };
+          }
+        } else {
+          stagnant = 0;
+          lastCount = currentCount;
         }
       }
-      return document.querySelector(sel) ? 'final-render' : 'not-found';
+      return {
+        status: 'not-found',
+        initialCount: initial.length,
+        finalCount: dump().length,
+        tail: dump().slice(-10),
+      };
     }, FIRM_B);
+    // eslint-disable-next-line no-console
+    console.log('[C26306 debug] firm dropdown probe:', JSON.stringify(found));
+    expect(
+      found.status,
+      `dummy firm ${FIRM_B} option must render in dropdown — ${JSON.stringify(found)}`
+    ).not.toBe('not-found');
     expect(found, `dummy firm ${FIRM_B} option must render in dropdown`).not.toBe(
       'not-found'
     );
