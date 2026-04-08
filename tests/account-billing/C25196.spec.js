@@ -42,10 +42,14 @@ const {
 const SPEC_A = '55 BPS';
 const SPEC_B = '55 BPS-Flows';
 
-test('@pepi C25196 Spec Name/Active Date - Admin and Non-Admin', async ({
-  page,
-  context,
-}) => {
+// Race partner: C25200 also mutates `adviserBillingSpecification` on firm
+// 106 (it sets it to "55 BPS" as a prerequisite for the Advisor Split flow).
+// Both specs need firm 106 because dummy firms don't seed billing specs like
+// "55 BPS" / "55 BPS-Flows" / "60 BPS". With only this single race partner
+// remaining, a per-spec retry rides out the rare collision.
+test.describe.configure({ retries: 1 });
+
+test('@pepi C25196 Spec Name/Active Date - Admin and Non-Admin', async ({ page, context }) => {
   test.setTimeout(240_000);
 
   /** @type {string} */
@@ -80,11 +84,7 @@ test('@pepi C25196 Spec Name/Active Date - Admin and Non-Admin', async ({
 
     await openEditBillingSettings(page);
     await setComboBoxValue(page, 'adviserBillingSpecification', firstSpec);
-    await setReactDatePicker(
-      page,
-      page.locator('#adviserBillingActiveDate'),
-      '06/15/2025'
-    );
+    await setReactDatePicker(page, page.locator('#adviserBillingActiveDate'), '06/15/2025');
     await saveEditBillingSettings(page);
 
     await expect(
@@ -108,8 +108,6 @@ test('@pepi C25196 Spec Name/Active Date - Admin and Non-Admin', async ({
   await test.step('Phase 2: non-admin tyler cannot see Edit Billing Settings', async () => {
     await loginAsNonAdmin(context, page);
     await gotoAccountBilling(page);
-    await expect(
-      page.getByRole('button', { name: 'Edit Billing Settings' })
-    ).toHaveCount(0);
+    await expect(page.getByRole('button', { name: 'Edit Billing Settings' })).toHaveCount(0);
   });
 });

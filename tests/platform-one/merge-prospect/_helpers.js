@@ -26,11 +26,7 @@ const { ensureProspect } = require('../../_helpers/worker-firm');
  *
  * @param {{ page: import('@playwright/test').Page, context: import('@playwright/test').BrowserContext, workerFirm: any }} args
  */
-async function runMergeProspectSmokeWithProvisionedProspect({
-  page,
-  context,
-  workerFirm,
-}) {
+async function runMergeProspectSmokeWithProvisionedProspect({ page, context, workerFirm }) {
   const prospect = await ensureProspect(page, context, workerFirm);
   await runMergeProspectSmoke({ page, workerFirm, prospect });
 }
@@ -73,10 +69,7 @@ async function runMergeProspectSmoke({ page, workerFirm, prospect }) {
     if (!(await firmInput.inputValue()).includes(`(${firmCode})`)) {
       await firmInput.click();
       await firmInput.fill(String(firmCode));
-      await page
-        .getByText(`(${firmCode}) ${firmDisplayName}`)
-        .first()
-        .click();
+      await page.getByText(`(${firmCode}) ${firmDisplayName}`).first().click();
     }
     await expect(firmInput).toHaveValue(new RegExp(`\\(${firmCode}\\)`), {
       timeout: 15_000,
@@ -87,25 +80,22 @@ async function runMergeProspectSmoke({ page, workerFirm, prospect }) {
     // Use placeholder, NOT getByRole({name}) — once the input has a value, its
     // accessible name flips to that value, breaking re-querying inside the
     // retry loop below.
-    const searchBox = page.locator(
-      'input[placeholder*="Enter Client or Household"]'
-    );
-    const clientOption = page
-      .getByText(new RegExp(`${escapedLast}.*\\(C\\)`))
-      .first();
-    // qa2's contact search indexer lags 30-90s for a freshly-created dummy
-    // firm, especially under parallel load (multiple workers all hitting the
-    // search at the same time). A single fill + 30s wait often races the
-    // indexer and surfaces "No results for this search". Re-type the query
-    // every ~8s so each attempt re-issues the underlying search request once
-    // the indexer has caught up. 12 attempts × 8s ≈ 100s total budget.
+    const searchBox = page.locator('input[placeholder*="Enter Client or Household"]');
+    const clientOption = page.getByText(new RegExp(`${escapedLast}.*\\(C\\)`)).first();
+    // qa2's contact search indexer lags 30-150s for a freshly-created dummy
+    // firm, especially under full @pepi suite load (8 workers + the
+    // account-billing batch all spinning up dummy firms in parallel). A
+    // single fill + 30s wait races the indexer and surfaces "No results for
+    // this search". Re-type the query every ~10s so each attempt re-issues
+    // the underlying search request once the indexer has caught up.
+    // 18 attempts × 10s ≈ 180s total budget.
     let lastError;
-    for (let attempt = 0; attempt < 12; attempt++) {
+    for (let attempt = 0; attempt < 18; attempt++) {
       await searchBox.click();
       await searchBox.fill('');
       await searchBox.fill(clientLastName);
       try {
-        await expect(clientOption).toBeVisible({ timeout: 8_000 });
+        await expect(clientOption).toBeVisible({ timeout: 10_000 });
         lastError = null;
         break;
       } catch (e) {
@@ -117,12 +107,10 @@ async function runMergeProspectSmoke({ page, workerFirm, prospect }) {
     }
     await clientOption.click();
 
-    await expect(
-      page.getByRole('heading', { name: clientHeadingPattern })
-    ).toBeVisible({ timeout: 15_000 });
-    await expect(
-      page.getByRole('button', { name: 'Merge With Prospect' })
-    ).toBeVisible();
+    await expect(page.getByRole('heading', { name: clientHeadingPattern })).toBeVisible({
+      timeout: 15_000,
+    });
+    await expect(page.getByRole('button', { name: 'Merge With Prospect' })).toBeVisible();
   });
 
   // Use getByPlaceholder, NOT getByRole('textbox', { name: 'Search Prospect Name' }):
@@ -138,11 +126,7 @@ async function runMergeProspectSmoke({ page, workerFirm, prospect }) {
     // Use the worker prospect's last-name prefix for an exact-ish match.
     await prospectSearch.fill(prospect.lastName);
 
-    const anyProspectOption = page
-      .getByRole('listbox')
-      .last()
-      .getByRole('option')
-      .first();
+    const anyProspectOption = page.getByRole('listbox').last().getByRole('option').first();
     await expect(anyProspectOption).toBeVisible({ timeout: 15_000 });
   });
 
@@ -161,15 +145,11 @@ async function runMergeProspectSmoke({ page, workerFirm, prospect }) {
     // "Merge" button (only one such button on the page — the modal's submit),
     // and force-click to bypass the autocomplete overlay without dismissing
     // either the listbox or the modal beforehand.
-    const modalFooter = page
-      .getByRole('button', { name: 'Merge', exact: true })
-      .locator('..');
-    await modalFooter
-      .getByText('Cancel', { exact: true })
-      .click({ force: true });
-    await expect(
-      page.getByRole('button', { name: 'Merge With Prospect' })
-    ).toBeVisible({ timeout: 5000 });
+    const modalFooter = page.getByRole('button', { name: 'Merge', exact: true }).locator('..');
+    await modalFooter.getByText('Cancel', { exact: true }).click({ force: true });
+    await expect(page.getByRole('button', { name: 'Merge With Prospect' })).toBeVisible({
+      timeout: 5000,
+    });
   });
 }
 
@@ -209,17 +189,20 @@ async function runMergeProspectPermissionsDisabled({
   await searchBox.fill(clientName);
 
   const escaped = clientName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\s+/g, '\\s*');
-  await page.getByText(new RegExp(`${escaped}\\s*\\(C\\)`)).first().click();
+  await page
+    .getByText(new RegExp(`${escaped}\\s*\\(C\\)`))
+    .first()
+    .click();
 
-  await expect(
-    page.getByRole('heading', { name: clientHeadingPattern })
-  ).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByRole('heading', { name: clientHeadingPattern })).toBeVisible({
+    timeout: 15_000,
+  });
 
   // The Merge With Prospect button must be ABSENT (or hidden) when MERGE
   // PROSPECT permissions are disabled.
-  await expect(
-    page.getByRole('button', { name: 'Merge With Prospect' })
-  ).toHaveCount(0, { timeout: 5000 });
+  await expect(page.getByRole('button', { name: 'Merge With Prospect' })).toHaveCount(0, {
+    timeout: 5000,
+  });
 }
 
 module.exports = {

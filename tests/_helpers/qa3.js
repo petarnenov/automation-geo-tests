@@ -9,10 +9,7 @@ const fs = require('fs');
 const path = require('path');
 
 const cfg = JSON.parse(
-  fs.readFileSync(
-    path.join(__dirname, '..', '..', 'testrail.config.json'),
-    'utf8'
-  )
+  fs.readFileSync(path.join(__dirname, '..', '..', 'testrail.config.json'), 'utf8')
 );
 
 /**
@@ -56,9 +53,7 @@ async function loginPlatformOneAdmin(page) {
   const platformOneContent = page.getByText(/Welcome to Platform One/i);
   await Promise.race([
     usernameInput.waitFor({ state: 'visible', timeout: 30_000 }).catch(() => {}),
-    platformOneContent
-      .waitFor({ state: 'visible', timeout: 30_000 })
-      .catch(() => {}),
+    platformOneContent.waitFor({ state: 'visible', timeout: 30_000 }).catch(() => {}),
   ]);
 
   if (await usernameInput.isVisible().catch(() => false)) {
@@ -123,8 +118,7 @@ async function switchToAdvisor(context, page, loginName) {
   await loginAsAdvisor(page, loginName);
 }
 
-const XLSX_MIME =
-  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+const XLSX_MIME = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
 
 /**
  * Normalize the various forms an upload helper accepts into a fileChooser
@@ -200,13 +194,15 @@ async function _uploadExclusionsXlsx(page, { url, firmCode, file, defaultName })
 
   // First-time-only confirmation modal — subsequent uploads skip it.
   try {
-    await page
-      .getByRole('button', { name: 'Yes, Proceed' })
-      .click({ timeout: 10_000 });
+    await page.getByRole('button', { name: 'Yes, Proceed' }).click({ timeout: 10_000 });
   } catch {}
 
+  // 180s — under full @pepi suite parallel load (8 workers), qa2 queues
+  // bulk-exclusions uploads serially backend-side, so the success message can
+  // surface 100-150s after the click. 90s was enough for the partial-suite
+  // run but flaked on C25377 / C26075 in the full suite.
   await expect(page.getByText(/imported successfully/i).first()).toBeVisible({
-    timeout: 90_000,
+    timeout: 180_000,
   });
   await page.getByRole('button', { name: 'Close', exact: true }).click();
 }
@@ -254,15 +250,11 @@ async function uploadBillingBucketExclusions(page, firmCode, file) {
  * @param {string} householdUuid
  */
 async function gotoHouseholdBillingSettings(page, householdUuid) {
-  await page.goto(
-    `/react/indexReact.do#/client/5/${householdUuid}/detailsActivity/info`
-  );
+  await page.goto(`/react/indexReact.do#/client/5/${householdUuid}/detailsActivity/info`);
   // The Billing Settings tab content is rendered through SPA routing — clicking
   // the in-page link is more reliable than navigating to the deep URL directly.
   await page.getByRole('link', { name: 'Billing Settings' }).click();
-  await expect(
-    page.getByText(/ADVISOR BILLING SPEC/i).first()
-  ).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByText(/ADVISOR BILLING SPEC/i).first()).toBeVisible({ timeout: 15_000 });
 }
 
 /**
@@ -271,13 +263,9 @@ async function gotoHouseholdBillingSettings(page, householdUuid) {
  * @param {string} clientUuid
  */
 async function gotoClientBillingSettings(page, clientUuid) {
-  await page.goto(
-    `/react/indexReact.do#/client/1/${clientUuid}/detailsActivity/info`
-  );
+  await page.goto(`/react/indexReact.do#/client/1/${clientUuid}/detailsActivity/info`);
   await page.getByRole('link', { name: 'Billing Settings' }).click();
-  await expect(
-    page.getByText(/ADVISOR BILLING SPEC/i).first()
-  ).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByText(/ADVISOR BILLING SPEC/i).first()).toBeVisible({ timeout: 15_000 });
 }
 
 /**

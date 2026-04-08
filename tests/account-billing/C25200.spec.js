@@ -46,6 +46,13 @@ const SPLIT_OPTION = '77.5% Ruffing/22.5% Rawal';
 const ACTIVE_DATE = '01/05/2024';
 const INACTIVE_DATE = '12/31/2030';
 
+// Race partner: C25196 also mutates `adviserBillingSpecification` on firm
+// 106. Both specs need firm 106 because dummy firms don't seed billing
+// specs like "55 BPS" or advisor split options like
+// "77.5% Ruffing/22.5% Rawal". With only this single race partner remaining,
+// a per-spec retry rides out the rare collision.
+test.describe.configure({ retries: 1 });
+
 test('@pepi C25200 Account Advisor Split - Create', async ({ page, context }) => {
   test.setTimeout(240_000);
 
@@ -59,16 +66,8 @@ test('@pepi C25200 Account Advisor Split - Create', async ({ page, context }) =>
     await setComboBoxValue(page, 'adviserBillingSpecification', ADVISOR_SPEC);
 
     await setComboBoxValue(page, 'billingAdvisorSplit', SPLIT_OPTION);
-    await setReactDatePicker(
-      page,
-      page.locator('#billingAdvisorSplitActiveDate'),
-      ACTIVE_DATE
-    );
-    await setReactDatePicker(
-      page,
-      page.locator('#billingAdvisorSplitInactiveDate'),
-      INACTIVE_DATE
-    );
+    await setReactDatePicker(page, page.locator('#billingAdvisorSplitActiveDate'), ACTIVE_DATE);
+    await setReactDatePicker(page, page.locator('#billingAdvisorSplitInactiveDate'), INACTIVE_DATE);
     await saveEditBillingSettings(page);
 
     // Card "Advisor Split" row should now show the split label, and "Inactive Date"
@@ -88,8 +87,6 @@ test('@pepi C25200 Account Advisor Split - Create', async ({ page, context }) =>
   await test.step('Phase 2: non-admin tyler cannot see Edit Billing Settings', async () => {
     await loginAsNonAdmin(context, page);
     await gotoAccountBilling(page);
-    await expect(
-      page.getByRole('button', { name: 'Edit Billing Settings' })
-    ).toHaveCount(0);
+    await expect(page.getByRole('button', { name: 'Edit Billing Settings' })).toHaveCount(0);
   });
 });
