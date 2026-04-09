@@ -1,12 +1,18 @@
-// ESLint flat config for the @pepi Playwright test suite.
-// Loaded by ESLint 9+ automatically; works regardless of package.json `type`.
+// GeoWealth E2E — workspace-root ESLint flat config (D-38).
 //
-// Scope:
-//   - Lint test specs and helpers under tests/, plus reporters/ and scripts/
-//   - Ignore generated artefacts (node_modules, test-results, playwright-report)
-//   - Use Playwright plugin's recommended rules + a small house-style overlay
-//   - Defer all formatting to Prettier (eslint-config-prettier turns off
-//     conflicting style rules)
+// This config covers the entire monorepo: framework, tooling, legacy POC,
+// and all per-team test packages. The legacy POC's previous standalone
+// `eslint.config.mjs` is merged into this file (per Phase 0 Step 0.A).
+//
+// Sections, in order:
+//   1. Global ignores
+//   2. Baseline @eslint/js recommended rules
+//   3. Workspace-wide CommonJS .js files (legacy POC + scripts + reporters)
+//   4. Workspace-wide ESM .mjs files (eslint configs etc.)
+//   5. Workspace-wide TypeScript .ts files (framework + tooling + new tests)
+//   6. Playwright-specific overlay for spec files
+//   7. Node-side reporter / scripts overlay
+//   8. Prettier (must come last to disable conflicting style rules)
 //
 // Run:
 //   npm run lint           — report
@@ -18,24 +24,31 @@ import js from '@eslint/js';
 import playwright from 'eslint-plugin-playwright';
 import prettierConfig from 'eslint-config-prettier/flat';
 import globals from 'globals';
+import tseslint from '@typescript-eslint/eslint-plugin';
+import tsparser from '@typescript-eslint/parser';
 
 export default [
+  // 1. Global ignores
   {
     ignores: [
-      'node_modules/**',
-      'test-results/**',
-      'playwright-report/**',
-      '.playwright-mcp/**',
-      'tests/.auth/**',
+      '**/node_modules/**',
+      '**/test-results/**',
+      '**/playwright-report/**',
+      '**/.playwright-mcp/**',
+      '**/.playwright-recon/**',
+      '**/.auth/**',
+      // Build artifacts (none yet, but reserved for Phase 2+)
+      '**/dist/**',
+      '**/build/**',
       // Auto-generated state — never lint.
       '**/*.min.js',
     ],
   },
 
-  // Baseline JS recommended rules for every JS/MJS file in the repo.
+  // 2. Baseline JS recommended rules for every JS/MJS/TS file in the repo.
   js.configs.recommended,
 
-  // Repo-wide CommonJS files (specs, helpers, reporter, scripts).
+  // 3. Workspace-wide CommonJS .js files (legacy POC + scripts + reporters)
   {
     files: ['**/*.js'],
     languageOptions: {
@@ -71,7 +84,7 @@ export default [
     },
   },
 
-  // ESLint flat config files themselves are ESM.
+  // 4. Workspace-wide ESM .mjs files (ESLint flat configs etc.)
   {
     files: ['**/*.mjs', 'eslint.config.mjs'],
     languageOptions: {
@@ -81,11 +94,50 @@ export default [
     },
   },
 
-  // Playwright-specific rules: only apply to spec files and shared helpers
-  // that interact with Playwright APIs.
+  // 5. Workspace-wide TypeScript .ts files (framework + tooling + new tests)
+  {
+    files: ['**/*.ts', '**/*.tsx'],
+    languageOptions: {
+      parser: tsparser,
+      ecmaVersion: 2023,
+      sourceType: 'module',
+      globals: {
+        ...globals.node,
+        ...globals.browser,
+      },
+    },
+    plugins: {
+      '@typescript-eslint': tseslint,
+    },
+    rules: {
+      // Start permissive — strict mode will be tightened in Phase 2 once
+      // the framework's surface stabilizes.
+      'no-unused-vars': 'off',
+      '@typescript-eslint/no-unused-vars': [
+        'warn',
+        {
+          argsIgnorePattern: '^_',
+          varsIgnorePattern: '^_',
+          caughtErrorsIgnorePattern: '^_',
+        },
+      ],
+      'no-console': 'off',
+      'no-empty-pattern': 'off',
+      'prefer-const': 'warn',
+      eqeqeq: ['error', 'smart'],
+      'no-var': 'error',
+    },
+  },
+
+  // 6. Playwright-specific overlay for spec files (legacy POC + new test packages)
   {
     ...playwright.configs['flat/recommended'],
-    files: ['tests/**/*.js', 'tests/**/*.mjs'],
+    files: [
+      'packages/legacy-poc/tests/**/*.js',
+      'packages/legacy-poc/tests/**/*.mjs',
+      'packages/tests-*/tests/**/*.ts',
+      'packages/framework/tests/**/*.ts',
+    ],
     rules: {
       ...playwright.configs['flat/recommended'].rules,
       // Allow conditional logic in tests — many @pepi specs branch on captured
@@ -106,14 +158,19 @@ export default [
     },
   },
 
-  // The Node-side reporter and scripts are not Playwright tests.
+  // 7. The Node-side reporter and scripts are not Playwright tests.
   {
-    files: ['reporters/**/*.js', 'scripts/**/*.js'],
+    files: [
+      'packages/legacy-poc/reporters/**/*.js',
+      'packages/legacy-poc/scripts/**/*.js',
+      'scripts/**/*.js',
+      'packages/tooling/scripts/**/*.{js,ts}',
+    ],
     rules: {
       'no-process-exit': 'off',
     },
   },
 
-  // Must come LAST so it can disable any conflicting style rules from above.
+  // 8. Must come LAST so it can disable any conflicting style rules from above.
   prettierConfig,
 ];

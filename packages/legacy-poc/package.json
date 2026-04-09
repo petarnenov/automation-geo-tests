@@ -1,0 +1,9 @@
+{
+  "name": "@geowealth/legacy-poc",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Placeholder for the existing automation-geo-tests POC. Step 0.B replaces this file with the relocated POC content.",
+  "scripts": {
+    "_phase-0-placeholder": "echo 'legacy-poc placeholder; real content lands in Phase 0 Step 0.B' && exit 0"
+  }
+}

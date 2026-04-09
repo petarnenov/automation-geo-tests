@@ -1,0 +1,14 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "rootDir": "src",
+    "outDir": "dist",
+    "noEmit": true,
+    "paths": {
+      "@geowealth/e2e-framework": ["./src/index.ts"],
+      "@geowealth/e2e-framework/*": ["./src/*"]
+    }
+  },
+  "include": [],
+  "files": []
+}

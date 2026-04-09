@@ -1,0 +1,9 @@
+{
+  "name": "@geowealth/tests-billing-servicing",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Placeholder for the Billing & Servicing team's test package. Step 0.G generates the real content from the scaffold templates.",
+  "scripts": {
+    "_phase-0-placeholder": "echo 'tests-billing-servicing placeholder; real content generated in Phase 0 Step 0.G' && exit 0"
+  }
+}

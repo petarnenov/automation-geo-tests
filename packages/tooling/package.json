@@ -1,0 +1,10 @@
+{
+  "name": "@geowealth/e2e-tooling",
+  "version": "0.1.0",
+  "private": true,
+  "description": "GeoWealth E2E CLI utilities — scaffold script, affected-package detection, CI matrix generator, ESLint local rules, version checker, TestRail aggregator. NOT consumed at test runtime.",
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  }
+}

@@ -1,25 +1,38 @@
 {
-  "name": "automation-geo-tests",
+  "name": "geowealth-e2e",
   "version": "0.1.0",
   "private": true,
-  "description": "GeoWealth Playwright automation, scoped to TestRail Run 175 cases tagged @pepi",
+  "description": "GeoWealth E2E test framework — monorepo root. Hosts framework, tooling, legacy POC, and per-team test packages.",
+  "engines": {
+    "node": "20.x"
+  },
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
-    "test": "playwright test",
-    "test:pepi": "playwright test --grep @pepi",
-    "test:pepi:dry": "TESTRAIL_REPORT_RESULTS=0 playwright test --grep @pepi",
-    "report": "playwright show-report",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "typecheck": "tsc -p packages/framework/tsconfig.json --noEmit && tsc -p packages/tooling/tsconfig.json --noEmit",
+    "_comment_legacy_scripts_": "Until Step 0.B relocates the POC into packages/legacy-poc/, the workspace root keeps the POC's npm scripts directly. Step 0.B will replace these with --workspace=@geowealth/legacy-poc passthroughs.",
+    "test": "playwright test",
+    "test:pepi": "playwright test --grep @pepi",
+    "test:pepi:dry": "TESTRAIL_REPORT_RESULTS=0 playwright test --grep @pepi",
+    "report": "playwright show-report"
   },
   "devDependencies": {
-    "@eslint/js": "^10.0.1",
-    "@playwright/test": "^1.47.0",
-    "eslint": "^10.2.0",
-    "eslint-config-prettier": "^10.1.8",
-    "eslint-plugin-playwright": "^2.10.1",
-    "globals": "^17.4.0",
-    "prettier": "^3.8.1"
+    "@eslint/js": "~10.0.1",
+    "@playwright/test": "~1.59.1",
+    "@typescript-eslint/eslint-plugin": "~8.58.0",
+    "@typescript-eslint/parser": "~8.58.0",
+    "dotenv-flow": "~4.1.0",
+    "eslint": "~10.2.0",
+    "eslint-config-prettier": "~10.1.8",
+    "eslint-plugin-playwright": "~2.10.1",
+    "globals": "~17.4.0",
+    "prettier": "~3.8.1",
+    "typescript": "~5.5.0",
+    "zod": "~3.23.0"
   }
 }

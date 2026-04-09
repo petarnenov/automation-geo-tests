@@ -1,0 +1,27 @@
+# GeoWealth E2E — code ownership and review routing.
+#
+# This file is read by GitHub (and most other forges) to require approving
+# reviews from named teams when a PR touches matching paths. The structure
+# below uses section markers so the scaffold script (Phase 1, Section 4.2.5)
+# can safely append per-team package rows without colliding with human edits.
+#
+# The scaffold script edits ONLY the section between the scaffold-managed
+# markers. Everything else is human-edited.
+
+# === BEGIN scaffold-managed: team packages ===
+# (populated by `npm run scaffold:team` in Phase 1; one row per team package)
+# === END scaffold-managed ===
+
+# === BEGIN human-managed: framework, tooling, legacy ===
+/packages/framework/                @TODO-qa-leads
+/packages/tooling/                  @TODO-qa-leads
+/packages/legacy-poc/               @TODO-qa-leads
+/packages/tests-billing-servicing/  @TODO-billing-servicing-qa @TODO-qa-leads
+/docs/adr/                          @TODO-qa-leads
+/.github/workflows/                 @TODO-qa-leads @TODO-platform
+# === END human-managed ===
+
+# Note on @TODO-* placeholders:
+#   Real GitHub team handles cannot be set until D-02 (CI platform / GitHub
+#   org confirmation) is resolved. The placeholders here keep the file
+#   structurally valid; Phase 1 entry replaces them with the real handles.

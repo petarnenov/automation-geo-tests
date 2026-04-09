@@ -112,7 +112,6 @@ test('@pepi C25084 Billing Spec Grid Shows Account Min/Max Columns', async ({ pa
     // imperative read is intentional here — the prefer-web-first lint rule
     // doesn't apply when the value drives downstream logic.
     const colId = await accountMinHeader.getAttribute('col-id');
-    // eslint-disable-next-line playwright/prefer-web-first-assertions
     expect(colId, 'Account Min header must expose col-id').toBeTruthy();
 
     const cells = page.locator(`.ag-row .ag-cell[col-id="${colId}"]`);
