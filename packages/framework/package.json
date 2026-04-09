@@ -11,6 +11,8 @@
     "./pages": "./src/pages/index.ts",
     "./components": "./src/components/index.ts",
     "./api": "./src/api/index.ts",
+    "./api/client": "./src/api/client.ts",
+    "./api/qa/DummyFirmApi": "./src/api/qa/DummyFirmApi.ts",
     "./reporters": "./src/reporters/index.ts",
     "./reporters/testrail-reporter": "./src/reporters/testrail-reporter.ts",
     "./reporters/run-summary-reporter": "./src/reporters/run-summary-reporter.ts",
