@@ -10,6 +10,7 @@
     "./fixtures/globalSetup": "./src/fixtures/globalSetup.ts",
     "./fixtures/workerFirm": "./src/fixtures/workerFirm.fixture.ts",
     "./fixtures/api": "./src/fixtures/api.fixture.ts",
+    "./fixtures/pages": "./src/fixtures/pages.fixture.ts",
     "./pages": "./src/pages/index.ts",
     "./components": "./src/components/index.ts",
     "./api": "./src/api/index.ts",
