@@ -13,6 +13,7 @@
     "./api": "./src/api/index.ts",
     "./reporters": "./src/reporters/index.ts",
     "./reporters/testrail-reporter": "./src/reporters/testrail-reporter.ts",
+    "./reporters/run-summary-reporter": "./src/reporters/run-summary-reporter.ts",
     "./helpers": "./src/helpers/index.ts",
     "./types": "./src/types/index.ts"
   },

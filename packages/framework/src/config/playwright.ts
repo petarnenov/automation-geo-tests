@@ -56,6 +56,11 @@ export function definePlaywrightConfig(
   const reporter: ReporterDescription[] = [
     ['list'],
     ['html', { open: 'never' }],
+    // D-40 / Section 6.11: every per-package run emits a single
+    // run-summary.json artifact under <package-root>/test-results/.
+    // Producer and consumers (testrail-aggregator + time-series push)
+    // are pinned to schemaVersion '1'.
+    [require.resolve('@geowealth/e2e-framework/reporters/run-summary-reporter')],
   ];
 
   if (process.env.TESTRAIL_REPORTING === 'on') {
