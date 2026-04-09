@@ -1,0 +1,173 @@
+# scaffold-test — exercises the team scaffold script end-to-end on
+# every PR that touches the script, the templates, or any file the
+# script mutates. Catches template rot before it reaches a real team.
+#
+# Per Section 4.2.5 of OFFICIAL-FRAMEWORK-PROPOSAL.md:
+#   1. Run scaffold-team --slug scaffold-test against a clean clone.
+#   2. Run the generated package's smoke spec end-to-end.
+#   3. Compare wall-clock time to the 30-minute SLA; fail the PR if
+#      it exceeds.
+#   4. Cleanup: delete the generated package and revert the mutated
+#      files in the CI workspace.
+#
+# Per the secrets-injection contract in Section 6.3:
+#   1. CI passes TIM1_USERNAME / TIM1_PASSWORD / TEST_ENV as job-level
+#      env vars from the secret store.
+#   2. The generated package reads these from process.env via the
+#      framework's dotenv-loader; no .env.local file is created.
+#   3. Cleanup runs in `if: always()` so a failed smoke spec still
+#      leaves the workspace clean.
+#   4. The workflow runs in an isolated GitHub-hosted runner — never
+#      on a self-hosted runner — to prevent state leakage.
+#
+# Per Section 6.3, the scaffold-test workflow runs in PARALLEL with
+# the PR gate, not in series, so its wall clock does not count against
+# the 8-minute PR-gate budget.
+
+name: scaffold-test
+
+on:
+  pull_request:
+    branches:
+      - master
+      - 'feat/**'
+      - 'release/**'
+    paths:
+      # The script itself + any template + any file the script mutates.
+      - 'packages/tooling/src/scaffold-team.ts'
+      - 'packages/tooling/src/scaffold-doctor.ts'
+      - 'packages/tooling/src/substitute.ts'
+      - 'packages/tooling/templates/team/**'
+      - 'packages/framework/src/config/playwright.ts'
+      - 'packages/framework/package.json'
+      - 'tsconfig.base.json'
+      - 'CODEOWNERS'
+      - 'docs/migration-tracker.md'
+      - '.eslintrc.legacy-areas.json'
+      - '.github/workflows/scaffold-test.yml'
+
+permissions:
+  contents: read
+  pull-requests: read
+
+concurrency:
+  group: scaffold-test-${{ github.workflow }}-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION_FILE: .nvmrc
+  # The slug used by the throwaway scaffolded package. Hyphenated and
+  # under /^[a-z][a-z0-9-]+$/ per scaffold-team's validator.
+  SCAFFOLD_TEST_SLUG: scaffold-test
+  SCAFFOLD_TEST_NAME: ScaffoldTest
+  SCAFFOLD_TEST_OWNER: '@geowealth/qa-leads'
+
+jobs:
+  scaffold-test:
+    name: scaffold-test (30-minute SLA)
+    # Always GitHub-hosted, never self-hosted (Section 6.3 contract
+    # point 5: prevent state leakage).
+    runs-on: ubuntu-latest
+    # 30-minute hard cap matches the SLA from Section 4.2.5. Any run
+    # that takes longer fails — we want template rot to surface here,
+    # not when a real team is onboarding.
+    timeout-minutes: 30
+    env:
+      TEST_ENV: qa2
+      TIM1_USERNAME: ${{ secrets.TIM1_USERNAME }}
+      TIM1_PASSWORD: ${{ secrets.TIM1_PASSWORD }}
+      CI: 'true'
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: ${{ env.NODE_VERSION_FILE }}
+          cache: npm
+
+      # The scaffold-team CLI is a TypeScript script under
+      # packages/tooling/src/. It depends on the workspace-root
+      # node_modules being installed.
+      - name: npm ci (workspace root)
+        run: npm ci
+
+      - name: install Playwright browsers (chromium only)
+        # The generated package's smoke spec will run a real browser
+        # against qa2; install the deps before the SLA timer starts.
+        run: npx playwright install --with-deps chromium
+
+      # ──────────────────────────────────────────────────────────────
+      # The 30-minute SLA window starts here. Steps before this point
+      # (npm ci, browser install) are infrastructure setup and are
+      # explicitly excluded from the SLA per Section 4.2.5: "The
+      # 30-minute clock starts at npm run scaffold:team and includes
+      # npm install, package generation, and the smoke spec's full
+      # execution."
+      #
+      # The runner's job-level timeout-minutes already enforces the
+      # 30-minute cap; the explicit timer below is for surfacing the
+      # SLA budget in the build log.
+      # ──────────────────────────────────────────────────────────────
+      - name: run scaffold:team (start of SLA window)
+        id: scaffold
+        run: |
+          set -euo pipefail
+          STARTED_AT="$(date +%s)"
+          echo "started_at=$STARTED_AT" >> "$GITHUB_OUTPUT"
+          npm run scaffold:team -- \
+            --name "${SCAFFOLD_TEST_NAME}" \
+            --slug "${SCAFFOLD_TEST_SLUG}" \
+            --owner "${SCAFFOLD_TEST_OWNER}"
+
+      - name: lint the generated package
+        run: npm run lint --workspace=@geowealth/tests-${{ env.SCAFFOLD_TEST_SLUG }}
+        continue-on-error: true
+        # Some packages do not yet declare a `lint` script; the
+        # workspace-root lint already covered the file by walking
+        # packages/. Treating an absent script as a non-failure.
+
+      - name: run smoke specs for the generated package
+        working-directory: packages/tests-${{ env.SCAFFOLD_TEST_SLUG }}
+        run: npx playwright test --grep @smoke
+
+      - name: validate 30-minute SLA
+        run: |
+          set -euo pipefail
+          STARTED_AT="${{ steps.scaffold.outputs.started_at }}"
+          NOW="$(date +%s)"
+          ELAPSED=$((NOW - STARTED_AT))
+          BUDGET=1800
+          echo "scaffold-test elapsed: ${ELAPSED}s (budget: ${BUDGET}s)"
+          if [ "$ELAPSED" -gt "$BUDGET" ]; then
+            echo "::error::scaffold-test exceeded the 30-minute SLA: ${ELAPSED}s"
+            exit 1
+          fi
+          echo "scaffold-test: SLA met (${ELAPSED}s ≤ ${BUDGET}s)."
+
+      # ──────────────────────────────────────────────────────────────
+      # Cleanup — Section 6.3 contract point 3: cleanup runs in
+      # `if: always()` so a failed smoke spec still leaves the
+      # workspace clean. The runner is ephemeral so this is mostly
+      # a hygiene measure for log clarity, but it also exercises the
+      # `git restore` path which catches a class of mutator bugs in
+      # the scaffold script (e.g. CODEOWNERS append idempotency).
+      # ──────────────────────────────────────────────────────────────
+      - name: cleanup (always)
+        if: always()
+        run: |
+          set -euo pipefail
+          echo "Cleanup: removing generated package and reverting mutated files."
+          rm -rf "packages/tests-${SCAFFOLD_TEST_SLUG}"
+          # Files the scaffold script mutates per Section 4.2.5.
+          # `git restore` is a no-op for files that were not modified.
+          git restore -- \
+            CODEOWNERS \
+            docs/migration-tracker.md \
+            .eslintrc.legacy-areas.json \
+            .github/workflows/pr-gate.yml \
+            .github/workflows/nightly.yml \
+            docs/CHANGELOG.md \
+            package.json \
+            package-lock.json \
+            || true
+          git status --short

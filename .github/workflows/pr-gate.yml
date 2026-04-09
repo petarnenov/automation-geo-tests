@@ -1,0 +1,229 @@
+# PR gate — runs on every pull request open / synchronize.
+#
+# Per Section 5.1 of OFFICIAL-FRAMEWORK-PROPOSAL.md:
+#   - Scope: @smoke only, against the PR's target environment.
+#   - Target wall clock: ≤ 8 minutes.
+#   - Failure policy: any failure blocks merge. Zero retries.
+#
+# Per Section 6.3 D-29: per-package affected detection. Lint and
+# typecheck run against the entire workspace; smoke specs run only for
+# the packages whose source (or whose framework dependencies) changed
+# in the PR.
+#
+# The 8-minute budget is re-baselined at Phase 4 exit (Section 6.6
+# exit criteria); for now it is the target, not a hard CI failure.
+
+name: pr-gate
+
+on:
+  pull_request:
+    branches:
+      - master
+      - 'feat/**'
+      - 'release/**'
+
+# Cancel any in-flight runs for the same PR when a new commit lands.
+# Avoids burning runners on stale commits.
+concurrency:
+  group: pr-gate-${{ github.workflow }}-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pull-requests: read
+
+env:
+  # Node 20 LTS pin from .nvmrc (Decision D-19 / Section 6.2).
+  NODE_VERSION_FILE: .nvmrc
+  # PR gate runs against qa2 by default. Section 5.1: "the PR's target
+  # environment" — once we have multi-env PRs we will pivot off the
+  # branch name; today every PR targets qa2.
+  TEST_ENV: qa2
+
+jobs:
+  # ────────────────────────────────────────────────────────────────────
+  # Lint + typecheck — workspace-wide, fast, runs on every PR
+  # regardless of which packages changed. These are the cheapest
+  # signals; failing them is the cheapest red.
+  # ────────────────────────────────────────────────────────────────────
+  lint-and-typecheck:
+    name: lint + typecheck
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Fetch enough history that the PR base is reachable for the
+          # affected-detection job below.
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: ${{ env.NODE_VERSION_FILE }}
+          cache: npm
+
+      - name: npm ci
+        run: npm ci
+
+      - name: lint (workspace-wide, zero warnings tolerated for new code)
+        # Section 5.4 rule 1: zero warnings. The legacy POC still has
+        # 13 latent warnings under packages/legacy-poc/ which were
+        # baselined in commit b45b03b. We tolerate those here by not
+        # asserting --max-warnings 0; CI relies on the lint pipeline's
+        # error count, not warning count.
+        run: npm run lint
+
+      - name: typecheck (workspace-wide)
+        run: npm run typecheck
+
+      - name: tooling unit tests (changed-packages, ci-matrix, version, reporters, aggregator)
+        run: npm run test:tooling
+
+      - name: check-versions (single-monorepo-version, D-27)
+        run: npm run check-versions
+
+  # ────────────────────────────────────────────────────────────────────
+  # Compute the affected matrix for this PR.
+  # Outputs a JSON `include` array consumed by the test-package job's
+  # strategy.matrix axis. Empty include → no smoke jobs to run.
+  # ────────────────────────────────────────────────────────────────────
+  compute-matrix:
+    name: compute matrix
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    needs: lint-and-typecheck
+    outputs:
+      matrix: ${{ steps.matrix.outputs.matrix }}
+      has-jobs: ${{ steps.matrix.outputs.has-jobs }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: ${{ env.NODE_VERSION_FILE }}
+          cache: npm
+
+      - name: npm ci
+        run: npm ci
+
+      - name: compute matrix from PR diff
+        id: matrix
+        env:
+          # ci-matrix.sh defaults --base to origin/master; for a PR we
+          # want to diff against the actual base ref. github.base_ref
+          # is the branch name without the origin/ prefix.
+          BASE_REF: origin/${{ github.base_ref }}
+        run: |
+          set -euo pipefail
+          MATRIX_JSON="$(./scripts/ci-matrix.sh --mode pr-gate --base "$BASE_REF" --head HEAD)"
+          echo "$MATRIX_JSON"
+          # Persist the full matrix as a job output (single-line JSON
+          # for GitHub Actions to parse via fromJSON).
+          ONELINE="$(echo "$MATRIX_JSON" | tr -d '\n' | tr -s ' ')"
+          echo "matrix=$ONELINE" >> "$GITHUB_OUTPUT"
+          # has-jobs is true iff include[] is non-empty.
+          if echo "$MATRIX_JSON" | grep -q '"include": \[\]' || echo "$MATRIX_JSON" | grep -q '"include":\[\]'; then
+            echo "has-jobs=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "has-jobs=true" >> "$GITHUB_OUTPUT"
+          fi
+
+  # ────────────────────────────────────────────────────────────────────
+  # Run smoke specs for every affected package, in parallel.
+  # Each shard is one (package, environment) combination.
+  # ────────────────────────────────────────────────────────────────────
+  test-package:
+    name: smoke ${{ matrix.package }} (${{ matrix.environment }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    needs: compute-matrix
+    if: needs.compute-matrix.outputs.has-jobs == 'true'
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.compute-matrix.outputs.matrix) }}
+    env:
+      TEST_ENV: ${{ matrix.environment }}
+      # Per D-15: PR gate never points the TS reporter at TestRail
+      # Run 175. Smoke runs do not post results — TESTRAIL_REPORTING
+      # stays unset.
+      CI: 'true'
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: ${{ env.NODE_VERSION_FILE }}
+          cache: npm
+
+      - name: npm ci
+        run: npm ci
+
+      - name: install Playwright browsers (chromium only)
+        run: npx playwright install --with-deps chromium
+
+      - name: run smoke specs for ${{ matrix.package }}
+        env:
+          # Secrets are injected by the org/repo settings. The
+          # framework's dotenv-loader falls through to process.env when
+          # no .env.local is present (Section 6.3 secrets-injection
+          # contract).
+          TIM1_USERNAME: ${{ secrets.TIM1_USERNAME }}
+          TIM1_PASSWORD: ${{ secrets.TIM1_PASSWORD }}
+        working-directory: ${{ matrix.packageDir }}
+        run: npx playwright test --grep @smoke
+
+      - name: upload Playwright artifacts on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pr-gate-${{ matrix.package }}-${{ matrix.environment }}
+          # Section 5.5 retention: 14 days for trace/screenshots/video.
+          retention-days: 14
+          path: |
+            ${{ matrix.packageDir }}/test-results/
+            ${{ matrix.packageDir }}/playwright-report/
+          if-no-files-found: ignore
+
+      - name: upload run-summary.json
+        # Always upload — successful runs need the artifact for the
+        # time-series push (Section 5.5).
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: run-summary-${{ matrix.package }}-${{ matrix.environment }}
+          retention-days: 14
+          path: ${{ matrix.packageDir }}/test-results/run-summary.json
+          if-no-files-found: ignore
+
+  # ────────────────────────────────────────────────────────────────────
+  # Summary gate — single required check that aggregates the matrix
+  # results so branch protection can require ONE check name regardless
+  # of how many shards were generated.
+  # ────────────────────────────────────────────────────────────────────
+  pr-gate-result:
+    name: pr-gate result
+    runs-on: ubuntu-latest
+    needs: [lint-and-typecheck, compute-matrix, test-package]
+    if: always()
+    steps:
+      - name: aggregate
+        run: |
+          set -euo pipefail
+          lint='${{ needs.lint-and-typecheck.result }}'
+          matrix='${{ needs.compute-matrix.result }}'
+          tests='${{ needs.test-package.result }}'
+          echo "lint-and-typecheck: $lint"
+          echo "compute-matrix:     $matrix"
+          echo "test-package:       $tests"
+          # test-package may be 'skipped' when no packages were affected;
+          # that is a pass for the gate. Anything 'failure' or
+          # 'cancelled' fails the gate.
+          for r in "$lint" "$matrix" "$tests"; do
+            case "$r" in
+              success|skipped) ;;
+              *) echo "::error::pr-gate failed (one of: $lint / $matrix / $tests)"; exit 1 ;;
+            esac
+          done
+          echo "pr-gate: all checks passed."

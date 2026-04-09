@@ -1,0 +1,267 @@
+# Nightly regression — runs the full @regression scope against qa2
+# AND qa3 in parallel, then aggregates per-package TestRail results
+# into a single POST.
+#
+# Per Section 5.1 of OFFICIAL-FRAMEWORK-PROPOSAL.md:
+#   - Trigger: cron `0 22 * * *` UTC. Covers QA team's morning, US
+#     team's previous afternoon.
+#   - Scope: @regression excluding @flaky, against qa2 and qa3.
+#   - Target wall clock: ≤ 60 minutes per environment.
+#   - Failure policy: failures open auto-triage tickets and post to
+#     #qa-alerts. (Auto-triage and Slack hooks are out of scope for
+#     this commit; the workflow's exit code is the source of truth.)
+#
+# Per Section 5.9 the run is gated on the pre-flight environment
+# health check. A failing pre-flight aborts the affected env's matrix
+# rather than letting hundreds of confusing spec failures pile up.
+# Section 6.9: SKIP_PREFLIGHT=1 manual override is honored on
+# workflow_dispatch.
+#
+# Per Section 6.3 D-30, every per-package run reports in
+# TESTRAIL_AGGREGATE=1 mode (writes per-package result files), and a
+# single post-processing job at the end aggregates them into one
+# add_results_for_cases POST per (baseUrl, runId) group.
+
+name: nightly
+
+on:
+  schedule:
+    # 22:00 UTC = 00:00 CET / 17:00 US Eastern / 01:00 EET (Section 5.1).
+    - cron: '0 22 * * *'
+  workflow_dispatch:
+    inputs:
+      environments:
+        description: 'Comma-separated environments to run against (default: qa2,qa3)'
+        required: false
+        default: 'qa2,qa3'
+      skip_preflight:
+        description: 'Set to "1" to bypass the pre-flight gate (Section 6.9 manual override)'
+        required: false
+        default: ''
+
+permissions:
+  contents: read
+
+env:
+  NODE_VERSION_FILE: .nvmrc
+
+jobs:
+  # ────────────────────────────────────────────────────────────────────
+  # Pre-flight per environment (Section 5.9).
+  # Aborts the matrix for an unhealthy env without poisoning the others.
+  # ────────────────────────────────────────────────────────────────────
+  preflight:
+    name: preflight (${{ matrix.environment }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    strategy:
+      fail-fast: false
+      matrix:
+        environment: [qa2, qa3]
+    env:
+      TEST_ENV: ${{ matrix.environment }}
+      TIM1_USERNAME: ${{ secrets.TIM1_USERNAME }}
+      TIM1_PASSWORD: ${{ secrets.TIM1_PASSWORD }}
+      SKIP_PREFLIGHT: ${{ inputs.skip_preflight }}
+    outputs:
+      qa2-healthy: ${{ steps.publish.outputs.qa2-healthy }}
+      qa3-healthy: ${{ steps.publish.outputs.qa3-healthy }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: ${{ env.NODE_VERSION_FILE }}
+          cache: npm
+
+      - name: npm ci
+        run: npm ci
+
+      - name: preflight ${{ matrix.environment }}
+        run: npm run preflight
+
+      - name: publish env health
+        id: publish
+        run: echo "${{ matrix.environment }}-healthy=true" >> "$GITHUB_OUTPUT"
+
+  # ────────────────────────────────────────────────────────────────────
+  # Compute the full nightly matrix — every populated package, both
+  # environments. Today the affected-detection logic still runs (so the
+  # framework + tooling exclusion stays consistent), but with --base
+  # pointing at HEAD~1 the result is "all packages" via the full
+  # fallback path on a freshly-cloned tree.
+  # ────────────────────────────────────────────────────────────────────
+  compute-matrix:
+    name: compute matrix
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    needs: preflight
+    outputs:
+      matrix: ${{ steps.matrix.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: ${{ env.NODE_VERSION_FILE }}
+          cache: npm
+
+      - name: npm ci
+        run: npm ci
+
+      - name: compute nightly matrix (full fallback by design)
+        id: matrix
+        run: |
+          set -euo pipefail
+          # Force the full fallback by passing a non-package-bearing
+          # path as --base; the matrix generator already cross-products
+          # every populated package with qa2 + qa3 in nightly mode.
+          MATRIX_JSON="$(./scripts/ci-matrix.sh --mode nightly --base HEAD --head HEAD)"
+          echo "$MATRIX_JSON"
+          ONELINE="$(echo "$MATRIX_JSON" | tr -d '\n' | tr -s ' ')"
+          echo "matrix=$ONELINE" >> "$GITHUB_OUTPUT"
+
+  # ────────────────────────────────────────────────────────────────────
+  # Run @regression for every (package, environment) shard.
+  # Each shard writes per-package TestRail results in aggregator mode
+  # (TESTRAIL_AGGREGATE=1, D-30) and uploads them as artifacts so the
+  # downstream testrail-aggregate job can collect them.
+  # ────────────────────────────────────────────────────────────────────
+  test-package:
+    name: regression ${{ matrix.package }} (${{ matrix.environment }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    needs: [preflight, compute-matrix]
+    # Skip a shard if its environment failed pre-flight. matrix
+    # outputs are stringly-typed so we compare against 'true'.
+    if: |
+      (matrix.environment == 'qa2' && needs.preflight.outputs.qa2-healthy == 'true') ||
+      (matrix.environment == 'qa3' && needs.preflight.outputs.qa3-healthy == 'true')
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.compute-matrix.outputs.matrix) }}
+    env:
+      TEST_ENV: ${{ matrix.environment }}
+      CI: 'true'
+      # D-30 aggregator mode: per-package files, one POST at the end.
+      TESTRAIL_AGGREGATE: '1'
+      # D-15: nightly TS reporter posts to a sandbox run via the per-
+      # package files; the legacy JS reporter still owns Run 175 until
+      # Phase 5 sunset. The sandbox run id is configured per-team in
+      # the per-package testrail config (or via TESTRAIL_RUN_ID in
+      # secrets, future).
+      TESTRAIL_REPORTING: 'on'
+      TESTRAIL_USER: ${{ secrets.TESTRAIL_USER }}
+      TESTRAIL_PASSWORD: ${{ secrets.TESTRAIL_PASSWORD }}
+      TESTRAIL_API_KEY: ${{ secrets.TESTRAIL_API_KEY }}
+      TIM1_USERNAME: ${{ secrets.TIM1_USERNAME }}
+      TIM1_PASSWORD: ${{ secrets.TIM1_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: ${{ env.NODE_VERSION_FILE }}
+          cache: npm
+
+      - name: npm ci
+        run: npm ci
+
+      - name: install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: run @regression for ${{ matrix.package }}
+        working-directory: ${{ matrix.packageDir }}
+        # Section 4.3 tagging: nightly excludes @flaky (quarantined).
+        run: npx playwright test --grep @regression --grep-invert @flaky
+
+      - name: upload per-package TestRail result file (D-30)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: testrail-results-${{ matrix.package }}-${{ matrix.environment }}
+          retention-days: 14
+          path: ${{ matrix.packageDir }}/test-results/testrail-results.json
+          if-no-files-found: warn
+
+      - name: upload run-summary.json (D-40)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: run-summary-${{ matrix.package }}-${{ matrix.environment }}
+          retention-days: 14
+          path: ${{ matrix.packageDir }}/test-results/run-summary.json
+          if-no-files-found: warn
+
+      - name: upload Playwright artifacts on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: nightly-${{ matrix.package }}-${{ matrix.environment }}
+          retention-days: 14
+          path: |
+            ${{ matrix.packageDir }}/test-results/
+            ${{ matrix.packageDir }}/playwright-report/
+          if-no-files-found: ignore
+
+  # ────────────────────────────────────────────────────────────────────
+  # TestRail aggregator (D-30 post-processing). Downloads every
+  # per-package result artifact, places it back at
+  # <package-root>/test-results/testrail-results.json, and runs the
+  # aggregator script. Single POST per (baseUrl, runId) group.
+  # ────────────────────────────────────────────────────────────────────
+  testrail-aggregate:
+    name: testrail-aggregate (D-30)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: test-package
+    # Run even if some shards failed — partial nightlies still report
+    # the green ones to TestRail. The aggregator's exit code surfaces
+    # any POST failures separately.
+    if: always() && needs.test-package.result != 'cancelled'
+    env:
+      TESTRAIL_USER: ${{ secrets.TESTRAIL_USER }}
+      TESTRAIL_PASSWORD: ${{ secrets.TESTRAIL_PASSWORD }}
+      TESTRAIL_API_KEY: ${{ secrets.TESTRAIL_API_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: ${{ env.NODE_VERSION_FILE }}
+          cache: npm
+
+      - name: npm ci
+        run: npm ci
+
+      - name: download every per-package TestRail result artifact
+        uses: actions/download-artifact@v4
+        with:
+          pattern: testrail-results-*
+          path: _artifacts
+
+      - name: relocate result files into per-package test-results dirs
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+          for dir in _artifacts/testrail-results-*; do
+            # Artifact name format: testrail-results-<pkgname>-<env>
+            # The pkgname is `@geowealth/<slug>` — slash is replaced
+            # with `-` by upload-artifact. Recover the slug from the
+            # trailing portion before -<env>.
+            base="$(basename "$dir")"
+            stripped="${base#testrail-results-}"
+            # Drop the trailing `-qa2` / `-qa3`.
+            slug="${stripped%-qa*}"
+            # `@geowealth-tests-billing-servicing` → `tests-billing-servicing`.
+            pkg_dir_name="${slug#@geowealth-}"
+            target="packages/${pkg_dir_name}/test-results"
+            mkdir -p "$target"
+            cp "$dir/testrail-results.json" "$target/testrail-results.json"
+            echo "  ← $target/testrail-results.json"
+          done
+
+      - name: run testrail-aggregator
+        run: npm run testrail:aggregate
