@@ -1444,7 +1444,7 @@ Decisions marked **DECIDED** below were authored as recommendations by QA Automa
 | ID | Decision | Status | Recommendation | Owner | Due | Blocks |
 |---|---|---|---|---|---|---|
 | D-01 | Adopt TypeScript strict mode | OPEN | **Yes** — refactor safety dominates over time. | QA Lead | Pre-Phase 0 | All phases |
-| D-02 | CI platform (GitHub Actions / GitLab CI / Jenkins) | OPEN | TBD — depends on existing GeoWealth CI footprint. | Platform lead | Pre-Phase 1 | Phase 1 |
+| D-02 | CI platform (GitHub Actions / GitLab CI / Jenkins) | DECIDED | **GitHub Actions** — repo is hosted on github.com; no other corporate CI footprint applies to the QA repo. Workflows landed in commit `6765f91` (Phase 1.9). | QA Automation | 2026-04-09 | — |
 | D-03 | Secret store (GitHub Secrets / Vault / AWS Secrets Manager) | OPEN | Align with whatever the chosen CI uses natively. | Security lead | Pre-Phase 0 | Phases 0 and 1 |
 | D-04 | Repository topology (standalone vs `~/nodejs/geowealth/e2e`) | SUPERSEDED by D-24 (multi-team monorepo with npm workspaces) | See D-24 in this register | — | — | — |
 | D-05 | Frontend `data-testid` rollout owner | OPEN | Nominate one frontend lead; staged adoption per feature area. | Frontend lead | Pre-Phase 3 | Phase 3 |
@@ -1507,7 +1507,7 @@ The framework cannot succeed in isolation. Each dependency below has a named own
 | `data-testid` attributes on Account Billing screens (and feature areas thereafter) | Frontend team | Phase 3 → Phase 4 | Not started — gated by D-05 |
 | `__REACT_QUERY_CLIENT__` exposed under `FOR_QA=true` | Frontend team | Phase 2 (component layer) | Not started — gated by D-08 |
 | Stable `/qa/createDummyFirm.do` under load (no qa2 queueing > 60 s) | Backend / Platform | Phase 0 | Known degradation; mitigated by retries |
-| CI platform provisioned and accessible from QA repo | Platform / DevOps | Phase 1 | Pending D-02 |
+| CI platform provisioned and accessible from QA repo | Platform / DevOps | Phase 1 | D-02 = GitHub Actions; workflows landed in `6765f91`. Awaiting secret provisioning + branch protection (manual GitHub UI) |
 | Secret store namespace for QA credentials | Security | Phase 0 | Pending D-03 |
 | Slack webhook to `#qa-alerts` | Platform | Phase 1 | Not started |
 | Time-series store endpoint for run metrics | Platform | Phase 1 (best effort) → Phase 2 (firm) | Not started |
@@ -1617,7 +1617,7 @@ A pragmatic checklist that the QA Lead walks through before declaring Phase 0 re
 
 **Decisions due before later phases** (must have owner + due date, not necessarily decided):
 - [ ] **D-03** Secret store — owner committed (blocks Phase 0 day-1 rotation).
-- [ ] **D-02** CI platform — owner committed (blocks Phase 1).
+- [x] **D-02** CI platform — DECIDED: GitHub Actions (2026-04-09).
 - [ ] **D-08** `__REACT_QUERY_CLIENT__` exposure — owner committed (blocks Phase 2).
 - [ ] **D-05** Frontend `data-testid` partner — owner committed (blocks Phase 3).
 - [ ] **D-06** First migration scope — owner committed (blocks Phase 4).
