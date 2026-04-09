@@ -14,7 +14,7 @@
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "typecheck": "tsc -p packages/framework/tsconfig.json --noEmit && tsc -p packages/tooling/tsconfig.json --noEmit",
+    "typecheck": "tsc -p packages/framework/tsconfig.json --noEmit && tsc -p packages/tooling/tsconfig.json --noEmit && tsc -p packages/tests-billing-servicing/tsconfig.json --noEmit",
     "scaffold:team": "tsx packages/tooling/src/scaffold-team.ts",
     "scaffold:doctor": "tsx packages/tooling/src/scaffold-doctor.ts",
     "check-versions": "tsx packages/tooling/src/check-versions.ts",

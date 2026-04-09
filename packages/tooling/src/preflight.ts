@@ -134,12 +134,14 @@ async function checkTim1Login(env: EnvironmentConfig): Promise<{ ok: boolean; de
       await usernameField.fill(username);
       await page.getByPlaceholder(/password/i).fill(password);
       await page.getByRole('button', { name: 'Login' }).click();
-      // After submit, wait for the login form to DISAPPEAR. This is
-      // the only signal that fires reliably for every user across
-      // every qa branch. Text-based waits and URL-hash waits each
-      // fail for a different user/branch combination — see
-      // loginViaForm.ts for the full rationale.
+      // Two-phase post-login wait — form-disappear then URL hash.
+      // The URL-hash phase gives the SPA time to populate
+      // localStorage with firm/role bootstrap state, which deep-URL
+      // navigations need. See loginViaForm.ts for the full
+      // rationale (this is the third call site of the same login
+      // pattern in the framework).
       await usernameField.waitFor({ state: 'hidden', timeout: 30_000 });
+      await page.waitForURL(env.postLoginHashRoute, { timeout: 30_000 });
     }
     // Otherwise: a session was already valid (storage state from a
     // previous run, browser cache, etc.) — nothing to do.

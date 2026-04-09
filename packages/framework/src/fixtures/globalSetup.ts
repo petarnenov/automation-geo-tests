@@ -66,12 +66,14 @@ async function globalSetup(): Promise<void> {
       await usernameField.fill(username);
       await page.getByPlaceholder(/password/i).fill(password);
       await page.getByRole('button', { name: 'Login' }).click();
-      // After submit, wait for the login form to DISAPPEAR. This is
-      // the only signal that fires reliably for every user across
-      // every qa branch — see loginViaForm.ts for the rationale
-      // (text-based and URL-based waits each fail for a different
-      // user/branch combination).
+      // Two-phase post-login wait — form-disappear (fast) followed
+      // by URL hash (gives the SPA time to populate localStorage).
+      // Capturing storageState BEFORE the URL hash gives a session
+      // with cookies but empty localStorage; subsequent deep-URL
+      // navigations then hit "You do not have permission to view
+      // this Client". See loginViaForm.ts for the full rationale.
       await usernameField.waitFor({ state: 'hidden', timeout: 30_000 });
+      await page.waitForURL(env.postLoginHashRoute, { timeout: 30_000 });
     }
     // Otherwise: a session was already valid (cached browser state)
     // — nothing to do; persist the state we have.

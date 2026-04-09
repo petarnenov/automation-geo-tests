@@ -67,19 +67,32 @@ export async function loginViaForm(
     await usernameField.fill(username);
     await page.getByPlaceholder(/password/i).fill(password);
     await page.getByRole('button', { name: 'Login' }).click();
-    // Post-login wait — the strongest universal signal is the
-    // disappearance of the login form itself. Waiting for specific
-    // landing text ("Welcome to Platform One" / "Dashboard") fails
-    // for two distinct reasons depending on user:
-    //   - "Dashboard" matches false positives (sidebars/footers)
-    //     before the SPA has routed.
-    //   - "Welcome to Platform One" only appears for Platform One
-    //     admins, not for tyler/firm-advisor users.
-    // Waiting for `waitForURL(/#(dashboard|platformOne)/)` fails
-    // for tim1 on qa2, which lands at /indexReact.do without ANY
-    // hash. The username field becoming hidden is the only signal
-    // that fires reliably for every user across every qa branch.
+
+    // Two-phase post-login wait:
+    //
+    //   Phase 1 — form disappearance. Fires within ~1s of the
+    //   click and proves the submit was accepted by the form.
+    //   This is the fast safety check that catches submit failures
+    //   (form re-renders with an error message) before they
+    //   cascade.
+    //
+    //   Phase 2 — URL hash transition. Fires when React Router has
+    //   booted enough to set the post-login hash route. This is
+    //   the signal the SPA uses to populate localStorage with
+    //   firm/role bootstrap state. Capturing storageState BEFORE
+    //   this wait gives a session with cookies but EMPTY
+    //   localStorage, which means subsequent deep-URL navigations
+    //   hit "You do not have permission to view this Client".
+    //
+    // Earlier iterations of this file used only one wait or the
+    // other. Form-disappear alone misses the localStorage
+    // bootstrap (caught while end-to-end-testing
+    // tests-billing-servicing's dashboard spec). URL-hash alone
+    // matches false positives on cached layouts and fails for
+    // some user/branch combinations where the hash is not added.
+    // The combination is the empirically validated path.
     await usernameField.waitFor({ state: 'hidden', timeout: 30_000 });
+    await page.waitForURL(/#(dashboard|platformOne)/, { timeout: 30_000 });
   }
   // Otherwise: a session was already valid — no-op.
 }

@@ -25,8 +25,28 @@
 import { test, expect } from '@geowealth/e2e-framework';
 
 test('@smoke @billing-servicing walking skeleton — Platform One landing renders', async ({ page }) => {
-  await page.goto('/react/indexReact.do#platformOne');
+  // test.slow() bumps the default 60s test timeout to 180s. The
+  // walking skeleton runs `goto + render + heading wait` against a
+  // freshly-restored tim1 storage state, and qa2's first SPA render
+  // can take 30+ seconds when the package's other smoke specs are
+  // hitting the same env in parallel (verified empirically: this
+  // spec passes in isolation in 26.5s but races against the
+  // AccountBillingPage smoke under default parallelism, exceeding
+  // the 30s default navigationTimeout). Per Section 4.8 specs that
+  // need more time must call setTimeout and document why.
+  test.slow();
+
+  // `waitUntil: 'domcontentloaded'` is the better signal for an
+  // SPA navigation than the default 'load' — we only need the JS
+  // to start running, not for every image/CSS resource to finish
+  // downloading. The 60s timeout overrides the framework default
+  // navigationTimeout (30s in definePlaywrightConfig) for this
+  // specific goto.
+  await page.goto('/react/indexReact.do#platformOne', {
+    timeout: 60_000,
+    waitUntil: 'domcontentloaded',
+  });
   await expect(
     page.getByRole('heading', { name: 'Welcome to Platform One!' })
-  ).toBeVisible({ timeout: 30_000 });
+  ).toBeVisible({ timeout: 60_000 });
 });
