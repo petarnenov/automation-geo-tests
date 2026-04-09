@@ -190,10 +190,12 @@ class FrameworkTestRailReporter implements Reporter {
 
   onBegin(config: FullConfig, _suite: Suite): void {
     this.workspaceRoot = findWorkspaceRoot(process.cwd());
-    // Per-package result file location: <package-root>/test-results/testrail-results.json
-    // Detect the package root by walking up from cwd to find the
-    // nearest playwright.config.* file (the consumer of this reporter).
-    this.packageDir = config.rootDir;
+    // Per D-30, the per-package result file lives at
+    // <package-root>/test-results/testrail-results.json. Playwright's
+    // config.rootDir is the *testDir* (e.g. `./tests`), not the package
+    // root, so walk up to find the nearest directory with a
+    // package.json — that is the package root the aggregator scans.
+    this.packageDir = findPackageRootForReporter(config.rootDir) ?? config.rootDir;
   }
 
   onTestEnd(test: TestCase, result: TestResult): void {
@@ -325,6 +327,24 @@ class FrameworkTestRailReporter implements Reporter {
       return;
     }
   }
+}
+
+/**
+ * Walk up from `start` looking for the nearest directory containing a
+ * package.json — the consuming package's root, where the aggregator
+ * expects `test-results/testrail-results.json` to live (D-30).
+ * Module-private; the run-summary-reporter has its own copy because
+ * the two reporters do not import from each other.
+ */
+function findPackageRootForReporter(start: string): string | null {
+  let dir = start;
+  for (let i = 0; i < 16; i++) {
+    if (fs.existsSync(path.join(dir, 'package.json'))) return dir;
+    const parent = path.dirname(dir);
+    if (parent === dir) break;
+    dir = parent;
+  }
+  return null;
 }
 
 /**
