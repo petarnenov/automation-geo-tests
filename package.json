@@ -15,6 +15,8 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "typecheck": "tsc -p packages/framework/tsconfig.json --noEmit && tsc -p packages/tooling/tsconfig.json --noEmit",
+    "scaffold:team": "tsx packages/tooling/src/scaffold-team.ts",
+    "scaffold:doctor": "tsx packages/tooling/src/scaffold-doctor.ts",
     "_comment_legacy_": "Legacy POC scripts invoke playwright directly with --config (NOT via nested 'npm run --workspace='). Reason: nested 'npm run' chains drop additional CLI args (e.g. '-- --list') silently, which caused two accidental full-suite runs against TestRail Run 175 during Step 0.B/C verification. Direct playwright invocation forwards args correctly.",
     "test": "playwright test --config packages/legacy-poc/playwright.config.js",
     "test:legacy": "playwright test --config packages/legacy-poc/playwright.config.js",
