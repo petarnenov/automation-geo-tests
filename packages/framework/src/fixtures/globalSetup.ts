@@ -41,20 +41,38 @@ async function globalSetup(): Promise<void> {
   fs.mkdirSync(path.dirname(STORAGE_STATE_PATH), { recursive: true });
 
   const browser = await chromium.launch();
-  const context = await browser.newContext();
+  const context = await browser.newContext({ ignoreHTTPSErrors: true });
   const page = await context.newPage();
   try {
-    // The SPA async-routes to /#login after the bundle boots; wait for it
-    // before touching the form fields. The login form has placeholder-only
-    // inputs (no name/role), so we match by placeholder.
+    // Resilient login flow — DOM-signal race instead of URL-pattern
+    // wait. Same fix as the preflight script (commit d17459d): the
+    // bare goto('/') lands at /react/indexReact.do without a hash on
+    // qa2/qa4, and the SPA never adds /#login to the URL bar, so
+    // `waitForURL(/#login/)` times out at 30s. The DOM-signal race
+    // is environment-agnostic — it asks "is the login form visible,
+    // OR is the post-login content visible?" and acts accordingly.
+    // Identical to the legacy POC's loginPlatformOneAdmin in
+    // packages/legacy-poc/tests/_helpers/qa3.js (lines 59-86).
     await page.goto(env.baseUrl);
-    await page.waitForURL(env.loginHashRoute, { timeout: 30_000 });
-    await page.getByPlaceholder(/email|username/i).fill(username);
-    await page.getByPlaceholder(/password/i).fill(password);
-    await page.getByRole('button', { name: 'Login' }).click();
-    // tim1 lands on #platformOne; advisor users land on #dashboard. We
-    // accept either as "logged in" — see D-45.
-    await page.waitForURL(env.postLoginHashRoute, { timeout: 30_000 });
+
+    const usernameField = page.getByPlaceholder(/email|username/i);
+    const loggedInSignal = page.getByText(/Welcome to Platform One|Dashboard/i);
+    await Promise.race([
+      usernameField.waitFor({ state: 'visible', timeout: 30_000 }).catch(() => {}),
+      loggedInSignal.waitFor({ state: 'visible', timeout: 30_000 }).catch(() => {}),
+    ]);
+
+    if (await usernameField.isVisible().catch(() => false)) {
+      await usernameField.fill(username);
+      await page.getByPlaceholder(/password/i).fill(password);
+      await page.getByRole('button', { name: 'Login' }).click();
+      // After submit, wait for the landing content (DOM signal, not
+      // hash route).
+      await loggedInSignal.waitFor({ state: 'visible', timeout: 30_000 });
+    }
+    // Otherwise: a session was already valid (cached browser state)
+    // — nothing to do; persist the state we have.
+
     await context.storageState({ path: STORAGE_STATE_PATH });
     console.log(`[framework globalSetup] tim1 storage state saved → ${STORAGE_STATE_PATH}`);
   } finally {
