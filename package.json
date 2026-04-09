@@ -20,6 +20,7 @@
     "check-versions": "tsx packages/tooling/src/check-versions.ts",
     "changed-packages": "tsx packages/tooling/src/changed-packages.ts",
     "ci-matrix": "tsx packages/tooling/src/ci-matrix.ts",
+    "preflight": "tsx packages/tooling/src/preflight.ts",
     "test:tooling": "tsx --test packages/tooling/tests/*.test.ts",
     "_comment_legacy_": "Legacy POC scripts invoke playwright directly with --config (NOT via nested 'npm run --workspace='). Reason: nested 'npm run' chains drop additional CLI args (e.g. '-- --list') silently, which caused two accidental full-suite runs against TestRail Run 175 during Step 0.B/C verification. Direct playwright invocation forwards args correctly.",
     "test": "playwright test --config packages/legacy-poc/playwright.config.js",

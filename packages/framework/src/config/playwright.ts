@@ -60,15 +60,16 @@ export function definePlaywrightConfig(
 
   if (process.env.TESTRAIL_REPORTING === 'on') {
     try {
-      // Resolve at runtime so Phase 0 (where the reporter does not yet
-      // exist) does not fail at config-load time.
+      // Resolve at runtime. The reporter's subpath was added to the
+      // framework's exports field in Phase 1.6.
       const reporterPath = require.resolve(
-        '@geowealth/e2e-framework/reporters'
+        '@geowealth/e2e-framework/reporters/testrail-reporter'
       );
       reporter.push([reporterPath]);
     } catch {
-      // Silent — the framework's TestRail reporter is a Phase 1
-      // deliverable. Phase 0 specs run with list+html only.
+      // Silent — fall through to list+html only. This branch fires
+      // only if the framework's package.json exports field has not yet
+      // been updated.
     }
   }
 
