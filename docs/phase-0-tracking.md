@@ -270,6 +270,48 @@ TIM1_PASSWORD=<elided>
 
 The end-to-end re-login is the most important check: it exercises the full chain (dotenv-flow loads `.env.local` → `global-setup.js` reads `process.env.TIM1_USERNAME` / `TIM1_PASSWORD` → Playwright opens a browser → fills the form with the env-var values → server returns a session cookie → storage state written). If this works, every subsequent test that uses storage state inherits the same login. **The credentials path is fully decoupled from the JSON file.**
 
+### Incident report — Step 0.B/C accidental TestRail Run 175 posts
+
+**What.** During Step 0.B and Step 0.C verification, two background tasks were intended to run `npm run test:legacy:pepi -- --list` (discovery only). Both tasks **dropped the `--list` argument** during nested `npm run --workspace=...` propagation and ran the **full `@pepi` regression suite** against qa3 instead.
+
+| Task | Wall time | TestRail Run 175 impact |
+|---|---|---|
+| Discovery attempt 1 (during Step 0.B) | ~15 min | **68 results posted** to Run 175 (auth=password) |
+| Discovery attempt 2 (during Step 0.B) | ~15 min | **67 results posted** to Run 175 |
+| Discovery attempt 3 (Step 0.C smoke verification with `TESTRAIL_REPORT_RESULTS=0`) | ~3.4 min | **None** — env var correctly suppressed posting |
+
+**Root cause.** Step 0.A's workspace root scripts used nested `npm run` chains:
+```
+npm run test:legacy:pepi
+  → npm run test:pepi --workspace=@geowealth/legacy-poc
+    → playwright test --grep @pepi
+```
+npm does **not** propagate additional CLI args (e.g. `--list`) through nested workspace `npm run` chains the way `npm run script -- args` propagates one level. The `--list` argument was silently dropped at the second level, and the inner `playwright test --grep @pepi` ran without it — i.e. the full suite.
+
+**Impact.**
+- TestRail Run 175 was overwritten twice with **legitimate POC results** (the POC code was unchanged at the time of those runs — Step 0.B was just a relocation, Step 0.C had not yet stripped the JSON). The overwrites happened during refactor work, not during the configured nightly window.
+- ~30 minutes of qa3 nightly load consumed.
+- ~16 extra dummy firms created on qa3 (8 workers × 2 runs).
+
+**What is NOT broken.**
+- POC source code unchanged.
+- Step 0.A / 0.B / 0.C commits artifactually valid.
+- The 68 / 67 results posted reflect actual qa3 test runs, not synthetic / broken data.
+- The Step 0.C end-to-end re-login verification (third task, with `TESTRAIL_REPORT_RESULTS=0`) was a genuine 14-spec run that exercised the refactored credentials path successfully — 12 passed, 1 known-flaky (`C26082` merge-prospect), 1 skipped.
+
+**Remediation (this commit).**
+- Workspace root `package.json` scripts rewritten to invoke `playwright test --config packages/legacy-poc/playwright.config.js` directly. No nested `npm run` chains; CLI args propagate correctly.
+- New script `npm run discover:legacy:pepi` is the **safe** discovery target: it always sets `TESTRAIL_REPORT_RESULTS=0` and always passes `--list`. Use this for any read-only "how many tests do we have?" check.
+- New `_comment_legacy_` field in `package.json` documents the bug and the rationale for the rewrite, so future maintainers do not reintroduce nested-workspace passthroughs.
+- Verified after the fix: `npm run discover:legacy:pepi` reports 70 tests in 65 files, posts nothing.
+
+**Decision required from Program Owner.**
+The TestRail Run 175 currently reflects two ad-hoc runs from the middle of Step 0.B/C work, not the regularly-scheduled nightly. Two options:
+- **(a) Trigger a clean nightly** (`npm run test:legacy:pepi`) once Step 0.D is complete to overwrite Run 175 with a known-good baseline.
+- **(b) Wait for the next scheduled nightly** to overwrite naturally.
+
+The unintentional runs were *legitimate*, so neither option is strictly necessary. Documenting the incident here is the actual deliverable.
+
 ### Notes for Step 0.D (next)
 
 Step 0.D is the credential rotation:

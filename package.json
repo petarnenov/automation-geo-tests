@@ -15,11 +15,13 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "typecheck": "tsc -p packages/framework/tsconfig.json --noEmit && tsc -p packages/tooling/tsconfig.json --noEmit",
-    "test": "npm run test --workspace=@geowealth/legacy-poc",
-    "test:legacy": "npm run test --workspace=@geowealth/legacy-poc",
-    "test:legacy:pepi": "npm run test:pepi --workspace=@geowealth/legacy-poc",
-    "test:legacy:pepi:dry": "npm run test:pepi:dry --workspace=@geowealth/legacy-poc",
-    "report:legacy": "npm run report --workspace=@geowealth/legacy-poc"
+    "_comment_legacy_": "Legacy POC scripts invoke playwright directly with --config (NOT via nested 'npm run --workspace='). Reason: nested 'npm run' chains drop additional CLI args (e.g. '-- --list') silently, which caused two accidental full-suite runs against TestRail Run 175 during Step 0.B/C verification. Direct playwright invocation forwards args correctly.",
+    "test": "playwright test --config packages/legacy-poc/playwright.config.js",
+    "test:legacy": "playwright test --config packages/legacy-poc/playwright.config.js",
+    "test:legacy:pepi": "playwright test --config packages/legacy-poc/playwright.config.js --grep @pepi",
+    "test:legacy:pepi:dry": "TESTRAIL_REPORT_RESULTS=0 playwright test --config packages/legacy-poc/playwright.config.js --grep @pepi",
+    "discover:legacy:pepi": "TESTRAIL_REPORT_RESULTS=0 playwright test --config packages/legacy-poc/playwright.config.js --grep @pepi --list",
+    "report:legacy": "playwright show-report packages/legacy-poc/playwright-report"
   },
   "devDependencies": {
     "@eslint/js": "~10.0.1",
