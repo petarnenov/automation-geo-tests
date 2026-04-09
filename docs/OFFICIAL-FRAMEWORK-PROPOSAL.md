@@ -29,12 +29,13 @@ The intended outcome is a maintainable, reviewable, and scalable test asset that
 
 **Headline asks of stakeholders:**
 1. Approve TypeScript strict mode and the version-pinning policy (Decisions D-01, D-19).
-2. Authorize an immediate Phase 0 day-1 credential rotation of `testrail.config.json` (Decisions D-11, D-22) and pre-decide whether the historical leak in git is rewritten or formally accepted (Decision D-20).
-3. Name a single Program Owner accountable for the migration (Section 6.14) and a named Security counterpart (D-22). Phase 0 cannot start without both.
-4. Nominate a CI platform and a secret store (Decisions D-02, D-03). CI is a Phase 1 deliverable, not a Phase 3 chore.
-5. Commit a frontend owner for the `data-testid` rollout (Decision D-05). Phase 5 cannot exit without this.
-6. Commit a second QA Automation contributor by the end of Phase 1 (Risk R-11, milestone M3). This is the program's hardest non-technical commitment.
-7. Acknowledge the kill criteria in Section 6.14 — the program is allowed to stop, and the conditions for stopping are explicit.
+2. **Approve the monorepo with npm workspaces** (Decision D-24, supersedes D-04) and the seven team packages (Trading, Platform, Billing & Servicing, Reporting, Investments, Integrations, Custody & PA), with the scaffold script as a Phase 1 deliverable (D-26).
+3. Authorize an immediate Phase 0 day-1 credential rotation of `testrail.config.json` (Decisions D-11, D-22) and pre-decide whether the historical leak in git is rewritten or formally accepted (Decision D-20).
+4. Name a single Program Owner accountable for the migration (Section 6.14) and a named Security counterpart (D-22). Phase 0 cannot start without both.
+5. Nominate a CI platform and a secret store (Decisions D-02, D-03). CI is a Phase 1 deliverable, not a Phase 3 chore.
+6. Commit a frontend owner for the `data-testid` rollout (Decision D-05) — and acknowledge that with seven teams this may need to be split per team. Phase 5 cannot exit without this.
+7. Commit a second QA Automation contributor by the end of Phase 1 (Risk R-11, milestone M3). This is the program's hardest non-technical commitment.
+8. Acknowledge the kill criteria in Section 6.14 — the program is allowed to stop, and the conditions for stopping are explicit.
 
 ---
 
@@ -113,84 +114,248 @@ These properties of the GeoWealth application (`~/nodejs/geowealth`) directly sh
 | Formatting | **Prettier** | Already adopted. |
 | Package manager | **npm** | Continuation of POC baseline. |
 
-### 4.2 Repository Layout
+### 4.2 Repository Topology — Monorepo with npm Workspaces
+
+GeoWealth E2E is a **monorepo** built on **npm workspaces** (Decision **D-24**, supersedes D-04). It hosts one shared framework package and one test package per consuming team. New teams onboard via a scaffold script (Section 4.2.4) and are productive within minutes.
+
+#### 4.2.1 Top-Level Layout
 
 ```
-automation-geo-tests/
-├── src/
-│   ├── config/                    # Environment loading, typed config object
-│   │   ├── environments.ts        # qa1–qa10, qatrd, staging definitions
-│   │   └── index.ts
-│   ├── fixtures/                  # Playwright custom fixtures
-│   │   ├── base.ts                # Composes all fixtures into a single `test` export
-│   │   ├── auth.fixture.ts        # Storage state per role
-│   │   ├── firm.fixture.ts        # workerFirm + per-test firm scopes
-│   │   └── api.fixture.ts         # Authenticated API client
-│   ├── pages/                     # Page Object Model
-│   │   ├── BasePage.ts            # navigate, waitForHashRoute, common waits
-│   │   ├── auth/LoginPage.ts
-│   │   ├── backoffice/
-│   │   │   ├── FirmAdminPage.ts
-│   │   │   └── OperationsCentrePage.ts
-│   │   ├── accounts/
-│   │   │   ├── AccountBillingPage.ts
-│   │   │   ├── CreateAccountPage.ts
-│   │   │   └── components/        # AgGridEditor, BillingHistoryGrid
-│   │   ├── platform-one/
-│   │   │   ├── MergeProspectPage.ts
-│   │   │   └── AutoLinkPage.ts
-│   │   └── components/            # Cross-cutting React widgets
-│   │       ├── ReactDatePicker.ts
-│   │       ├── ComboBox.ts
-│   │       ├── AgGrid.ts
-│   │       └── NumericInput.ts
-│   ├── api/                       # Typed client for .do endpoints
-│   │   ├── client.ts              # Base, auth, retry
-│   │   ├── qa/                    # /qa/* QA hooks
-│   │   │   ├── DummyFirmApi.ts
-│   │   │   ├── InvitationApi.ts
-│   │   │   └── CustodianApi.ts
-│   │   └── react/                 # /react/* business endpoints
-│   │       └── LoginApi.ts
-│   ├── data/                      # Test data factories and constants
-│   │   ├── factories/
-│   │   │   ├── FirmFactory.ts
-│   │   │   ├── AccountFactory.ts
-│   │   │   └── ProspectFactory.ts
-│   │   ├── constants/
-│   │   │   ├── instruments.ts     # Apple UUID and other global instruments
-│   │   │   └── roles.ts
-│   │   └── builders/              # XLSX builders (bucket, unmanaged, bulk)
-│   ├── helpers/                   # Generic utilities
-│   │   ├── waits.ts
-│   │   ├── retry.ts
-│   │   └── uuid.ts
-│   └── types/                     # Shared TS types mirroring Java entities
-│       ├── Firm.ts
-│       ├── Account.ts
-│       └── User.ts
-├── tests/
-│   ├── smoke/                     # @smoke — under 5 min, gates every PR
-│   ├── regression/                # @regression — full suite, nightly
-│   │   ├── account-billing/
-│   │   ├── bucket-exclusions/
-│   │   ├── create-account/
-│   │   ├── platform-one/
-│   │   └── unmanaged-assets/
-│   └── journeys/                  # @journey — multi-feature user stories
-├── reporters/
-│   └── testrail-reporter.ts       # Ported from POC, fully typed
-├── scripts/                       # CLI utilities (fixture generation, case listing)
-├── playwright.config.ts
-├── tsconfig.json
-├── .env.example                   # Template, no real secrets
-├── .github/workflows/             # Or .gitlab-ci.yml — CI matrix per environment
-└── docs/
-    ├── ARCHITECTURE.md
-    ├── WRITING-TESTS.md           # Cookbook for new tests
-    ├── PAGE-OBJECTS.md
-    └── ONBOARDING.md
+geowealth-e2e/                          ← monorepo root
+├── package.json                        ← workspace root: workspaces, scripts, tooling
+├── package-lock.json                   ← single lockfile for the whole monorepo
+├── tsconfig.base.json                  ← shared compiler options; each package extends
+├── .nvmrc                              ← Node 20 LTS pin
+├── .env.example                        ← template; never holds real secrets
+├── .gitignore
+├── .eslintrc.legacy-areas.json         ← machine-readable freeze list (Section 6.11)
+├── CODEOWNERS                          ← per-package review routing
+├── packages/
+│   ├── framework/                      ← @geowealth/e2e-framework — the shared substrate
+│   │   ├── src/
+│   │   │   ├── config/                 ← environments, dotenv-flow loader
+│   │   │   ├── fixtures/               ← base, auth, firm, api fixtures + globalSetup
+│   │   │   ├── pages/                  ← shared Page Objects (Login, Navigation, FirmAdmin, ...)
+│   │   │   ├── components/             ← React widget primitives (ReactDatePicker, ComboBox, AgGrid, NumericInput, TypeAhead)
+│   │   │   ├── api/                    ← typed clients for .do endpoints (qa/, react/, bo/)
+│   │   │   ├── data/                   ← factories, constants, XLSX builders
+│   │   │   ├── helpers/                ← waits, retry, uuid, cdp
+│   │   │   ├── types/                  ← shared TS types mirroring Java entities
+│   │   │   ├── reporters/              ← testrail-reporter (the framework owns it)
+│   │   │   └── index.ts                ← public surface; what teams may import
+│   │   ├── tests/                      ← framework's *own* unit/smoke tests (component classes, API client)
+│   │   ├── package.json                ← name: "@geowealth/e2e-framework", version: synced
+│   │   ├── tsconfig.json               ← extends ../../tsconfig.base.json
+│   │   └── README.md
+│   ├── tooling/                        ← @geowealth/e2e-tooling — CLI utilities (NOT consumed by tests)
+│   │   ├── src/
+│   │   │   ├── scaffold-team.ts        ← THE scaffold script (Section 4.2.4)
+│   │   │   ├── testid-coverage.ts      ← Section 4.10.6 KPI emitter
+│   │   │   ├── tracker-update.ts       ← migration tracker writer used by CI
+│   │   │   └── eslint-rules/           ← local ESLint plugins (no-new-legacy-spec, ...)
+│   │   └── package.json
+│   ├── tests-billing-servicing/        ← @geowealth/tests-billing-servicing  (owns the entire current POC scope)
+│   │   ├── tests/
+│   │   │   ├── smoke/
+│   │   │   ├── regression/
+│   │   │   │   ├── account-billing/
+│   │   │   │   ├── billing-specs/
+│   │   │   │   ├── create-account/
+│   │   │   │   ├── bucket-exclusions/
+│   │   │   │   ├── unmanaged-assets/
+│   │   │   │   ├── merge-prospect/      ← from platform-one/merge-prospect
+│   │   │   │   └── auto-link/           ← from platform-one/auto-link (Phase 5 unblock)
+│   │   │   └── journeys/
+│   │   ├── src/pages/                  ← team-specific Page Objects
+│   │   ├── playwright.config.ts        ← extends framework base config
+│   │   ├── package.json                ← depends on "@geowealth/e2e-framework": "workspace:*"
+│   │   ├── tsconfig.json
+│   │   └── README.md
+│   ├── tests-platform/                 ← @geowealth/tests-platform
+│   ├── tests-trading/                  ← @geowealth/tests-trading
+│   ├── tests-reporting/                ← @geowealth/tests-reporting
+│   ├── tests-investments/              ← @geowealth/tests-investments
+│   ├── tests-integrations/             ← @geowealth/tests-integrations
+│   ├── tests-custody-pa/               ← @geowealth/tests-custody-pa
+│   └── legacy-poc/                     ← @geowealth/legacy-poc — interim home for the existing POC
+│       ├── tests/                      ← lifted unchanged from the current repo root tests/
+│       ├── reporters/                  ← legacy JS reporter (deleted at Phase 5 sunset)
+│       ├── playwright.config.js        ← legacy JS config; runs as a Playwright "project"
+│       └── package.json                ← name: "@geowealth/legacy-poc", private, deleted at Phase 5 sunset
+├── .github/workflows/                  ← CI matrix: per-package, per-environment, per-shard
+│   ├── pr-gate.yml
+│   ├── nightly.yml
+│   └── scaffold-test.yml               ← runs the scaffold script in CI to detect template rot
+├── docs/
+│   ├── ARCHITECTURE.md
+│   ├── WRITING-TESTS.md
+│   ├── PAGE-OBJECTS.md
+│   ├── ONBOARDING.md
+│   ├── SCAFFOLD.md                     ← how to onboard a new team
+│   ├── migration-tracker.md
+│   ├── status-report-template.md
+│   ├── CHANGELOG.md
+│   ├── adr/
+│   │   ├── 0000-template.md
+│   │   ├── 0001-feature-area-ordering.md
+│   │   └── 0002-monorepo-with-npm-workspaces.md
+│   └── phase-verifications/
+└── scripts/                            ← workspace-root convenience wrappers (npm scripts call these)
+    ├── changed-packages.sh             ← affected-package detection for PR-gate
+    └── ci-matrix.ts                    ← generates the CI matrix dynamically per PR
 ```
+
+#### 4.2.2 Package Boundaries — What Goes Where
+
+The single most important rule of the monorepo: **the framework package does not know about any team package, but every team package depends on the framework**. Dependencies flow one way only.
+
+| Package | Depends on | Owned by | What goes here |
+|---|---|---|---|
+| `framework/` | (nothing internal) | QA Automation | Anything that is **reusable across two or more teams**: Page Objects for shared screens (Login, Navigation, FirmAdmin), Component classes, API client (`qa/`, `react/`, `bo/`), fixtures, factories, types, the TestRail reporter. |
+| `tooling/` | `framework/` (devDep only) | QA Automation | CLI utilities. Never imported from tests. The scaffold script lives here. |
+| `tests-<team>/` | `framework/` | The team | The team's specs, the team's *team-specific* Page Objects (the ones that don't generalize to other teams), the team's `playwright.config.ts` (extends a framework base config), the team's tracking issues. |
+| `legacy-poc/` | (nothing) | QA Automation (interim) | The existing JS POC, lifted unchanged. Deleted at Phase 5 sunset. |
+
+**Promotion rule.** A Page Object or helper that starts in `tests-<team>/src/` may be promoted to `framework/src/` once a *second* team needs it. Promotion is a single PR, owned by QA Automation, with the originating team listed as a co-author. Promotion is the *only* way new code lands in `framework/`.
+
+**Anti-pattern: cross-team imports.** A spec in `tests-billing-servicing/` may **not** import from `tests-trading/`. If two teams share state or flows, the shared piece is promoted to `framework/`. CI enforces this with an ESLint rule (`local-rules/no-cross-team-import`) shipped from `packages/tooling/`.
+
+#### 4.2.3 TypeScript and Playwright Config Hierarchy
+
+A single `tsconfig.base.json` at the root captures every shared compiler option; each package's `tsconfig.json` extends it.
+
+```jsonc
+// tsconfig.base.json
+{
+  "compilerOptions": {
+    "strict": true,
+    "target": "es2022",
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "noEmit": true,
+    "paths": {
+      "@geowealth/e2e-framework": ["./packages/framework/src/index.ts"],
+      "@geowealth/e2e-framework/*": ["./packages/framework/src/*"]
+    }
+  }
+}
+```
+
+Each `tests-<team>/playwright.config.ts` imports a base config from the framework and overrides only what is team-specific:
+
+```typescript
+// packages/tests-billing-servicing/playwright.config.ts
+import { definePlaywrightConfig } from '@geowealth/e2e-framework/config';
+
+export default definePlaywrightConfig({
+  projectName: 'billing-servicing',
+  testDir: './tests',
+  // Team-specific overrides ONLY:
+  workers: 6,
+  use: { storageState: '.auth/billing-servicing.json' },
+});
+```
+
+`definePlaywrightConfig` in `framework/src/config/playwright.ts` centralizes timeouts, retries, reporters, and the production safety guard so every team inherits the same defaults.
+
+#### 4.2.4 Self-Service Onboarding — Goal
+
+A single command produces a fully working package for a new team and registers it everywhere it needs to be registered, so a new team is productive within 30 minutes of running it. The detailed specification follows.
+
+#### 4.2.5 Scaffold Script Specification
+
+The scaffold script is a **first-class engineering deliverable**, not a one-time helper. It is owned, tested, versioned, and documented like any other piece of the framework.
+
+##### CLI surface
+
+```bash
+# Onboard a brand new team:
+npm run scaffold:team -- \
+  --name "Reporting" \
+  --slug reporting \
+  --owner "@reporting-qa-leads" \
+  --confluence "https://development.geowealth.com/confluence/display/REP" \
+  --testrail-section 412
+
+# Dry run (prints the file tree it would create, makes no changes):
+npm run scaffold:team -- --name "Reporting" --slug reporting --dry-run
+
+# Validate a previously scaffolded team is still healthy:
+npm run scaffold:doctor -- --slug reporting
+```
+
+| Flag | Required | Purpose |
+|---|---|---|
+| `--name` | yes | Display name; used in READMEs, status reports, package descriptions. |
+| `--slug` | yes | kebab-case identifier; becomes the package directory name and the npm package name suffix. Validated against `/^[a-z][a-z0-9-]+$/`. |
+| `--owner` | yes | A GitHub team handle (e.g. `@geowealth/reporting-qa`); written into CODEOWNERS. |
+| `--confluence` | no | Optional documentation pointer; written into the team package's README. |
+| `--testrail-section` | no | Optional TestRail section ID; informs the reporter which section results post to. |
+| `--dry-run` | no | Print the planned file tree, exit without writing. |
+| `--force` | no | Overwrite an existing package — refuses unless explicitly given. |
+
+##### What the script generates
+
+For `--slug reporting`, the script produces (and verifies non-existence of) the following artifacts atomically — either all writes succeed or none do:
+
+| Path | Source | Content |
+|---|---|---|
+| `packages/tests-reporting/package.json` | template | Name `@geowealth/tests-reporting`, version synced to monorepo, devDep on framework `workspace:*`. |
+| `packages/tests-reporting/playwright.config.ts` | template | Calls `definePlaywrightConfig({ projectName: 'reporting', ... })`. |
+| `packages/tests-reporting/tsconfig.json` | template | Extends `../../tsconfig.base.json`. |
+| `packages/tests-reporting/README.md` | template | Filled with `--name`, `--owner`, `--confluence`. Includes the "first 30 minutes" checklist. |
+| `packages/tests-reporting/src/pages/.gitkeep` | template | Empty `src/pages` for team-specific Page Objects. |
+| `packages/tests-reporting/tests/smoke/login.spec.ts` | template | A copy of the framework's walking-skeleton spec, retagged `@reporting @smoke`. **This is the team's first green test.** |
+| `packages/tests-reporting/tests/regression/.gitkeep` | template | Empty regression tree. |
+| `packages/tests-reporting/.auth/.gitignore` | template | Ensures storage states are gitignored locally. |
+| `CODEOWNERS` | mutate | Append `packages/tests-reporting/ @geowealth/reporting-qa @geowealth/qa-leads`. |
+| `docs/migration-tracker.md` | mutate | Append a "Reporting" section header so the team's specs have a home. |
+| `.eslintrc.legacy-areas.json` | mutate | Add `packages/tests-reporting` to the live (non-legacy) areas list. |
+| `.github/workflows/pr-gate.yml` | mutate | Append the new package to the CI matrix `package` axis. |
+| `.github/workflows/nightly.yml` | mutate | Same. |
+| `package.json` (root) | mutate | (No-op — workspaces wildcard `packages/*` already matches.) |
+| `docs/CHANGELOG.md` | append | One line: `- Onboarded team package @geowealth/tests-reporting (scaffold v<X>)`. |
+
+After writing, the script:
+1. Runs `npm install` at the workspace root to register the new package.
+2. Runs `npm run lint --workspace=@geowealth/tests-reporting` to confirm the new package compiles cleanly.
+3. Runs `npm run test:smoke --workspace=@geowealth/tests-reporting` against the configured `TEST_ENV` to confirm the sample spec is green.
+4. Prints a "Next steps" message: link to `docs/WRITING-TESTS.md`, the team's README, and the migration tracker section.
+
+##### Success SLA
+
+> A team that runs `npm run scaffold:team` against a clean clone has a green smoke spec running locally within **30 minutes** (assuming the developer has Node 20, network access to qa2, and the secret-store credentials in their `.env.local`). The 30-minute clock includes installing dependencies and waiting for the smoke spec to complete.
+
+This SLA is enforced by the **scaffold-test CI workflow** (`.github/workflows/scaffold-test.yml`): on every PR that touches `packages/tooling/src/scaffold-team.ts`, any template under `packages/tooling/templates/`, or any file the script mutates, CI:
+
+1. Runs `npm run scaffold:team -- --name "ScaffoldTest" --slug scaffold-test --owner @geowealth/qa-leads`.
+2. Runs the generated package's smoke spec end-to-end.
+3. Compares wall-clock time to the 30-minute SLA; fails the PR if it exceeds.
+4. Cleans up: deletes the generated package and reverts the mutated files in the CI workspace.
+
+If the scaffold-test workflow is red, the affected PR cannot merge. Template rot is impossible.
+
+##### Templates
+
+Templates live at `packages/tooling/templates/team/` and are valid TypeScript / JSON / YAML files with `{{name}}`, `{{slug}}`, `{{owner}}`, `{{confluence}}`, `{{testrail_section}}` placeholders. The script uses a small, dependency-free string-replace pass — no Handlebars, no Mustache, to keep the surface tiny and the failure modes obvious.
+
+Template changes are reviewed by QA Automation; the scaffold-test workflow is the safety net. Adding a *new* artifact to the scaffold output is a single PR that updates `packages/tooling/src/scaffold-team.ts`, adds the template, and runs scaffold-test.
+
+##### `scaffold:doctor` — drift detection
+
+A team's package can drift over time as the framework evolves (new fixtures, new config keys, new CI matrix axes). `scaffold:doctor` re-runs the generation logic against a `--slug` and reports the diff between what the script would generate today versus what exists. Teams run it at the start of any major framework upgrade. Drift is informational, not a failure — but the report is the input to a coordinated bring-up-to-date PR.
+
+##### Ownership and versioning
+
+- The script lives at `packages/tooling/src/scaffold-team.ts`, owned by **QA Automation**.
+- Templates are versioned via the monorepo's single version (Section 6.14 framework SemVer); a major bump to the templates requires running `scaffold:doctor` against every existing team package and producing the upgrade PRs.
+- The script's CLI is documented in `docs/SCAFFOLD.md`, itself a Phase 1 deliverable.
+
+##### Why the scaffold script is a Phase 1 deliverable, not Phase 4
+
+Without the script, onboarding the second team is manual labour. The whole point of the monorepo is to make new-team onboarding cheap. Moving the script to Phase 1 (right after CI bootstrap) means **every team after the first is bootstrapped via the script, not by hand**. Phase 4 then exercises the scaffold across seven real teams, which is the best validation we can run.
 
 ### 4.3 Key Architectural Decisions
 
@@ -661,23 +826,33 @@ A `package-lock.json` is committed; CI uses `npm ci` exclusively. No floating ra
   ```
   Verified by a CI job that runs the legacy POC suite end-to-end against the shim before the Component lift is merged.
 
-*Step E — Confluence and tracking.*
+*Step E — Workspace bootstrap and POC relocation.*
+- Initialize the npm workspace at the repository root: workspace `package.json` with `"workspaces": ["packages/*"]`, `tsconfig.base.json`, root `.eslintrc`, root `.gitignore`, `CODEOWNERS`, `.nvmrc`.
+- Create `packages/legacy-poc/` and **move the entire existing POC into it** in a single rename PR: `tests/`, `reporters/`, `playwright.config.ts` (after the rename in Step D), `scripts/`, `testrail.config.json`. The POC nightly continues to run from this new location and must remain green.
+- Create `packages/framework/` as an empty skeleton with `package.json` (`@geowealth/e2e-framework`), `tsconfig.json` extending the base, and a placeholder `src/index.ts`. No code yet — Phase 2 fills it.
+- Create `packages/tooling/` with the same skeleton; the scaffold script lands in Phase 1.
+- Create `packages/tests-billing-servicing/` via a hand-written copy (the scaffold script does not yet exist). This is the **bootstrap consumer** that proves the workspace plumbing end-to-end.
+- The walking-skeleton spec (Step D) lives at `packages/tests-billing-servicing/tests/smoke/login.spec.ts` from day one.
+
+*Step F — Confluence and tracking.*
 - Create the Confluence space for living documentation; link this proposal as the first page.
 - Open the Phase 0 tracking issue with the exit-criteria checklist below.
 
-*Step F — Pre-flight target environment selection.*
+*Step G — Pre-flight target environment selection.*
 - The walking skeleton runs against `qa2` because the POC's `testrail.config.json` already points there. **Risk:** qa2 was a forced switch on 2026-04-08 after qa3 lost bulk-exclusions routes; qa2 has had > 60 s queueing under load. Phase 0 records a fallback (decision **D-23**): if qa2 is unhealthy for two consecutive nights during Phase 0, the walking skeleton temporarily targets qa3 (which is otherwise still running the POC for billing/create-account areas), and qa2 stability is escalated to Platform.
 - A `TEST_ENV` env variable controls the target so the switch is a one-line override, not a code change.
 
 **Deliverables.**
-- `tsconfig.json` (with `paths` alias `@/* → src/*`), `.env.example`, secret-free `testrail.config.json`, `package.json` with `engines.node = "20.x"` and pinned dependency versions, `package-lock.json` committed.
-- `playwright.config.ts` (renamed from `.js`).
-- POC refactored to read credentials from environment variables; nightly green before *and* after credential rotation.
-- `src/` skeleton with `globalSetup`, `authenticatedPage` fixture, storage-state freshness re-validation, and storage-state file under `.auth/` (gitignored).
-- One green walking-skeleton spec under `tests/smoke/login.spec.ts` consuming the fixture (no inline login), targeting the role-named dashboard heading.
-- `CODEOWNERS` file created at the repository root, initially empty of legacy paths and populated as areas freeze.
-- `docs/adr/` directory created with `0000-template.md`; ADR-0001 (Phase 4 ordering rationale) authored.
+- Workspace root: `package.json` with `"workspaces": ["packages/*"]` and `engines.node = "20.x"`, `package-lock.json`, `tsconfig.base.json` (with framework path aliases), `.env.example`, `.nvmrc`, `CODEOWNERS`, `.eslintrc.legacy-areas.json`.
+- `packages/legacy-poc/` containing the entire former POC, nightly green from its new home.
+- `packages/framework/` empty skeleton (`@geowealth/e2e-framework`).
+- `packages/tooling/` empty skeleton (`@geowealth/e2e-tooling`).
+- `packages/tests-billing-servicing/` hand-written bootstrap consumer (`@geowealth/tests-billing-servicing`), with `playwright.config.ts`, the walking-skeleton smoke spec, and `globalSetup` + `authenticatedPage` fixture in the framework package.
+- POC refactored to read credentials from environment variables; nightly green from `packages/legacy-poc/` before *and* after credential rotation.
+- Storage-state freshness re-validation built into the framework `auth.fixture.ts`.
+- `docs/adr/` directory created with `0000-template.md`; ADR-0001 (Phase 4 ordering rationale) and ADR-0002 (monorepo with npm workspaces) authored.
 - `docs/status-report-template.md` and `docs/phase-verifications/` directory created.
+- `docs/SCAFFOLD.md` placeholder (filled in Phase 1 when the script lands).
 - Confluence space created and linked to this document.
 - Security-rotation sign-off recorded against decision **D-11**; history-rewrite decision recorded as **D-20**.
 - Repository tagged `v0.1.0` at Phase 0 exit.
@@ -692,32 +867,41 @@ A `package-lock.json` is committed; CI uses `npm ci` exclusively. No floating ra
 
 ---
 
-### 6.3 Phase 1 — CI Bootstrap & Walking Skeleton in CI
+### 6.3 Phase 1 — CI Bootstrap, Per-Package Matrix, and Scaffold Script
 
-**Goal.** Stand up the CI platform and pipelines so that every subsequent change is continuously validated. The Phase 0 walking skeleton runs in CI on every PR.
+**Goal.** Stand up the CI platform with per-package matrix support, ship the scaffold script as a first-class deliverable, and ensure every subsequent change to any package is continuously validated.
 
 **Scope.**
 - Provision the chosen CI platform (D-02) and secret store namespace (D-03).
-- Implement the **PR gate** pipeline (Section 5.1): lint, type check, walking-skeleton smoke against qa2.
-- Implement the **nightly regression** pipeline shell — initially executing only the smoke skeleton; it grows as feature areas migrate.
+- Implement the **PR gate** pipeline (Section 5.1) with **per-package affected detection**: lint and type-check the entire workspace; run smoke specs only for packages whose source (or whose framework dependencies) changed in the PR. The walking-skeleton spec in `packages/tests-billing-servicing/` is the initial gating spec.
+- Implement the **nightly regression** pipeline shell with the same per-package matrix; initially only `legacy-poc` and `tests-billing-servicing` have content, but the matrix is generated dynamically so adding a new team package via the scaffold script automatically extends the matrix without CI edits.
+- Implement the **affected-package detection script** at `scripts/changed-packages.sh` (uses `git diff` against the merge base; conservatively includes any package whose dependency tree contains a changed file).
 - Implement the **environment health pre-flight** (Section 5.9) and gate nightly runs on it.
-- Port the TestRail reporter to TypeScript (`reporters/testrail-reporter.ts`); validate against a *separate* TestRail sandbox run created for the migration. **The TS reporter never points at Run 175 while the JS reporter is also pointed at it** — two reporters writing to the same run produces interleaved, contradictory results. The cutover from JS-on-Run-175 to TS-on-Run-175 is atomic, single-PR, and happens at the moment of POC sunset (Phase 5), not during Phase 1 or Phase 2.
-- Wire `run-summary.json` emission and (best-effort) push to the time-series store. If the time-series store is not yet provisioned, store the JSON as a CI artifact and revisit in Phase 2.
-- Establish branch protection on the framework repository per Section 5.4.
+- Port the TestRail reporter to TypeScript at `packages/framework/src/reporters/testrail-reporter.ts`; validate against a *separate* TestRail sandbox run created for the migration. **The TS reporter never points at Run 175 while the JS reporter is also pointed at it** — two reporters writing to the same run produces interleaved, contradictory results. The cutover from JS-on-Run-175 to TS-on-Run-175 is atomic, single-PR, and happens at the moment of POC sunset (Phase 5), not during Phase 1 or Phase 2.
+- Wire `run-summary.json` emission per-package and (best-effort) push to the time-series store. If the time-series store is not yet provisioned, store the JSON as a CI artifact and revisit in Phase 2.
+- Establish branch protection on the framework repository per Section 5.4, including per-package CODEOWNERS.
+- **Build the scaffold script** at `packages/tooling/src/scaffold-team.ts` per Section 4.2.5. Author all templates under `packages/tooling/templates/team/`. Implement `scaffold:doctor`. Add the **scaffold-test workflow** (`.github/workflows/scaffold-test.yml`) that runs the script end-to-end on every PR touching the templates and validates the 30-minute SLA.
+- Author `docs/SCAFFOLD.md` documenting the CLI surface, template structure, and onboarding flow.
 
 **Deliverables.**
-- CI workflow files (`.github/workflows/` or `.gitlab-ci.yml`).
-- `reporters/testrail-reporter.ts` validated against a sandbox run.
-- Pre-flight health-check script in `scripts/`.
-- Branch-protection rules applied.
+- CI workflow files (`.github/workflows/pr-gate.yml`, `nightly.yml`, `scaffold-test.yml`).
+- Per-package CI matrix generated dynamically from the workspace.
+- `scripts/changed-packages.sh` and `scripts/ci-matrix.ts`.
+- `packages/framework/src/reporters/testrail-reporter.ts` validated against a sandbox run.
+- Pre-flight health-check script (in `packages/tooling/src/`).
+- Branch-protection rules applied; per-package CODEOWNERS in place.
 - `run-summary.json` artifact produced by every run.
+- `packages/tooling/src/scaffold-team.ts` + templates + `docs/SCAFFOLD.md`.
+- Scaffold-test workflow green; SLA budget enforced.
 
 **Exit criteria.**
-- [ ] PR gate runs on every PR in under 8 minutes; failing it blocks merge.
-- [ ] Nightly regression runs against qa2 *and* qa3 in parallel.
+- [ ] PR gate runs on every PR in under 8 minutes for the smallest affected matrix; failing it blocks merge.
+- [ ] Nightly regression runs against qa2 *and* qa3 in parallel for every populated package.
 - [ ] Pre-flight aborts the nightly cleanly when an environment is unhealthy.
 - [ ] TestRail reporter posts results from the new pipeline to a dedicated migration sandbox run for **at least 5 consecutive nights** with byte-identical payloads (modulo timestamps and case IDs) to the JS reporter on Run 175. Run 175 itself is untouched until Phase 5 sunset.
-- [ ] Branch protection enforces lint + type check + PR gate.
+- [ ] Branch protection enforces lint + type check + PR gate per package.
+- [ ] **Scaffold script is green:** `npm run scaffold:team -- --name "ScaffoldTest" --slug scaffold-test --owner @geowealth/qa-leads` produces a working package whose smoke spec passes within the 30-minute SLA, exercised by the scaffold-test workflow on every PR that touches templates.
+- [ ] **M3 milestone met** (Section 6.15): named second QA contributor committed for at least 50% of their time.
 
 **Dependencies resolved by entry:** D-02 (CI platform), D-03 (secret store).
 
@@ -784,20 +968,33 @@ A `package-lock.json` is committed; CI uses `npm ci` exclusively. No floating ra
 
 ---
 
-### 6.6 Phase 4 — Feature-Area Migration
+### 6.6 Phase 4 — Per-Team Migration into `tests-billing-servicing`
 
-**Goal.** Migrate every feature area in the POC to the new framework, retiring legacy specs as parity is reached.
+**Goal.** Migrate every feature area of the current POC into `packages/tests-billing-servicing/`, retiring legacy specs as parity is reached. The other six team packages (Trading, Platform, Reporting, Investments, Integrations, Custody & PA) are *scaffolded but empty* during Phase 4 — they have packages, CI matrix entries, and CODEOWNERS rows, but no test content yet, because no other team has implemented tests today.
 
-**Scope.** Migrate areas in this order, **one at a time**:
+**POC area-to-team mapping (Decision D-25, owned by Program Owner).** All currently implemented POC areas belong to **Billing & Servicing**:
 
-| Order | Area | Why this order |
-|---|---|---|
-| 1 | `account-billing` | Most mature; reference patterns already validated by `C25193`. |
-| 2 | `create-account` | Heavy ag-Grid usage; validates the Component library under load. |
-| 3 | `bucket-exclusions` | XLSX builder logic; validates the `data/builders/` layer. |
-| 4 | `unmanaged-assets` | Similar shape to bucket exclusions; consolidates builder reuse. |
-| 5 | `platform-one/merge-prospect` | Cross-feature dependencies; validates auth/role matrix. |
-| 6 | `platform-one/auto-link` | Currently 100% `test.fixme`; not migrated as-is — handed to Phase 5. |
+| POC area | Spec count | Target package | Phase 4 order |
+|---|---|---|---|
+| `account-billing` | 15 | `packages/tests-billing-servicing/tests/regression/account-billing/` | 1 (most mature; `C25193` already gated) |
+| `create-account` | 7 | `packages/tests-billing-servicing/tests/regression/create-account/` | 2 (heavy ag-Grid; validates Components under load) |
+| `billing-specs` | 4 | `packages/tests-billing-servicing/tests/regression/billing-specs/` | 3 (small; consolidates billing helpers) |
+| `bucket-exclusions` | 13 | `packages/tests-billing-servicing/tests/regression/bucket-exclusions/` | 4 (validates XLSX builder layer) |
+| `unmanaged-assets` | 12 | `packages/tests-billing-servicing/tests/regression/unmanaged-assets/` | 5 (similar shape to bucket exclusions; reuse builders) |
+| `platform-one/merge-prospect` | 8 | `packages/tests-billing-servicing/tests/regression/merge-prospect/` | 6 (cross-feature dependencies; auth/role matrix) |
+| `platform-one/auto-link` | 7 (all `test.fixme`) | `packages/tests-billing-servicing/tests/regression/auto-link/` | Handed to Phase 5 |
+
+> **Why all areas land in `tests-billing-servicing` despite the seven-team layout.** As of 2026-04-09, only the Billing & Servicing team has implemented E2E content; the other six team packages exist as empty bootstraps so the monorepo plumbing is exercised end-to-end. As other teams begin authoring tests post-Phase-5, they will scaffold their own packages via the script (Section 4.2.5) and own their content from the start. The plan does **not** speculatively re-home POC content that the owning team has not asked for.
+
+**For each area, follow the parity-gate workflow:**
+
+1. Open a tracking issue listing every spec, its TestRail case ID, current status, and the parity-gate state machine column (`pending` → `ported` → `gating` → `gated` → `deleted`).
+2. Build any area-specific Page Objects under `packages/tests-billing-servicing/src/pages/<area>/`. Promote any Page Object that proves reusable to `packages/framework/src/pages/` per the promotion rule (Section 4.2.2).
+3. **Port PR.** Rewrite the spec under `packages/tests-billing-servicing/tests/regression/<area>/` and merge. Spec moves to `ported`. The legacy spec in `packages/legacy-poc/tests/<area>/` continues to run unchanged.
+4. **Gating window.** The new spec runs in CI for **five consecutive nightly runs** on qa2 *and* qa3. Failures reset the counter. Spec moves to `gating` on entry, `gated` on success.
+5. **Deletion PR (separate from the port PR).** Once a spec is `gated`, a follow-up PR deletes the legacy spec from `packages/legacy-poc/tests/<area>/`, removes any helper modules used only by it, and updates the migration tracker. Spec moves to `deleted`. The port and deletion PRs are intentionally separate so the gating window is visible in git history.
+6. **Cohort flow.** Multiple specs from the same area may be in the `gating` state in parallel; only the *port PRs* are reviewed serially within an area. Cohort size is `min(5, ceil(area_size / 3))` per area, capped at 12 across the program (Section 6.13).
+7. **`account-billing` head start.** `C25193` was migrated and gated during Phase 2 (already at `packages/tests-billing-servicing/tests/regression/account-billing/C25193.spec.ts`). It enters Phase 4 already in the `gated` state and is the first spec moved to `deleted` for the area.
 
 > **ADR note (recorded as `docs/adr/0001-feature-area-ordering.md`).** This ordering optimizes for *successful early wins* (most-mature first) at the cost of *late discovery of architectural weaknesses*. The opposing strategy — start with the hardest area (`bucket-exclusions` XLSX builder or `platform-one/merge-prospect` cross-feature auth) to stress-test the framework first — was considered and rejected for two reasons:
 > 1. The walking skeleton (Phase 0) and `C25193` graduation (Phase 2) already exercise the riskiest architectural surfaces (Components, fixtures, hybrid isolation, Page Object pattern) before Phase 4 begins.
@@ -805,34 +1002,27 @@ A `package-lock.json` is committed; CI uses `npm ci` exclusively. No floating ra
 >
 > If `account-billing` migration in Phase 4 surfaces a foundational defect, that is itself a useful early signal — and the rollback path in Section 6.9 covers it.
 
-For each area:
-1. Open a tracking issue listing every spec, its TestRail case ID, current status, and the parity-gate state machine column (`pending` → `ported` → `gating` → `gated` → `deleted`).
-2. Build any area-specific Page Objects under `src/pages/<area>/`.
-3. **Port PR.** Rewrite the spec into `tests/regression/<area>/` and merge. Spec moves to `ported`.
-4. **Gating window.** The new spec runs in CI for **five consecutive nightly runs** on qa2 *and* qa3. Failures reset the counter. Spec moves to `gating` on entry, `gated` on success.
-5. **Deletion PR (separate from the port PR).** Once a spec is `gated`, a follow-up PR deletes the legacy spec, removes any helper modules used only by it, and updates the migration tracker. Spec moves to `deleted`. The port and deletion PRs are intentionally separate so the gating window is visible in git history.
-6. **Cohort flow.** To keep total calendar time bounded, multiple specs from the same area may be in the `gating` state in parallel; only the *port PRs* are reviewed serially within an area. Cohort size is capped at 5 in-flight `gating` specs per area at a time.
-7. **`account-billing` head start.** `C25193` was migrated and gated during Phase 2. It enters Phase 4 already in the `gated` state and is the first spec moved to `deleted` for the area, demonstrating the full flow end-to-end.
-
 **Deliverables.**
-- Per-area tracking issue closed.
-- All TestRail cases for the area mapped to a spec under `tests/regression/<area>/`.
-- Legacy `tests/<area>/` directory deleted.
+- Per-area tracking issue closed for each of the seven areas above.
+- All TestRail cases for each area mapped to a spec under `packages/tests-billing-servicing/tests/regression/<area>/`.
+- Legacy directory `packages/legacy-poc/tests/<area>/` deleted per area as parity is reached.
 - Area-specific Page Objects covered by `WRITING-TESTS.md` examples.
+- Migration tracker `docs/migration-tracker.md` reflects all spec state transitions.
+- The six other team packages (`tests-platform`, `tests-trading`, `tests-reporting`, `tests-investments`, `tests-integrations`, `tests-custody-pa`) exist as empty bootstraps with green smoke specs (created via the scaffold script in Phase 1) and CODEOWNERS rows.
 
 **Exit criteria (per area).**
-- [ ] 100% of in-scope TestRail cases have a green replacement under `tests/regression/<area>/`.
-- [ ] Legacy directory deleted; no orphan helpers remain in `tests/_helpers/`.
+- [ ] 100% of in-scope TestRail cases have a green replacement under `packages/tests-billing-servicing/tests/regression/<area>/`.
+- [ ] Legacy directory `packages/legacy-poc/tests/<area>/` deleted; no orphan helpers remain in `packages/legacy-poc/tests/_helpers/`.
 - [ ] Area's pass rate ≥ 98% over the trailing 14 nights (Section 9 KPI).
 
 **Exit criteria (phase as a whole).**
-- [ ] All six areas above completed except `auto-link`, which is explicitly handed off.
-- [ ] Legacy `tests/_helpers/` reduced to only those modules still used by `auto-link` (or fully deleted if none).
+- [ ] All six areas above completed except `auto-link`, which is explicitly handed off to Phase 5.
+- [ ] `packages/legacy-poc/tests/_helpers/` reduced to only those modules still used by `auto-link` (or fully deleted if none).
 - [ ] `data-testid` coverage KPI ≥ 70% across migrated areas.
-- [ ] All utilities under `scripts/` either ported to TypeScript or explicitly waived with `// allowJs-permanent: <reason>` comments. This preempts the Phase 5 `allowJs` drop and prevents a tooling break at the final sunset step.
+- [ ] All utilities under `packages/legacy-poc/scripts/` either ported to TypeScript (and moved to `packages/tooling/`) or explicitly waived with `// allowJs-permanent: <reason>` comments. This preempts the Phase 5 `allowJs` drop and prevents a tooling break at the final sunset step.
 - [ ] **PR-gate latency re-baselined.** The 8-minute target was set in Phase 1 against a single walking-skeleton spec. With the smoke set grown to dozens of specs, the target is re-measured at Phase 4 exit. If the median exceeds 8 minutes, either reshard or shrink the smoke set; do not silently move the target.
 
-**Dependencies resolved by entry:** D-06 (first migration scope), Phase 3 frontend kickoff in motion.
+**Dependencies resolved by entry:** D-06 (first migration scope), D-25 (POC area-to-team mapping), Phase 3 frontend kickoff in motion.
 
 ---
 
@@ -844,7 +1034,7 @@ For each area:
 - **Auto-link suite (`C26077`–`C26100`).** Implement disposable email pool via `ProspectFactory` (Section 4.2). Verify against qa2 with a fresh dummy firm per spec.
 - **Merge Prospect permission-disabled scenarios (`C26060`, `C26085`).** Requires backend cooperation: `/qa/createDummyFirm.do` must accept a `permissions` override or a sibling endpoint must allow toggling MERGE PROSPECT off post-creation. Tracked as a cross-team dependency in Section 8 (new row).
 - **Account Billing audit-trail gaps.** Coordinate with backend to confirm whether the qa3 audit pipeline has been fixed (Section 2 / `project_billing_form_quirks`). If yes, replace the `// QA-ARCH-001:waived` skips with real assertions.
-- **Sunset the legacy POC.** Delete `tests/_helpers/` entirely. Remove the CommonJS shim. Delete the legacy reporter `reporters/testrail-reporter.js`. Drop `allowJs` from `tsconfig.json`.
+- **Sunset the legacy POC.** Delete the entire `packages/legacy-poc/` package: removes its `tests/`, `tests/_helpers/`, the CommonJS shim, the legacy JS reporter, the legacy `playwright.config.js`, and the legacy `scripts/`. Remove the `legacy-poc` entry from the workspace `package.json`. Drop `allowJs` from `tsconfig.base.json`. The single-PR cutover from JS-on-Run-175 to TS-on-Run-175 (the framework's TS reporter, decision D-15) lands in the same change.
 - **Final documentation pass.** Update `docs/ARCHITECTURE.md` with the post-migration architecture; record lessons learned in `docs/RETROSPECTIVE.md`.
 
 **Deliverables.**
@@ -855,9 +1045,11 @@ For each area:
 - Retrospective document.
 
 **Exit criteria.**
-- [ ] `grep -r 'test\.fixme\|test\.skip' tests/` returns only entries with `QA-ARCH-001:waived <ticket>` markers (Section 5.4 rule 5).
-- [ ] `tests/_helpers/` directory removed.
-- [ ] CommonJS shim removed; legacy reporter removed.
+- [ ] `grep -r 'test\.fixme\|test\.skip' packages/` returns only entries with `QA-ARCH-001:waived <ticket>` markers (Section 5.4 rule 5).
+- [ ] `packages/legacy-poc/` directory removed entirely.
+- [ ] CommonJS shim removed; legacy JS reporter removed.
+- [ ] `tsconfig.base.json` no longer sets `allowJs`.
+- [ ] TestRail Run 175 is now driven by the framework's TS reporter (atomic cutover, D-15).
 - [ ] All KPIs in Section 9 meet or exceed targets for the trailing 30 days.
 - [ ] Migration formally closed with a retrospective.
 
@@ -1054,7 +1246,7 @@ Each decision below is owned, dated, and tracked through to acceptance. The regi
 | D-01 | Adopt TypeScript strict mode | OPEN | **Yes** — refactor safety dominates over time. | QA Lead | Pre-Phase 0 | All phases |
 | D-02 | CI platform (GitHub Actions / GitLab CI / Jenkins) | OPEN | TBD — depends on existing GeoWealth CI footprint. | Platform lead | Pre-Phase 1 | Phase 1 |
 | D-03 | Secret store (GitHub Secrets / Vault / AWS Secrets Manager) | OPEN | Align with whatever the chosen CI uses natively. | Security lead | Pre-Phase 0 | Phases 0 and 1 |
-| D-04 | Repository topology (standalone vs `~/nodejs/geowealth/e2e`) | OPEN | **Standalone** — independent release cycle, cleaner permissions. | QA Lead, Eng Mgr | Pre-Phase 0 | Phase 0 |
+| D-04 | Repository topology (standalone vs `~/nodejs/geowealth/e2e`) | SUPERSEDED by D-24 | — | — | — | — |
 | D-05 | Frontend `data-testid` rollout owner | OPEN | Nominate one frontend lead; staged adoption per feature area. | Frontend lead | Pre-Phase 3 | Phase 3 |
 | D-06 | First migration scope | OPEN | `account-billing` as the reference area. | QA Lead | Pre-Phase 4 | Phase 4 |
 | D-07 | TestRail Run 175 cadence during migration | OPEN | Phased approach; POC keeps reporting until each spec is ported. | QA Lead, Product | Pre-Phase 0 | Migration sequencing |
@@ -1073,7 +1265,12 @@ Each decision below is owned, dated, and tracked through to acceptance. The regi
 | D-20 | Git history: rewrite versus formally accept the historical credential leak | OPEN | Security chooses at the end of Phase 0 Step C, after the audit report is in hand. The plan does not pre-decide. | Security | Phase 0 Step C | Phase 0 exit |
 | D-21 | CommonJS↔TS shim uses dynamic `import()` of a single `src/legacy-shim.ts` re-export entry point (not direct `.ts` `require`) | DECIDED | Section 6.2 Step D-bis. | QA Automation | 2026-04-09 | Phase 2 |
 | D-22 | Named Security counterpart for credential rotation must exist before Phase 0 starts | OPEN | Yes — without a named individual, Phase 0 cannot begin. | Engineering Mgr | Pre-Phase 0 | Phase 0 |
-| D-23 | qa2 stability fallback: switch the walking skeleton to qa3 if qa2 fails for two consecutive Phase 0 nights | DECIDED | Section 6.2 Step F. `TEST_ENV` is the override. | QA Automation | 2026-04-09 | Phase 0 |
+| D-23 | qa2 stability fallback: switch the walking skeleton to qa3 if qa2 fails for two consecutive Phase 0 nights | DECIDED | Section 6.2 Step G. `TEST_ENV` is the override. | QA Automation | 2026-04-09 | Phase 0 |
+| D-24 | **Monorepo with npm workspaces** (supersedes D-04). One repo, `packages/framework/`, `packages/tooling/`, one `packages/tests-<team>/` per consuming team, `packages/legacy-poc/` as the interim home for the existing POC. | DECIDED | Section 4.2 + ADR-0002. Multiple teams (Trading, Platform, Billing & Servicing, Reporting, Investments, Integrations, Custody & PA) consume a shared framework; per-team CI scoping; atomic cross-package refactors. | QA Lead, Eng Mgr | 2026-04-09 | All phases |
+| D-25 | POC area-to-team mapping: **all currently implemented POC areas belong to Billing & Servicing**; the other six team packages exist as empty bootstraps in Phase 0 and remain empty until those teams begin authoring tests | DECIDED | Section 6.6. Confirmed by Program Owner on 2026-04-09. The plan does not speculatively re-home POC content. | Program Owner | 2026-04-09 | Phase 4 |
+| D-26 | Scaffold script (`npm run scaffold:team`) is a Phase 1 first-class deliverable, not an afterthought, with a 30-minute productivity SLA enforced by a CI workflow on every template-touching PR | DECIDED | Section 4.2.5. The script generates `packages/tests-<slug>/` and registers it in CODEOWNERS, the migration tracker, and the CI matrix atomically. | QA Automation | 2026-04-09 | Phase 1 |
+| D-27 | Single monorepo version (one `version` field, synced across all packages); per-package independent versioning is not adopted at this stage | DECIDED | Section 6.14 framework SemVer. Re-evaluate at Phase 5 retrospective. | QA Lead | 2026-04-09 | All phases |
+| D-28 | Workspace tooling: vanilla npm workspaces (no pnpm, Turborepo, or Nx at this stage) | DECIDED | Section 4.2. Re-evaluate if CI times become a bottleneck at Phase 4 exit. | QA Automation | 2026-04-09 | All phases |
 
 Status values: `OPEN` (awaiting decision), `DECIDED` (recorded with rationale), `SUPERSEDED` (replaced by a later decision; cross-reference required).
 
@@ -1096,6 +1293,8 @@ The framework cannot succeed in isolation. Each dependency below has a named own
 | Named Security counterpart for credential rotation (D-22) | Engineering Mgr | Pre-Phase 0 | Not started — **Phase 0 cannot start without this** |
 | Sandbox TestRail user + sandbox GeoWealth admin for the credential-rotation dry run | QA Lead | Pre-Phase 0 | Not started |
 | Single named Program Owner committed (Section 6.14) | Engineering Mgr | Pre-Phase 0 | Not started |
+| Frontend leads identified for each of the seven team feature surfaces (R-02 expanded for monorepo) | Frontend leads | Phase 3 → Phase 4 | Not started — D-05 may need to be split per team |
+| Confirmation that the six non-Billing-Servicing team contacts know they are getting an empty bootstrap package in Phase 0 (no surprise) | Program Owner | Pre-Phase 1 | Not started |
 | Second QA Automation contributor (R-11 mitigation, milestone M3) | Engineering Mgr | End of Phase 1 | Not started |
 | Backend permission-toggle for `MERGE PROSPECT` (per-firm) | Backend team | Phase 5 | Not started — required to unblock C26060 / C26085 |
 | Audit-trail fix for Account Billing Inception Date in qa3 | Backend team | Phase 5 | Open from POC notes |
@@ -1147,8 +1346,12 @@ Risks are scored on a 1–5 scale for likelihood (L) and impact (I). Score = L �
 | R-14 | Storage state expires between nightly runs and breaks the suite the next morning | 4 | 3 | 12 | Storage-state freshness re-validation built into `auth.fixture.ts` in Phase 0 Step D. Refresh-on-expiry is the default behaviour, not an opt-in. | QA Automation |
 | R-15 | qa2 instability blocks Phase 0 walking skeleton | 3 | 4 | 12 | Decision D-23: TEST_ENV fallback to qa3 after two consecutive bad nights; Platform escalation in parallel. | Platform lead |
 | R-16 | Historical credential leak in git history is never resolved | 3 | 4 | 12 | Decision D-20 forces an explicit choice (rewrite vs. accept) at Phase 0 Step C. The plan does not allow indefinite deferral. | Security |
+| R-17 | Monorepo per-package CI matrix becomes unmanageable as the number of team packages grows | 3 | 3 | 9 | Affected-package detection (`scripts/changed-packages.sh`) keeps PR-gate cost proportional; `ci-matrix.ts` generates the matrix dynamically so adding a new team package via the scaffold script never requires a workflow edit. Re-evaluate at Phase 4 exit (D-28). | QA Automation |
+| R-18 | Scaffold script template rot (templates drift from framework reality, new teams scaffold broken packages) | 3 | 4 | 12 | The scaffold-test CI workflow runs the script end-to-end on every PR touching the templates and validates the 30-minute SLA. Template rot fails CI before merge. `scaffold:doctor` lets existing teams detect drift between their package and the current templates. | QA Automation |
+| R-19 | Cross-team Page Object promotion creates merge conflicts and review-thrash (one team needs a Page Object the other team owns) | 3 | 3 | 9 | Section 4.2.2 promotion rule: any reusable code is promoted to `framework/` in a single QA-Automation-owned PR. The originating team is co-author; the consuming team is reviewer. ESLint rule `no-cross-team-import` prevents the anti-pattern. | QA Lead |
+| R-20 | Six empty team packages bit-rot before their teams write tests | 2 | 3 | 6 | The scaffold-generated smoke spec is *real* — it logs in and asserts a dashboard heading. Each empty team package's smoke spec runs nightly. If it goes red, the framework has a problem the team would have hit on day one anyway. `scaffold:doctor` is run quarterly against every empty package to detect template drift. | QA Automation |
 
-Highest-priority risks (score ≥ 12) — **R-11, R-02, R-07, R-06, R-10, R-14, R-15, R-16** — must have an active mitigation owner before Phase 0 begins.
+Highest-priority risks (score ≥ 12) — **R-11, R-02, R-07, R-06, R-10, R-14, R-15, R-16, R-18** — must have an active mitigation owner before Phase 0 begins.
 
 ---
 
@@ -1158,7 +1361,11 @@ A pragmatic checklist that the QA Lead walks through before declaring Phase 0 re
 
 **Decisions (Section 7).** Phase 0 cannot begin until these are resolved:
 - [ ] **D-01** TypeScript strict mode — DECIDED.
-- [ ] **D-04** Repository topology — DECIDED.
+- [ ] **D-24** Monorepo with npm workspaces (supersedes D-04) — DECIDED.
+- [ ] **D-25** POC area-to-team mapping (all current POC → Billing & Servicing) — DECIDED.
+- [ ] **D-26** Scaffold script as Phase 1 deliverable — DECIDED.
+- [ ] **D-27** Single monorepo version — DECIDED.
+- [ ] **D-28** npm workspaces (no pnpm/Turborepo/Nx initially) — DECIDED.
 - [ ] **D-07** TestRail Run 175 cadence agreed with Product — DECIDED.
 - [ ] **D-11** Credential rotation owner committed (Security + QA Lead) — DECIDED.
 - [ ] **D-22** Named Security counterpart confirmed in writing — DECIDED.
@@ -1260,3 +1467,4 @@ Phase 1 was migrated away from Firm 106 after a parallel-load race condition: ei
 | 0.6 | 2026-04-09 | QA Automation | Migration plan deep revision (5 iterations focused on Section 6). Restructured into six phases (0–5) addressing fifteen findings: security-first day-1 rotation, CI before content, walking skeleton, parity gate, POC freeze, frontend kickoff phase, backlog/sunset phase. Added per-phase deliverables and exit criteria, dependency graph, rollback table, verification checklist, resourcing/T-shirt sizing, and explicit R-11 bus-factor milestones. Added decisions D-11/D-12/D-13 and aligned the Decision Register, Dependencies, KPIs, Risks, and Pre-Phase-0 Checklist with the new phase numbering. Updated executive summary headline asks. |
 | 0.7 | 2026-04-09 | QA Automation | Second migration-plan deep revision (5 iterations) addressing 18 surviving findings. Fixes: parity-gate vs same-PR deletion mechanics (split into port and deletion PRs); `data-testid` KPI/phase mismatch; `C25193` double-migration ambiguity; M3 retimed to end of Phase 1; Phase 5 `allowJs` drop preempted by `scripts/` conversion in Phase 4; explicit credential rotation ordering (Steps A–E in Phase 0); migration tracker artifact defined; POC freeze made mechanically enforced; dual TestRail reporter coexistence forbidden until Phase 5 sunset; Phase 3 frontend batch sized explicitly; Phase 5 backend cooperation SLA. Adds: Section 6.13 parity-gate calendar reality and cohort sizing; ADR-0001 inline note on Phase 4 ordering; PR-gate latency re-baseline at Phase 4 exit; pre-flight false-positive override; decisions D-14 through D-18; renumbered Section 6.13/6.14. |
 | 0.8 | 2026-04-09 | QA Automation | Third migration-plan deep revision (5 iterations) focused on day-1 readiness — making Phase 0 and Phase 1 bulletproof. Fixes 28 findings: technical preconditions (Node 20, Playwright 1.47, TS 5.5, Zod 3.23, dotenv-flow 4.1, ESLint 10.2 — pinned; `package-lock.json`; `npm ci`); explicit `playwright.config.js → .ts` rename; tsconfig `paths` alias; storage-state freshness re-validation; credential rotation Step A inventory + named Security counterpart; explicit git-history rewrite-vs-accept decision; CommonJS↔TS shim mechanics via `legacy-shim.ts` + dynamic import; `#qa-alerts` circular dependency resolved; ESLint rule reads sidecar JSON not Markdown; CDP access encapsulated in `withCdpClick` helper; Phase 2 entry spike for C25193 lift discovery; relative cohort sizing scaled to area size; qa2 stability fallback to qa3 (D-23). Adds Section 6.14 Program Governance: single accountable Program Owner, kill criteria, planned phase durations (working weeks), status reporting cadence, phase verification artifact, credential-rotation dry run, framework SemVer. Adds CODEOWNERS, `docs/adr/`, status-report template, `docs/phase-verifications/` to Phase 0 deliverables; tags `v0.1.0` at Phase 0 exit. Decisions D-19 through D-23. New risks R-12 through R-16. Fixed ESLint 9 → 10 typo throughout. Renumbered Section 6.14 → 6.15. |
+| 0.9 | 2026-04-09 | QA Automation | **Multi-team monorepo restructure (5 iterations).** New requirement: the framework will be consumed by seven teams (Trading, Platform, Billing & Servicing, Reporting, Investments, Integrations, Custody & PA), with a self-service scaffold script that onboards new teams within 30 minutes. Section 4.2 rebuilt around `packages/framework/`, `packages/tooling/`, `packages/tests-<team>/` (one per team), and `packages/legacy-poc/` (interim home for the existing POC). Added 4.2.2 (package boundaries, one-way dependency rule, promotion rule), 4.2.3 (tsconfig hierarchy + `definePlaywrightConfig`), 4.2.5 (scaffold script spec: CLI surface, generated artifacts, 30-minute SLA, scaffold-test CI workflow, `scaffold:doctor` drift detection). Phase 0 now bootstraps the workspace and relocates the POC into `packages/legacy-poc/`. Phase 1 ships the scaffold script as a first-class deliverable with M3 as a hard exit gate. Phase 4 rewritten as per-team migration with explicit POC area-to-team mapping (D-25: all current POC content → Billing & Servicing); the other six packages remain empty bootstraps. Phase 5 sunset deletes `packages/legacy-poc/`. D-04 SUPERSEDED by D-24 (monorepo). New decisions D-24 through D-28. New risks R-17 (CI matrix), R-18 (scaffold rot), R-19 (cross-team promotion), R-20 (empty package bit-rot). ADR-0002 (monorepo with npm workspaces). Pre-Phase-0 checklist refreshed; executive summary headline asks expanded. |
