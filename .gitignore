@@ -6,6 +6,7 @@ playwright-report/
 test-results/
 .playwright-mcp/
 tests/.auth/
+.playwright-recon/
 
 # Environment / secrets
 .env
