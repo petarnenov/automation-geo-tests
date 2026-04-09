@@ -94,20 +94,53 @@ async function checkTim1Login(env: EnvironmentConfig): Promise<{ ok: boolean; de
       detail: 'TIM1_USERNAME / TIM1_PASSWORD not set in workspace .env.local',
     };
   }
-  // Use a Playwright browser request context — same approach as the
-  // future framework API client. POST as form-urlencoded matches the
-  // legacy POC's login path.
+  // Resilient login flow — mirrors the legacy POC's
+  // loginPlatformOneAdmin in packages/legacy-poc/tests/_helpers/qa3.js
+  // (lines 59-86), which is the battle-hardened pattern.
+  //
+  // The original preflight implementation relied on
+  // `waitForURL(env.loginHashRoute)` and then `waitForURL(env.
+  // postLoginHashRoute)`. That works on qa3 — where the SPA
+  // synchronously redirects `/` to `/react/indexReact.do#login` —
+  // but on qa2/qa4 the bare goto('/') lands directly at
+  // `/react/indexReact.do` (no hash), and the SPA never adds `#login`
+  // to the URL bar. waitForURL then times out at 30s.
+  //
+  // The DOM-signal race is environment-agnostic: it asks "is the login
+  // form visible, OR is the post-login content visible?" and acts
+  // accordingly. Identical to what loginPlatformOneAdmin does, and
+  // identical to what the framework's auth.fixture will do once Phase
+  // 2 lifts it.
   const { chromium } = await import('@playwright/test');
   const browser = await chromium.launch({ headless: true });
   const context = await browser.newContext({ baseURL: env.baseUrl, ignoreHTTPSErrors: true });
   const page = await context.newPage();
   try {
     await page.goto('/', { timeout: 30_000 });
-    await page.waitForURL(env.loginHashRoute, { timeout: 30_000 });
-    await page.getByPlaceholder(/email|username/i).fill(username);
-    await page.getByPlaceholder(/password/i).fill(password);
-    await page.getByRole('button', { name: 'Login' }).click();
-    await page.waitForURL(env.postLoginHashRoute, { timeout: 30_000 });
+
+    // Race for either the login form or the authenticated landing
+    // content. .catch(() => {}) keeps Promise.race from rejecting on
+    // the loser — the actual decision is made by the isVisible() call
+    // afterwards.
+    const usernameField = page.getByPlaceholder(/email|username/i);
+    const loggedInSignal = page.getByText(/Welcome to Platform One|Dashboard/i);
+    await Promise.race([
+      usernameField.waitFor({ state: 'visible', timeout: 30_000 }).catch(() => {}),
+      loggedInSignal.waitFor({ state: 'visible', timeout: 30_000 }).catch(() => {}),
+    ]);
+
+    if (await usernameField.isVisible().catch(() => false)) {
+      // Login form is showing — submit it.
+      await usernameField.fill(username);
+      await page.getByPlaceholder(/password/i).fill(password);
+      await page.getByRole('button', { name: 'Login' }).click();
+      // After submit, wait for the landing content (DOM signal, not
+      // hash route — see comment above for the rationale).
+      await loggedInSignal.waitFor({ state: 'visible', timeout: 30_000 });
+    }
+    // Otherwise: a session was already valid (storage state from a
+    // previous run, browser cache, etc.) — nothing to do.
+
     const cookies = await context.cookies();
     const sessionCookies = cookies.filter((c) => /session|jsess/i.test(c.name));
     if (sessionCookies.length === 0) {
