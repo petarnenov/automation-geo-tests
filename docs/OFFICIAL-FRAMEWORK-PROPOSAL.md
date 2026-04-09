@@ -28,12 +28,13 @@ This document proposes the evolution from POC to an **official, corporate-grade 
 The intended outcome is a maintainable, reviewable, and scalable test asset that the QA, Engineering, and Platform organizations can jointly own.
 
 **Headline asks of stakeholders:**
-1. Approve TypeScript strict mode (Decision D-01).
-2. Authorize an immediate Phase 0 day-1 credential rotation of `testrail.config.json` (Decision D-11). The currently committed credentials must be treated as compromised.
-3. Nominate a CI platform and a secret store (Decisions D-02, D-03). CI is now a Phase 1 deliverable, not a Phase 3 chore.
-4. Commit a frontend owner for the `data-testid` rollout (Decision D-05). Phase 5 cannot exit without this.
-5. Commit a second QA Automation contributor by the end of Phase 2 (Risk R-11, milestone M3). This is the program's hardest non-technical commitment.
-6. Confirm the Phase 4 first-area scope (Decision D-06).
+1. Approve TypeScript strict mode and the version-pinning policy (Decisions D-01, D-19).
+2. Authorize an immediate Phase 0 day-1 credential rotation of `testrail.config.json` (Decisions D-11, D-22) and pre-decide whether the historical leak in git is rewritten or formally accepted (Decision D-20).
+3. Name a single Program Owner accountable for the migration (Section 6.14) and a named Security counterpart (D-22). Phase 0 cannot start without both.
+4. Nominate a CI platform and a secret store (Decisions D-02, D-03). CI is a Phase 1 deliverable, not a Phase 3 chore.
+5. Commit a frontend owner for the `data-testid` rollout (Decision D-05). Phase 5 cannot exit without this.
+6. Commit a second QA Automation contributor by the end of Phase 1 (Risk R-11, milestone M3). This is the program's hardest non-technical commitment.
+7. Acknowledge the kill criteria in Section 6.14 — the program is allowed to stop, and the conditions for stopping are explicit.
 
 ---
 
@@ -62,7 +63,7 @@ The intended outcome is a maintainable, reviewable, and scalable test asset that
 | Per-worker dummy firm isolation | `tests/_helpers/worker-firm.js` | Eliminates cross-test races under parallel load by giving each worker an isolated firm via `/qa/createDummyFirm.do`. |
 | React widget primitives | `tests/_helpers/ui.js` | Battle-tested helpers for `react-date-picker`, ComboBox, ag-Grid editors, numeric inputs. Hardened against several React-hydration races. |
 | TestRail reporter | `reporters/testrail-reporter.js` | Working integration with retry, dual-auth (password/API key) fallback, configurable result mapping. |
-| Lint and formatting baseline | `eslint.config.mjs`, `.prettierrc.json` | ESLint 9 flat config plus Playwright plugin and Prettier already enforced. |
+| Lint and formatting baseline | `eslint.config.mjs`, `.prettierrc.json` | ESLint 10 flat config plus Playwright plugin and Prettier already enforced. |
 | Hybrid isolation pattern | Documented across `account-billing/` specs | Phase 1 mutates per-worker firms; Phase 2 reads from a static shared firm. Pattern is sound and should be formalized. |
 
 ### 2.2 Structural Debt Blocking Scale-up
@@ -108,7 +109,7 @@ These properties of the GeoWealth application (`~/nodejs/geowealth`) directly sh
 | Schema validation | **Zod** | Runtime validation of `/qa/*` responses; protects tests from silent backend contract drift. |
 | Environment management | **`dotenv-flow`** | Layered `.env.<env>`, `.env.local`, `.env.<env>.local` semantics map naturally to qa1–qa10. |
 | Test data faking | **`@faker-js/faker`** | Industry standard for synthetic names, addresses, emails. |
-| Linting | **ESLint 9 flat config + `eslint-plugin-playwright` + `@typescript-eslint`** | Continuation of POC baseline plus TypeScript awareness. |
+| Linting | **ESLint 10 flat config + `eslint-plugin-playwright` + `@typescript-eslint`** | Continuation of POC baseline (the POC already runs ESLint 10) plus TypeScript awareness. |
 | Formatting | **Prettier** | Already adopted. |
 | Package manager | **npm** | Continuation of POC baseline. |
 
@@ -608,39 +609,78 @@ The migration is **incremental and non-disruptive**. The existing POC continues 
 
 **Goal.** Make the repository safe and lay the TypeScript foundation. End with a single trivial smoke spec running locally under the new architecture.
 
+**Technical preconditions (version pins, recorded as decision D-19).**
+
+| Tool | Pinned version | Why |
+|---|---|---|
+| Node.js | `20.x LTS` (declared in `package.json` `engines` and `.nvmrc`) | Matches Playwright 1.47 baseline; LTS lifecycle until 2026-04. |
+| `@playwright/test` | `~1.47.0` | POC baseline; `mergeTests` is stable from 1.45 onward. |
+| TypeScript | `~5.5` | Required for Playwright 1.47 type compatibility. |
+| Zod | `~3.23` | Last stable 3.x; pinned to avoid 4.x breaking changes. |
+| `dotenv-flow` | `~4.1` | CJS-compatible; verified against Playwright's loader. |
+| ESLint | `~10.2` (matches POC) | Avoid lockfile churn; the POC already runs ESLint 10. |
+
+A `package-lock.json` is committed; CI uses `npm ci` exclusively. No floating ranges.
+
 **Scope (executed in this strict order to avoid breaking the POC nightly).**
 
 *Step A — Refactor without rotating.*
-- Refactor the existing JS POC to read all credentials from environment variables via `process.env`. The values in `testrail.config.json` are temporarily moved into an `.env.local` (gitignored) and the JSON file becomes secret-free. POC nightly must still pass against the (still-valid) old credentials.
+- **Inventory first.** Run `grep -rn "testrail.config" tests/ reporters/ playwright.config.js` and produce a list of every reference. The current POC has at least five files reading `testrail.config.json` (`reporters/testrail-reporter.js`, `playwright.config.js`, `tests/_helpers/global-setup.js`, `tests/_helpers/qa3.js`, `tests/_helpers/worker-firm.js`); each must be updated.
+- Refactor every reference to read from `process.env` instead. The values in `testrail.config.json` are temporarily moved into an `.env.local` (gitignored) and the JSON file becomes secret-free.
 - Add `.env*` to `.gitignore`; commit `.env.example` documenting the variable names.
-- Verify the POC nightly is green for one full run before Step B.
+- Verify the POC nightly is green for one full run before Step B. If the inventory grew during refactor, update the count and re-verify.
 
 *Step B — Rotate and re-issue.*
-- Coordinate with Security to rotate every credential previously committed. Treat the old values as compromised.
+- Coordinate with **Security** (where "Security" means: the named individual or function holding the credentials of record for GeoWealth QA accounts; if no formal Security team exists, this is the engineer or manager nominated against decision **D-22**). Without a named Security counterpart, Phase 0 cannot start.
+- Rotate every credential previously committed. Treat the old values as compromised.
 - Update the new secret store and every developer's `.env.local` in lockstep with the rotation.
 - Verify the POC nightly is green within 24 hours of rotation; if not, restore from the secret store and root-cause before proceeding.
 
-*Step C — History audit.*
-- Run `detect-secrets` (or equivalent) against the working tree and the last 200 commits. Document any historical leaks; coordinate Security on whether a history rewrite is required.
+*Step C — History audit and rewrite decision.*
+- Run `detect-secrets` against the working tree and the entire git history (`detect-secrets scan --all-files` plus a `git log --all -p` filter for known patterns). Produce a report.
+- **Binary decision, recorded as D-20 at the end of Step C, owned by Security:** *rewrite history* (using `git filter-repo`, force-push, every clone re-clones) or *formally accept* the historical exposure (the rotated credentials are no longer valid, so the leak is harmless going forward). The plan does not pre-decide this; it requires Security to choose explicitly.
+- If history rewrite is chosen: schedule it for a known-quiet window; notify every developer to re-clone; update the Confluence space with the new HEAD.
 
 *Step D — TypeScript foundation (parallelizable with C once A and B are green).*
-- Add `tsconfig.json` with `strict: true`, `allowJs: true`, `checkJs: false`, `noEmit: true`, and Playwright-compatible module/target settings. Mixed JS/TS coexistence is explicit and tested.
-- Scaffold `src/` per Section 4.2: empty `config/`, `fixtures/`, `pages/`, `api/`, `data/`, `helpers/`, `types/`.
+- Add `tsconfig.json` with `strict: true`, `allowJs: true`, `checkJs: false`, `noEmit: true`, `moduleResolution: "bundler"`, `module: "esnext"`, `target: "es2022"`, and a `paths` map (`"@/*": ["src/*"]`) so specs import as `import { ... } from '@/pages/...'` rather than fragile relative paths.
+- **Rename** `playwright.config.js` to `playwright.config.ts` in a single PR; verify the POC still discovers and runs all tests via `npx playwright test --list`. Two configs cannot coexist; the rename is atomic.
+- Update `playwright.config.ts` `testDir` to `./tests` (unchanged) but extend `testMatch` so `tests/regression/**/*.spec.ts` and `tests/smoke/**/*.spec.ts` resolve from day one.
+- Scaffold `src/` per Section 4.2: empty `config/`, `fixtures/`, `pages/`, `api/`, `data/`, `helpers/`, `types/`. Add `src/index.ts` as a no-op marker to ensure tsc walks the tree.
 - Implement `src/config/environments.ts` and `dotenv-flow` loader covering qa2, qa3, qatrd. The new loader and the POC's `process.env` reads must agree on variable names so a single `.env.local` serves both.
-- Implement `src/fixtures/auth.fixture.ts` with a minimal `globalSetup` that logs in `tim1` and writes a storage state. The walking-skeleton spec consumes this fixture; **inline login is forbidden** so future spec authors copy the right pattern.
-- Implement the **smallest possible walking-skeleton spec**: a `@smoke` test that, given the storage-state-backed `authenticatedPage`, navigates to the dashboard and asserts a stable element is visible. **Not** `C25193` — that spec graduates Phase 2.
+- Implement `src/fixtures/auth.fixture.ts` with a `globalSetup` that logs in `tim1` and writes a storage state. **Storage-state freshness rule:** before each worker uses the state, a fixture re-validates it (requests `/react/loginReact.do` and checks for a 200 + non-redirect); if expired (302 to login), it re-runs the login and rewrites the file. This prevents the day-2 stale-session failure mode. The implementation lives in `src/fixtures/auth.fixture.ts` and is documented in `docs/PAGE-OBJECTS.md`.
+- The walking-skeleton spec consumes this fixture; **inline login is forbidden** so future spec authors copy the right pattern.
+- Implement the **smallest possible walking-skeleton spec**: a `@smoke` test that, given the storage-state-backed `authenticatedPage`, navigates to `#/dashboard` and asserts the presence of the `<h1>` whose accessible name matches `/dashboard/i` (chosen because role-based selectors do not require any `data-testid` rollout). **Not** `C25193` — that spec graduates Phase 2.
+
+*Step D-bis — CommonJS↔TypeScript shim mechanics.*
+- Playwright's runtime TS loader compiles `.ts` files to in-memory CJS, but a hand-written `.js` shim cannot `require('./Component.ts')` because Node's resolver rejects the `.ts` extension at the CJS boundary.
+- The chosen approach (recorded as D-21): the shim file in `tests/_helpers/ui.js` does **not** import the TS Components directly. Instead, the TS Components live at `src/pages/components/*.ts` and are re-exported via a single `src/legacy-shim.ts` entry point; the JS shim uses dynamic `import()` (which Playwright's loader handles transparently). The shim becomes:
+  ```javascript
+  // tests/_helpers/ui.js  (legacy shim — DO NOT add logic)
+  module.exports.setReactDatePicker = async (...args) =>
+    (await import('@/legacy-shim.js')).setReactDatePicker(...args);
+  ```
+  Verified by a CI job that runs the legacy POC suite end-to-end against the shim before the Component lift is merged.
 
 *Step E — Confluence and tracking.*
 - Create the Confluence space for living documentation; link this proposal as the first page.
 - Open the Phase 0 tracking issue with the exit-criteria checklist below.
 
+*Step F — Pre-flight target environment selection.*
+- The walking skeleton runs against `qa2` because the POC's `testrail.config.json` already points there. **Risk:** qa2 was a forced switch on 2026-04-08 after qa3 lost bulk-exclusions routes; qa2 has had > 60 s queueing under load. Phase 0 records a fallback (decision **D-23**): if qa2 is unhealthy for two consecutive nights during Phase 0, the walking skeleton temporarily targets qa3 (which is otherwise still running the POC for billing/create-account areas), and qa2 stability is escalated to Platform.
+- A `TEST_ENV` env variable controls the target so the switch is a one-line override, not a code change.
+
 **Deliverables.**
-- `tsconfig.json`, `.env.example`, secret-free `testrail.config.json`.
+- `tsconfig.json` (with `paths` alias `@/* → src/*`), `.env.example`, secret-free `testrail.config.json`, `package.json` with `engines.node = "20.x"` and pinned dependency versions, `package-lock.json` committed.
+- `playwright.config.ts` (renamed from `.js`).
 - POC refactored to read credentials from environment variables; nightly green before *and* after credential rotation.
-- `src/` skeleton with `globalSetup`, `authenticatedPage` fixture, and storage-state file under `.auth/` (gitignored).
-- One green walking-skeleton spec under `tests/smoke/login.spec.ts` consuming the fixture (no inline login).
+- `src/` skeleton with `globalSetup`, `authenticatedPage` fixture, storage-state freshness re-validation, and storage-state file under `.auth/` (gitignored).
+- One green walking-skeleton spec under `tests/smoke/login.spec.ts` consuming the fixture (no inline login), targeting the role-named dashboard heading.
+- `CODEOWNERS` file created at the repository root, initially empty of legacy paths and populated as areas freeze.
+- `docs/adr/` directory created with `0000-template.md`; ADR-0001 (Phase 4 ordering rationale) authored.
+- `docs/status-report-template.md` and `docs/phase-verifications/` directory created.
 - Confluence space created and linked to this document.
-- Security-rotation sign-off recorded against decision **D-11**.
+- Security-rotation sign-off recorded against decision **D-11**; history-rewrite decision recorded as **D-20**.
+- Repository tagged `v0.1.0` at Phase 0 exit.
 
 **Exit criteria.**
 - [ ] Zero committed secrets verified by `detect-secrets` against the working tree and against the last 100 commits.
@@ -688,8 +728,10 @@ The migration is **incremental and non-disruptive**. The existing POC continues 
 **Goal.** Build the reusable substrate that all feature-area migrations will depend on, and produce the documentation new contributors will read first.
 
 **Scope.**
+- **Phase 2 entry spike (mandatory before lifting any helper):** scope the legacy `C25193.spec.js` end-to-end. Produce a one-page note in the Phase 2 tracking issue listing every helper module it imports, every magic identifier it uses, and every product quirk it works around. This spike is the input to the C25193 graduation effort and prevents the "L sized but actually XL" risk recorded against R-12.
 - Lift React widget helpers from `tests/_helpers/ui.js` into `src/pages/components/` as TypeScript Component classes (Section 4.4): `ReactDatePicker`, `ComboBox`, `AgGrid`, `NumericInput`, `TypeAhead`.
 - Each Component class has unit-style coverage via a *single* dedicated spec under `tests/smoke/components/` that exercises its primary actions on a known qa2 page (no business assertions).
+- **CDP-access policy.** Where a Component class needs raw Chrome DevTools Protocol access (e.g., the Commission Fee combo workaround that requires `page.mouse.click()` against bounding-box coordinates), the access is encapsulated by a single helper `withCdpClick(locator, options)` exposed from `src/helpers/cdp.ts`. Component classes call the helper; they do **not** open `CDPSession` themselves. The helper documents the trade-off (works only on Chromium; ignored under WebKit) and adds a `@chromium-only` tag annotation to any test that consumes it. This isolates the non-portable surface and keeps Component classes idiomatic.
 - Keep a thin **CommonJS shim** at `tests/_helpers/ui.js` that re-exports the TypeScript Components via Playwright's TS loader, so existing legacy specs continue to run unmodified. The shim is a one-page file with no logic; verified by CI running the legacy suite green.
 - Build the typed `/qa/*` API client (Section 4.6): `DummyFirmApi`, `InvitationApi`, `CustodianApi`, `CostBasisApi`, `MfExecutionApi`. Each wrapper has Zod schema coverage and is used at least once in a smoke spec.
 - Implement the production-safety guard in `ApiClient` (Decision **D-09**, already DECIDED).
@@ -885,7 +927,7 @@ A short, mechanical checklist used at every phase transition. The QA Lead walks 
 4. Section 9 KPIs have not regressed since the last phase entry.
 5. Section 10 risks reviewed; no new risk scored ≥ 12 without an owner.
 6. Retrospective notes captured in `docs/RETROSPECTIVE.md` (Phase 5 only) or in the tracking issue (other phases).
-7. Stakeholder communication sent to `#qa-alerts` summarizing what changed.
+7. Stakeholder communication sent to **the agreed channel** summarizing what changed. For Phase 0 transitions the channel is the QA team's existing email distribution list (or equivalent), because `#qa-alerts` is itself a Phase 1 deliverable; from Phase 1 onward it is `#qa-alerts`. The channel for each phase is recorded in the phase tracking issue.
 
 ### 6.11 Cross-Phase Workstreams
 
@@ -904,10 +946,10 @@ These run continuously across multiple phases and are not phases in themselves:
 
 **POC Freeze Enforcement (Phase 2 exit onward).** "No new tests in legacy `tests/<feature>/`" is enforced mechanically, not by review discipline:
 
-1. A custom ESLint rule (`local-rules/no-new-legacy-spec`) flags any newly created `.spec.js` file under `tests/<legacy-area>/`. The rule reads the migration tracker to know which areas are legacy vs. live.
-2. CODEOWNERS marks `tests/<legacy-area>/**` as requiring QA Lead approval; the QA Lead's review template asks "is this a bug fix or a new test?" and rejects new tests on principle.
-3. Bug-fix PRs to legacy specs must reference the original spec's TestRail case ID and link to a defect ticket; the PR template enforces this.
-4. The freeze is announced to `#qa-alerts` at Phase 2 exit, with the tracker linked.
+1. A custom ESLint rule (`local-rules/no-new-legacy-spec`) flags any newly created `.spec.js` file under directories listed in a sidecar config file `.eslintrc.legacy-areas.json` (a flat JSON array of paths). ESLint rules are JavaScript and cannot parse Markdown, so the migration tracker is **not** the ESLint input — the sidecar JSON is, and the migration tracker's CI job updates the sidecar in lockstep when an area's state changes. This keeps the tracker as the human-readable source of truth and the JSON as the machine-readable mirror.
+2. CODEOWNERS marks `tests/<legacy-area>/**` as requiring QA Lead approval. The CODEOWNERS file is created in **Phase 0 Step E** (it does not exist today) and is populated incrementally as areas freeze.
+3. Bug-fix PRs to legacy specs must reference the original spec's TestRail case ID and link to a defect ticket; the PR template enforces this (a CI check rejects PRs to legacy paths without the required references).
+4. The freeze is announced to the agreed channel at Phase 2 exit, with the tracker linked.
 
 ### 6.12 Resourcing and Effort Sizing
 
@@ -922,7 +964,7 @@ Effort is expressed in T-shirt sizes against a baseline of one full-time QA Auto
 | **4** Feature-Area Migration | **XL** | Six feature areas × parity gate × CI stabilization. Dominates total effort. | All of the above plus deep familiarity with each feature area. | QA Automation | Per-feature QA contacts, second QA contributor. |
 | **5** Backlog Unblock & POC Sunset | **M** | Auto-link and merge-prospect blockers each have unknowns; sunset is mechanical. | Backend coordination, factory design. | QA Automation | Backend leads (toggles, audit fixes). |
 
-**If Phase 2 or Phase 4 runs without a second QA contributor**, the phase size escalates by one notch (Phase 2: L → XL; Phase 4: XL → XXL) and the program becomes a single-point-of-failure (Risk R-11). M3 (Section 6.14) makes the second-contributor commitment a hard gate for Phase 2 entry, not an aspiration.
+**If Phase 2 or Phase 4 runs without a second QA contributor**, the phase size escalates by one notch (Phase 2: L → XL; Phase 4: XL → XXL) and the program becomes a single-point-of-failure (Risk R-11). M3 (Section 6.15) makes the second-contributor commitment a hard gate for Phase 2 entry, not an aspiration.
 
 ### 6.13 Parity Gate — Calendar Reality and Cohort Sizing
 
@@ -934,13 +976,60 @@ The parity gate of "5 consecutive green nightly runs" is the program's quality k
 
 | Concurrency policy | Value | Reason |
 |---|---|---|
-| Max in-flight `gating` specs per area | 5 | Keeps area-level failure attribution clear; avoids burying a regression under nine concurrent green specs. |
+| Max in-flight `gating` specs per area | `min(5, ceil(area_size / 3))` | Scales with area size — small areas (`billing-specs`, 4 specs) gate at most 2 in parallel; large areas (`account-billing`, 15 specs) gate at most 5. Keeps failure attribution proportional. |
 | Max in-flight `gating` specs across all areas | 12 | Bounds nightly runtime; prevents the gating cohort from inflating the nightly past its 60-minute SLA. |
-| Hold-back rule | New port PRs into an area pause when that area has 5 specs in `gating` *and* one of them has failed in the last two nights | Forces stabilization before piling on. |
+| Hold-back rule | New port PRs into an area pause when that area's gating queue is full *or* one in-flight gating spec has failed in the last two nights | Forces stabilization before piling on. |
 
 **Time-to-`gated` is a tracked metric.** Median per-spec gate duration is reported in the migration tracker; if it exceeds 14 calendar days for two weeks running, the gate definition is reviewed (the 5-night threshold may be loosened to 3 for low-risk specs, with a recorded waiver per spec).
 
-### 6.14 Bus-Factor Mitigation Milestones (R-11)
+### 6.14 Program Governance
+
+This subsection captures the program-management questions that the technical phases assume are answered.
+
+**Single accountable program owner.** One named individual — the **Program Owner** — is accountable for the migration's success. The Program Owner is the QA Lead by default, but the role may be delegated by name in the Phase 0 tracking issue. The Program Owner:
+- Chairs the weekly status report and the phase verification calls.
+- Holds the kill-criteria decision (see below).
+- Resolves cross-team escalations within 48 hours.
+- Maintains the Decision Register and the migration tracker.
+
+**Kill criteria — when the program is abandoned and the POC is kept as-is.** The migration is **stopped** if any of the following becomes true:
+1. **Critical security finding cannot be remediated within Phase 0.** If credential rotation cannot be completed and the historical leak cannot be either rewritten or formally accepted, the program is paused indefinitely until Security clears the path.
+2. **Two consecutive phases miss their planned exit by more than 100% of their planned duration.** This signals systemic estimation failure.
+3. **R-11 cannot be mitigated.** If a second QA contributor cannot be recruited by the end of Phase 1 *and* the Engineering Manager cannot offer an alternative (loaned engineer, contractor), Phase 2 does not start. The program waits.
+4. **Backend cooperation fails categorically.** If neither MERGE PROSPECT toggle nor audit-trail fix is delivered after one full SLA cycle plus one extension, Phase 5 closes with two waivers and the program is declared complete-with-known-gaps. *This is a partial kill, not a full one.*
+5. **Cumulative cost (engineering hours) exceeds 200% of the original estimate** without producing a green Phase 4 area. This signals fundamental architectural mismatch.
+
+A kill decision is the Program Owner's, made in consultation with the Engineering Manager and recorded as a `KILLED` decision in Section 7. POC and TestRail Run 175 continue to operate; the framework branch is parked, not deleted, so a future restart can build on the work done.
+
+**Phase scheduling.** Each phase carries a *planned relative duration* expressed in working weeks, recorded in the phase tracking issue at phase entry. Absolute calendar dates are not in this document because they depend on team availability, but relative durations make the "phase exit on time" KPI measurable:
+
+| Phase | Planned relative duration | Notes |
+|---|---|---|
+| 0 | 1–2 weeks | Long pole is Security availability for credential rotation. |
+| 1 | 1–2 weeks | Long pole is CI provisioning. |
+| 2 | 4–6 weeks | Largest phase; Component lift + C25193 graduation. |
+| 3 | 1 week of QA effort, runs in parallel with start of Phase 4 | Frontend effort outside QA's accounting. |
+| 4 | 8–12 weeks | Six areas × parity gate × cohort throughput. |
+| 5 | 2–4 weeks | Driven by backend SLA; the SLA itself is the long pole. |
+
+These are sized in *working weeks of the assumed team* (one full-time QA Automation engineer plus the second contributor from M3 onward). Sizes are reviewed and re-baselined at the end of every phase verification.
+
+**Status reporting cadence.** A weekly status report is published every Friday by the Program Owner to the agreed channel. The report uses the template at `docs/status-report-template.md` (created in Phase 0) and contains:
+- Current phase, week N of M planned weeks.
+- Exit criteria checked off vs. remaining.
+- New risks and decisions since last report.
+- Asks of stakeholders (decisions needed, dependencies waiting).
+- A single "RAG" indicator (Red / Amber / Green) for the program as a whole, with a one-line rationale.
+
+Three consecutive Amber or any Red triggers an escalation review with the Engineering Manager.
+
+**Phase verification artifact.** Section 6.10 requires "a recorded call". The artifact is a **signed verification record** committed to `docs/phase-verifications/phase-N.md`, containing: date, attendees, every checklist item with pass/fail, decisions confirmed, decisions deferred, link to call recording (or notes if no recording). The next phase cannot enter without the previous phase's verification record merged to `master`.
+
+**Dry-run / pilot for credential rotation.** Phase 0 Step B (the credential rotation) is rehearsed first against a **non-production sandbox account** (a throwaway TestRail user, a throwaway GeoWealth dummy admin) before touching the real `tim1` and TestRail credentials. The sandbox rehearsal validates: (a) the env-var refactor reaches all references, (b) the secret-store handoff works, (c) the rollback path is exercised. Only then is the real rotation attempted. The dry-run is part of Step B, not a separate phase.
+
+**Framework versioning.** The framework repository follows **SemVer 2.0**. The first tagged release is `v0.1.0` at the end of Phase 0 (foundation only). Phase exits produce minor bumps; spec migrations are patch bumps; breaking changes to Page Object or fixture APIs require a major bump and an entry in `docs/CHANGELOG.md`. Tags are not yet consumed by external clients, but the discipline starts now so future shared-library reuse is friction-free.
+
+### 6.15 Bus-Factor Mitigation Milestones (R-11)
 
 Risk R-11 (single contributor, score 20) is the highest-scored risk in the register. The migration plan addresses it through these explicit milestones, not through hope:
 
@@ -980,6 +1069,11 @@ Each decision below is owned, dated, and tracked through to acceptance. The regi
 | D-16 | POC freeze enforced by ESLint rule + CODEOWNERS, not review discipline | DECIDED | Section 6.11 "POC Freeze Enforcement". | QA Lead | 2026-04-09 | Phase 4 |
 | D-17 | Phase 4 ordering favors mature areas first (account-billing); rationale recorded as ADR-0001 | DECIDED | Section 6.6 ADR note. | QA Lead | 2026-04-09 | Phase 4 |
 | D-18 | Phase 5 backend cooperation SLA (5d ack / 10d decision / 30d implementation) | OPEN | Yes — accepted by backend leads at Phase 4 exit. | Backend leads, QA Lead | Phase 4 exit | Phase 5 |
+| D-19 | Pin Node 20 LTS, Playwright 1.47, TS 5.5, Zod 3.23, dotenv-flow 4.1, ESLint 10.2; commit `package-lock.json`; CI uses `npm ci` | DECIDED | Section 6.2 technical preconditions. | QA Automation | 2026-04-09 | Phase 0 |
+| D-20 | Git history: rewrite versus formally accept the historical credential leak | OPEN | Security chooses at the end of Phase 0 Step C, after the audit report is in hand. The plan does not pre-decide. | Security | Phase 0 Step C | Phase 0 exit |
+| D-21 | CommonJS↔TS shim uses dynamic `import()` of a single `src/legacy-shim.ts` re-export entry point (not direct `.ts` `require`) | DECIDED | Section 6.2 Step D-bis. | QA Automation | 2026-04-09 | Phase 2 |
+| D-22 | Named Security counterpart for credential rotation must exist before Phase 0 starts | OPEN | Yes — without a named individual, Phase 0 cannot begin. | Engineering Mgr | Pre-Phase 0 | Phase 0 |
+| D-23 | qa2 stability fallback: switch the walking skeleton to qa3 if qa2 fails for two consecutive Phase 0 nights | DECIDED | Section 6.2 Step F. `TEST_ENV` is the override. | QA Automation | 2026-04-09 | Phase 0 |
 
 Status values: `OPEN` (awaiting decision), `DECIDED` (recorded with rationale), `SUPERSEDED` (replaced by a later decision; cross-reference required).
 
@@ -998,7 +1092,10 @@ The framework cannot succeed in isolation. Each dependency below has a named own
 | Secret store namespace for QA credentials | Security | Phase 0 | Pending D-03 |
 | Slack webhook to `#qa-alerts` | Platform | Phase 1 | Not started |
 | Time-series store endpoint for run metrics | Platform | Phase 1 (best effort) → Phase 2 (firm) | Not started |
-| Confluence space for living documentation | QA Lead | Phase 0 | Not started |
+| Confluence space for living documentation | QA Lead | Phase 0 Step E | Not started |
+| Named Security counterpart for credential rotation (D-22) | Engineering Mgr | Pre-Phase 0 | Not started — **Phase 0 cannot start without this** |
+| Sandbox TestRail user + sandbox GeoWealth admin for the credential-rotation dry run | QA Lead | Pre-Phase 0 | Not started |
+| Single named Program Owner committed (Section 6.14) | Engineering Mgr | Pre-Phase 0 | Not started |
 | Second QA Automation contributor (R-11 mitigation, milestone M3) | Engineering Mgr | End of Phase 1 | Not started |
 | Backend permission-toggle for `MERGE PROSPECT` (per-firm) | Backend team | Phase 5 | Not started — required to unblock C26060 / C26085 |
 | Audit-trail fix for Account Billing Inception Date in qa3 | Backend team | Phase 5 | Open from POC notes |
@@ -1023,7 +1120,7 @@ The framework's value is measurable. The following KPIs are reviewed monthly by 
 | **Test debt ratio** | `(test.skip + test.fixme) / total specs` | ≤ 5% | Static analysis script |
 | **TestRail coverage** | Active `@regression` specs mapped to TestRail cases | 100% | TestRail reporter audit |
 | **Parity-gate compliance** | Migrated specs that reached 5 consecutive green nights before legacy deletion | 100% | Migration tracker |
-| **Phase exit on time** | Phases closed on or before their planned exit date | ≥ 80% | Phase tracking issues |
+| **Phase exit on time** | Phases closed within +25% of their planned relative duration (Section 6.14) | ≥ 80% | Phase tracking issues + verification records |
 | **Bus-factor coverage** | Architectural areas with at least two contributors who can review changes | ≥ 90% by end of Phase 2 | CODEOWNERS audit |
 
 ---
@@ -1044,9 +1141,14 @@ Risks are scored on a 1–5 scale for likelihood (L) and impact (I). Score = L �
 | R-08 | Flake budget breached, freezing test additions | 3 | 3 | 9 | Stabilization SLA (Section 5.6); weekly review meeting; fast-track quarantine. | QA Lead |
 | R-09 | TestRail integration failure during nightly | 2 | 2 | 4 | Existing reporter retry/fallback (POC); TS port validated against sandbox in Phase 1 before pointing at Run 175; local artifact retained for manual import. | QA Automation |
 | R-10 | Migration goes long; POC and new framework drift | 3 | 4 | 12 | Time-boxed phases; POC freeze at Phase 2 exit (D-13); weekly status report; explicit sunset criteria in Phase 5. | QA Lead |
-| R-11 | Single QA Automation contributor — bus factor of 1 | 4 | 5 | 20 | Bus-factor milestones M1–M5 in Section 6.14. Recruiting a second contributor by end of Phase 1 (M3) is the program's hardest non-technical commitment. | Engineering Mgr |
+| R-11 | Single QA Automation contributor — bus factor of 1 | 4 | 5 | 20 | Bus-factor milestones M1–M5 in Section 6.15. Recruiting a second contributor by end of Phase 1 (M3) is the program's hardest non-technical commitment. | Engineering Mgr |
+| R-12 | C25193 lift effort is larger than the L sizing assumes (hidden helper sprawl, magic identifiers, product quirks) | 3 | 3 | 9 | Mandatory Phase 2 entry spike (Section 6.4) produces a one-page scoping note before any helper is lifted. If the spike reveals XL+ effort, Phase 2 is re-baselined and the second contributor (M3) is non-negotiable. | QA Lead |
+| R-13 | Walking skeleton selector breaks because no `data-testid` exists | 3 | 2 | 6 | Walking skeleton uses `getByRole('heading', { name: /dashboard/i })` (Section 6.2 Step D), which is stable without `data-testid`. Re-validated at Phase 1 exit. | QA Automation |
+| R-14 | Storage state expires between nightly runs and breaks the suite the next morning | 4 | 3 | 12 | Storage-state freshness re-validation built into `auth.fixture.ts` in Phase 0 Step D. Refresh-on-expiry is the default behaviour, not an opt-in. | QA Automation |
+| R-15 | qa2 instability blocks Phase 0 walking skeleton | 3 | 4 | 12 | Decision D-23: TEST_ENV fallback to qa3 after two consecutive bad nights; Platform escalation in parallel. | Platform lead |
+| R-16 | Historical credential leak in git history is never resolved | 3 | 4 | 12 | Decision D-20 forces an explicit choice (rewrite vs. accept) at Phase 0 Step C. The plan does not allow indefinite deferral. | Security |
 
-Highest-priority risks (score ≥ 12) — **R-11, R-02, R-07, R-06, R-10** — must have an active mitigation owner before Phase 0 begins.
+Highest-priority risks (score ≥ 12) — **R-11, R-02, R-07, R-06, R-10, R-14, R-15, R-16** — must have an active mitigation owner before Phase 0 begins.
 
 ---
 
@@ -1059,6 +1161,9 @@ A pragmatic checklist that the QA Lead walks through before declaring Phase 0 re
 - [ ] **D-04** Repository topology — DECIDED.
 - [ ] **D-07** TestRail Run 175 cadence agreed with Product — DECIDED.
 - [ ] **D-11** Credential rotation owner committed (Security + QA Lead) — DECIDED.
+- [ ] **D-22** Named Security counterpart confirmed in writing — DECIDED.
+- [ ] **D-19** Version pinning approved and `package-lock.json` policy accepted — DECIDED.
+- [ ] **Program Owner** named (Section 6.14) — recorded in Phase 0 tracking issue.
 
 **Decisions due before later phases** (must have owner + due date, not necessarily decided):
 - [ ] **D-03** Secret store — owner committed (blocks Phase 0 day-1 rotation).
@@ -1091,7 +1196,7 @@ automation-geo-tests/
 ├── package.json                    # 10 npm scripts
 ├── playwright.config.js            # Worker-scoped workerFirm fixture (monkey-patched)
 ├── testrail.config.json            # Run 175, base URL (qa3), credentials (committed)
-├── eslint.config.mjs               # ESLint 9 flat config + Playwright plugin
+├── eslint.config.mjs               # ESLint 10 flat config + Playwright plugin
 ├── .prettierrc.json                # 100-char width, trailing comma es5
 ├── tests/
 │   ├── _helpers/                   # 7 files, ~1200 LOC
@@ -1154,3 +1259,4 @@ Phase 1 was migrated away from Firm 106 after a parallel-load race condition: ei
 | 0.5 | 2026-04-09 | QA Automation | Iteration 5: converted Open Decisions to a Decision Register; added Cross-Team Dependencies, Success Metrics & KPIs, Risk Register, and a Pre-Phase-0 Checklist. Strengthened the Executive Summary with headline asks. Final renumbering of the appendix and revision history. |
 | 0.6 | 2026-04-09 | QA Automation | Migration plan deep revision (5 iterations focused on Section 6). Restructured into six phases (0–5) addressing fifteen findings: security-first day-1 rotation, CI before content, walking skeleton, parity gate, POC freeze, frontend kickoff phase, backlog/sunset phase. Added per-phase deliverables and exit criteria, dependency graph, rollback table, verification checklist, resourcing/T-shirt sizing, and explicit R-11 bus-factor milestones. Added decisions D-11/D-12/D-13 and aligned the Decision Register, Dependencies, KPIs, Risks, and Pre-Phase-0 Checklist with the new phase numbering. Updated executive summary headline asks. |
 | 0.7 | 2026-04-09 | QA Automation | Second migration-plan deep revision (5 iterations) addressing 18 surviving findings. Fixes: parity-gate vs same-PR deletion mechanics (split into port and deletion PRs); `data-testid` KPI/phase mismatch; `C25193` double-migration ambiguity; M3 retimed to end of Phase 1; Phase 5 `allowJs` drop preempted by `scripts/` conversion in Phase 4; explicit credential rotation ordering (Steps A–E in Phase 0); migration tracker artifact defined; POC freeze made mechanically enforced; dual TestRail reporter coexistence forbidden until Phase 5 sunset; Phase 3 frontend batch sized explicitly; Phase 5 backend cooperation SLA. Adds: Section 6.13 parity-gate calendar reality and cohort sizing; ADR-0001 inline note on Phase 4 ordering; PR-gate latency re-baseline at Phase 4 exit; pre-flight false-positive override; decisions D-14 through D-18; renumbered Section 6.13/6.14. |
+| 0.8 | 2026-04-09 | QA Automation | Third migration-plan deep revision (5 iterations) focused on day-1 readiness — making Phase 0 and Phase 1 bulletproof. Fixes 28 findings: technical preconditions (Node 20, Playwright 1.47, TS 5.5, Zod 3.23, dotenv-flow 4.1, ESLint 10.2 — pinned; `package-lock.json`; `npm ci`); explicit `playwright.config.js → .ts` rename; tsconfig `paths` alias; storage-state freshness re-validation; credential rotation Step A inventory + named Security counterpart; explicit git-history rewrite-vs-accept decision; CommonJS↔TS shim mechanics via `legacy-shim.ts` + dynamic import; `#qa-alerts` circular dependency resolved; ESLint rule reads sidecar JSON not Markdown; CDP access encapsulated in `withCdpClick` helper; Phase 2 entry spike for C25193 lift discovery; relative cohort sizing scaled to area size; qa2 stability fallback to qa3 (D-23). Adds Section 6.14 Program Governance: single accountable Program Owner, kill criteria, planned phase durations (working weeks), status reporting cadence, phase verification artifact, credential-rotation dry run, framework SemVer. Adds CODEOWNERS, `docs/adr/`, status-report template, `docs/phase-verifications/` to Phase 0 deliverables; tags `v0.1.0` at Phase 0 exit. Decisions D-19 through D-23. New risks R-12 through R-16. Fixed ESLint 9 → 10 typo throughout. Renumbered Section 6.14 → 6.15. |
