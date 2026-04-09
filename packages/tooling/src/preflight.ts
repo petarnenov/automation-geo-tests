@@ -134,9 +134,12 @@ async function checkTim1Login(env: EnvironmentConfig): Promise<{ ok: boolean; de
       await usernameField.fill(username);
       await page.getByPlaceholder(/password/i).fill(password);
       await page.getByRole('button', { name: 'Login' }).click();
-      // After submit, wait for the landing content (DOM signal, not
-      // hash route — see comment above for the rationale).
-      await loggedInSignal.waitFor({ state: 'visible', timeout: 30_000 });
+      // After submit, wait for the login form to DISAPPEAR. This is
+      // the only signal that fires reliably for every user across
+      // every qa branch. Text-based waits and URL-hash waits each
+      // fail for a different user/branch combination — see
+      // loginViaForm.ts for the full rationale.
+      await usernameField.waitFor({ state: 'hidden', timeout: 30_000 });
     }
     // Otherwise: a session was already valid (storage state from a
     // previous run, browser cache, etc.) — nothing to do.

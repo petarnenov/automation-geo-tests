@@ -67,9 +67,19 @@ export async function loginViaForm(
     await usernameField.fill(username);
     await page.getByPlaceholder(/password/i).fill(password);
     await page.getByRole('button', { name: 'Login' }).click();
-    // Post-login wait — DOM signal, not URL pattern. Both tim1/tim106
-    // (Platform One) and tyler/firm advisors (Dashboard) are accepted.
-    await loggedInSignal.waitFor({ state: 'visible', timeout: 30_000 });
+    // Post-login wait — the strongest universal signal is the
+    // disappearance of the login form itself. Waiting for specific
+    // landing text ("Welcome to Platform One" / "Dashboard") fails
+    // for two distinct reasons depending on user:
+    //   - "Dashboard" matches false positives (sidebars/footers)
+    //     before the SPA has routed.
+    //   - "Welcome to Platform One" only appears for Platform One
+    //     admins, not for tyler/firm-advisor users.
+    // Waiting for `waitForURL(/#(dashboard|platformOne)/)` fails
+    // for tim1 on qa2, which lands at /indexReact.do without ANY
+    // hash. The username field becoming hidden is the only signal
+    // that fires reliably for every user across every qa branch.
+    await usernameField.waitFor({ state: 'hidden', timeout: 30_000 });
   }
   // Otherwise: a session was already valid — no-op.
 }

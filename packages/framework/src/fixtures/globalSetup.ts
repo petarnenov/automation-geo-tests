@@ -66,9 +66,12 @@ async function globalSetup(): Promise<void> {
       await usernameField.fill(username);
       await page.getByPlaceholder(/password/i).fill(password);
       await page.getByRole('button', { name: 'Login' }).click();
-      // After submit, wait for the landing content (DOM signal, not
-      // hash route).
-      await loggedInSignal.waitFor({ state: 'visible', timeout: 30_000 });
+      // After submit, wait for the login form to DISAPPEAR. This is
+      // the only signal that fires reliably for every user across
+      // every qa branch — see loginViaForm.ts for the rationale
+      // (text-based and URL-based waits each fail for a different
+      // user/branch combination).
+      await usernameField.waitFor({ state: 'hidden', timeout: 30_000 });
     }
     // Otherwise: a session was already valid (cached browser state)
     // — nothing to do; persist the state we have.

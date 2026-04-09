@@ -44,12 +44,13 @@
  */
 
 import { test as base, mergeTests } from '@playwright/test';
-import type { Page } from '@playwright/test';
+import type { Page, BrowserContext } from '@playwright/test';
 import { selectEnvironment } from '../config/environments';
 import { PLIMSOLL_FP_ADMIN, PLIMSOLL_FP_TYLER } from '../data/constants/users';
 import { authFixtures } from './auth.fixture';
 import { apiFixtures } from './api.fixture';
 import { workerFirmFixtures } from './workerFirm.fixture';
+import { STORAGE_STATE_PATH } from './globalSetup';
 import { loginViaForm } from './loginViaForm';
 
 // Compose upstream fixtures so this file can consume `workerFirm`
@@ -86,16 +87,54 @@ export type PageFixtures = {
   tim106Page: Page;
 };
 
+/**
+ * Build a per-role context+page from the workspace tim1 storage
+ * state, drop tim1's cookies, then log in as the target role.
+ *
+ * Why seed from tim1.json instead of starting empty: the legacy POC
+ * runs every account-billing spec on its main page+context, which
+ * starts with tim1's storage state from globalSetup. The legacy
+ * `loginAsWorkerFirmAdmin` does `context.clearCookies()` then
+ * `login(...)` — clearCookies drops cookies but NOT localStorage.
+ * The qa SPA stores firm/role bootstrap state in localStorage; a
+ * fresh context with empty localStorage hits "You do not have
+ * permission to view this Client" on deep URL navigation even
+ * with valid cookies.
+ *
+ * The fix mirrors the legacy state: load tim1.json (which carries
+ * its localStorage), drop the cookies, log in fresh. Now the
+ * post-login session has admin_<firmCd>'s cookies AND tim1's
+ * localStorage bootstrap — which is exactly what the legacy
+ * test environment looks like.
+ */
+async function buildRolePage(
+  browser: import('@playwright/test').Browser,
+  username: string,
+  password: string
+): Promise<{ page: Page; context: BrowserContext }> {
+  const env = selectEnvironment();
+  const context = await browser.newContext({
+    baseURL: env.baseUrl,
+    ignoreHTTPSErrors: true,
+    // Seed from the workspace tim1.json — carries the SPA's
+    // localStorage bootstrap state. Cookies are dropped immediately
+    // below.
+    storageState: STORAGE_STATE_PATH,
+  });
+  await context.clearCookies();
+  const page = await context.newPage();
+  await loginViaForm(page, username, password, env.baseUrl);
+  return { page, context };
+}
+
 export const pageFixtures = baseWithWorkerFirm.extend<PageFixtures>({
   workerFirmAdminPage: async ({ browser, workerFirm }, use) => {
-    const env = selectEnvironment();
-    const context = await browser.newContext({
-      baseURL: env.baseUrl,
-      ignoreHTTPSErrors: true,
-    });
-    const page = await context.newPage();
+    const { page, context } = await buildRolePage(
+      browser,
+      workerFirm.admin.loginName,
+      workerFirm.password
+    );
     try {
-      await loginViaForm(page, workerFirm.admin.loginName, workerFirm.password, env.baseUrl);
       await use(page);
     } finally {
       await context.close();
@@ -103,7 +142,6 @@ export const pageFixtures = baseWithWorkerFirm.extend<PageFixtures>({
   },
 
   tylerPage: async ({ browser }, use) => {
-    const env = selectEnvironment();
     const password = process.env.TIM1_PASSWORD;
     if (!password) {
       throw new Error(
@@ -111,13 +149,8 @@ export const pageFixtures = baseWithWorkerFirm.extend<PageFixtures>({
           'All qa users (tim1, tim106, tyler, dummy firm users) share the same password.'
       );
     }
-    const context = await browser.newContext({
-      baseURL: env.baseUrl,
-      ignoreHTTPSErrors: true,
-    });
-    const page = await context.newPage();
+    const { page, context } = await buildRolePage(browser, PLIMSOLL_FP_TYLER.username, password);
     try {
-      await loginViaForm(page, PLIMSOLL_FP_TYLER.username, password, env.baseUrl);
       await use(page);
     } finally {
       await context.close();
@@ -125,18 +158,12 @@ export const pageFixtures = baseWithWorkerFirm.extend<PageFixtures>({
   },
 
   tim106Page: async ({ browser }, use) => {
-    const env = selectEnvironment();
     const password = process.env.TIM1_PASSWORD;
     if (!password) {
       throw new Error('tim106Page: TIM1_PASSWORD must be set in workspace .env.local.');
     }
-    const context = await browser.newContext({
-      baseURL: env.baseUrl,
-      ignoreHTTPSErrors: true,
-    });
-    const page = await context.newPage();
+    const { page, context } = await buildRolePage(browser, PLIMSOLL_FP_ADMIN.username, password);
     try {
-      await loginViaForm(page, PLIMSOLL_FP_ADMIN.username, password, env.baseUrl);
       await use(page);
     } finally {
       await context.close();
