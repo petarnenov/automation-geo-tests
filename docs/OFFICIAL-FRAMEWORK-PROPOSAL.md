@@ -27,7 +27,13 @@ This document proposes the evolution from POC to an **official, corporate-grade 
 
 The intended outcome is a maintainable, reviewable, and scalable test asset that the QA, Engineering, and Platform organizations can jointly own.
 
-**Headline asks of stakeholders:** approve TypeScript strict mode (Section 4.1), nominate a CI platform and secret store (Sections 5.1, 5.3), nominate a frontend owner for the `data-testid` rollout (Section 4.10.6), and confirm the Phase 0 reference-spec scope (Section 6).
+**Headline asks of stakeholders:**
+1. Approve TypeScript strict mode (Decision D-01).
+2. Authorize an immediate Phase 0 day-1 credential rotation of `testrail.config.json` (Decision D-11). The currently committed credentials must be treated as compromised.
+3. Nominate a CI platform and a secret store (Decisions D-02, D-03). CI is now a Phase 1 deliverable, not a Phase 3 chore.
+4. Commit a frontend owner for the `data-testid` rollout (Decision D-05). Phase 5 cannot exit without this.
+5. Commit a second QA Automation contributor by the end of Phase 2 (Risk R-11, milestone M3). This is the program's hardest non-technical commitment.
+6. Confirm the Phase 4 first-area scope (Decision D-06).
 
 ---
 
@@ -587,22 +593,300 @@ Pre-flight failures abort the run with a clear environment-health error rather t
 
 ## 6. Migration Plan
 
-The migration is **incremental and non-disruptive**. The existing POC continues to deliver TestRail Run 175 results throughout the transition; old specs are deleted only after their replacements are validated.
+The migration is **incremental and non-disruptive**. The existing POC continues to deliver TestRail Run 175 results throughout the transition; legacy specs are retired only after their replacements satisfy a documented parity gate.
 
-### Phase 0 — Foundation
-Scaffold `src/`, TypeScript config, environment loader, base fixtures. Migrate one reference spec (proposed: `C25193` from `account-billing`) to validate the architecture end to end.
+### 6.1 Guiding Principles
 
-### Phase 1 — Pages and Components
-Lift React widget helpers from `tests/_helpers/ui.js` into `src/pages/components/` as TypeScript classes. Keep a thin JS shim that re-exports from TS so existing specs continue to compile.
+1. **Security first.** Committed credentials are a Critical-severity finding (Section 2.2) and are addressed in Phase 0, not at the end.
+2. **CI before content.** Continuous validation must exist before the first migrated spec lands, so quality is enforced from the first commit, not retrofitted.
+3. **Walking skeleton, then breadth.** Phase 0 ends with the smallest possible vertical slice that exercises every architectural layer end-to-end.
+4. **Parity gate before deletion.** Legacy specs are deleted only after their replacements run green for **five consecutive nightly runs** on the target environment.
+5. **POC freeze.** Once the migration enters feature-area work, no new tests are added to the legacy `tests/<feature>/` directories — only bug fixes and stabilization.
+6. **One feature area in flight at a time.** Concurrent migration of multiple areas multiplies risk and review burden; sequence them.
 
-### Phase 2 — Feature-area migration
-Migrate one feature area at a time. Proposed order: `account-billing` (most mature) → `create-account` → `bucket-exclusions` → `unmanaged-assets` → `platform-one`. For each spec: rewrite under `tests/regression/`, validate against TestRail, then delete the legacy spec.
+### 6.2 Phase 0 — Foundation & Security Hotfix
 
-### Phase 3 — CI and secrets hygiene
-Remove committed credentials, introduce `.env.example`, configure the CI pipeline (chosen platform), wire secret injection.
+**Goal.** Make the repository safe and lay the TypeScript foundation. End with a single trivial smoke spec running locally under the new architecture.
 
-### Phase 4 — Unblock the `test.fixme` backlog
-Use the new framework to address Auto-link blockers (disposable email pool via factories) and the Merge Prospect permission-disabled scenarios.
+**Scope.**
+- Rotate every credential currently committed in `testrail.config.json` and any other tracked file. Coordinate with Security; treat the existing values as compromised.
+- Replace `testrail.config.json` secret material with environment-variable lookups; introduce `.env.example`; add `.env*` to `.gitignore`.
+- Audit git history with `detect-secrets` (or equivalent); document any historical leaks.
+- Add `tsconfig.json` with `strict: true`, `allowJs: true`, `checkJs: false`, `noEmit: true`, and Playwright-compatible module/target settings. Mixed JS/TS coexistence is explicit and tested.
+- Scaffold `src/` per Section 4.2: empty `config/`, `fixtures/`, `pages/`, `api/`, `data/`, `helpers/`, `types/`.
+- Implement `src/config/environments.ts` and `dotenv-flow` loader covering qa2, qa3, qatrd.
+- Implement the **smallest possible walking-skeleton spec**: a `@smoke` test that logs in to qa2 as `tim1` and asserts the dashboard loads. **Not** `C25193` — that spec graduates Phase 2.
+
+**Deliverables.**
+- `tsconfig.json`, `.env.example`, rotated `testrail.config.json` (now secret-free).
+- `src/` skeleton with one working fixture (`authenticatedPage` for `tim1`).
+- One green walking-skeleton spec under `tests/smoke/login.spec.ts`.
+- Security-rotation sign-off recorded against decision **D-11** (new, see Section 7).
+
+**Exit criteria.**
+- [ ] Zero committed secrets verified by `detect-secrets` against the working tree and against the last 100 commits.
+- [ ] `npm run lint`, `tsc --noEmit`, and the walking-skeleton spec all green locally.
+- [ ] Existing legacy POC specs still pass unchanged (`allowJs` regression check).
+- [ ] Security has confirmed credential rotation in writing.
+
+**Dependencies resolved by entry:** D-01 (TypeScript), D-04 (repo topology), D-07 (run-175 cadence).
+
+---
+
+### 6.3 Phase 1 — CI Bootstrap & Walking Skeleton in CI
+
+**Goal.** Stand up the CI platform and pipelines so that every subsequent change is continuously validated. The Phase 0 walking skeleton runs in CI on every PR.
+
+**Scope.**
+- Provision the chosen CI platform (D-02) and secret store namespace (D-03).
+- Implement the **PR gate** pipeline (Section 5.1): lint, type check, walking-skeleton smoke against qa2.
+- Implement the **nightly regression** pipeline shell — initially executing only the smoke skeleton; it grows as feature areas migrate.
+- Implement the **environment health pre-flight** (Section 5.9) and gate nightly runs on it.
+- Port the TestRail reporter to TypeScript (`reporters/testrail-reporter.ts`); validate against a TestRail sandbox run before pointing at Run 175.
+- Wire `run-summary.json` emission and (best-effort) push to the time-series store. If the time-series store is not yet provisioned, store the JSON as a CI artifact and revisit in Phase 2.
+- Establish branch protection on the framework repository per Section 5.4.
+
+**Deliverables.**
+- CI workflow files (`.github/workflows/` or `.gitlab-ci.yml`).
+- `reporters/testrail-reporter.ts` validated against a sandbox run.
+- Pre-flight health-check script in `scripts/`.
+- Branch-protection rules applied.
+- `run-summary.json` artifact produced by every run.
+
+**Exit criteria.**
+- [ ] PR gate runs on every PR in under 8 minutes; failing it blocks merge.
+- [ ] Nightly regression runs against qa2 *and* qa3 in parallel.
+- [ ] Pre-flight aborts the nightly cleanly when an environment is unhealthy.
+- [ ] TestRail reporter posts results from the new pipeline to a sandbox run, then is repointed at Run 175.
+- [ ] Branch protection enforces lint + type check + PR gate.
+
+**Dependencies resolved by entry:** D-02 (CI platform), D-03 (secret store).
+
+---
+
+### 6.4 Phase 2 — Component Library, API Client, and Documentation
+
+**Goal.** Build the reusable substrate that all feature-area migrations will depend on, and produce the documentation new contributors will read first.
+
+**Scope.**
+- Lift React widget helpers from `tests/_helpers/ui.js` into `src/pages/components/` as TypeScript Component classes (Section 4.4): `ReactDatePicker`, `ComboBox`, `AgGrid`, `NumericInput`, `TypeAhead`.
+- Each Component class has unit-style coverage via a *single* dedicated spec under `tests/smoke/components/` that exercises its primary actions on a known qa2 page (no business assertions).
+- Keep a thin **CommonJS shim** at `tests/_helpers/ui.js` that re-exports the TypeScript Components via Playwright's TS loader, so existing legacy specs continue to run unmodified. The shim is a one-page file with no logic; verified by CI running the legacy suite green.
+- Build the typed `/qa/*` API client (Section 4.6): `DummyFirmApi`, `InvitationApi`, `CustodianApi`, `CostBasisApi`, `MfExecutionApi`. Each wrapper has Zod schema coverage and is used at least once in a smoke spec.
+- Implement the production-safety guard in `ApiClient` (Decision **D-09**, already DECIDED).
+- Migrate `C25193` (Account Billing — Inception Date) as the **graduation spec** of Phase 2: it exercises Page Object, Component classes, fixtures, API client, and the hybrid isolation model end-to-end.
+- Author `docs/ARCHITECTURE.md`, `docs/WRITING-TESTS.md`, `docs/PAGE-OBJECTS.md`, `docs/ONBOARDING.md`. Each is reviewed by at least one person who did not write it.
+
+**Deliverables.**
+- Five Component classes with smoke coverage.
+- CommonJS shim for legacy compatibility, with green legacy CI run as proof.
+- Five API client wrappers with Zod schemas.
+- `C25193` migrated, green for five consecutive nights against qa2.
+- Four documentation files in `docs/`.
+
+**Exit criteria.**
+- [ ] Legacy POC suite still passes in CI (proves the shim).
+- [ ] New `C25193` parity gate met (5 consecutive green nights).
+- [ ] Component smoke specs green against qa2 *and* qa3.
+- [ ] All `/qa/*` calls go through typed clients; grep for direct `request.post('/qa/')` returns zero hits in `src/`.
+- [ ] Documentation reviewed and merged.
+- [ ] **POC freeze** declared and announced — no new tests added to `tests/<legacy-feature>/` from this point.
+
+**Dependencies resolved by entry:** D-08 (`__REACT_QUERY_CLIENT__` exposure) — if not delivered, document the workaround in `WRITING-TESTS.md` and proceed.
+
+---
+
+### 6.5 Phase 3 — Frontend Coordination & `data-testid` Kickoff
+
+**Goal.** Establish the frontend partnership that unblocks selector stability for the rest of the migration. Run in parallel with Phase 4 once kicked off.
+
+**Scope.**
+- Identify the frontend owner (Decision **D-05**); schedule a kickoff meeting.
+- Agree the `data-testid` naming convention (proposed: `data-testid="<area>-<element>-<action>"`, e.g. `account-billing-edit-save`).
+- Land the first batch of `data-testid` attributes on the Account Billing edit modal — the surface area of `C25193` and the Phase 4 starting feature.
+- Add a static-analysis script (`scripts/testid-coverage.ts`) that walks `src/pages/` and reports the proportion of selectors using `getByTestId` versus other rungs. Wire it into the run summary so KPI tracking begins.
+- Document the convention in `docs/PAGE-OBJECTS.md`.
+
+**Deliverables.**
+- Naming convention document in `docs/PAGE-OBJECTS.md`.
+- `data-testid` attributes merged into the Account Billing edit modal in the GeoWealth repo.
+- `scripts/testid-coverage.ts` and KPI emission.
+
+**Exit criteria.**
+- [ ] First batch of `data-testid` attributes deployed to qa2 and qa3.
+- [ ] Coverage script reports a baseline number for the KPI.
+- [ ] Frontend owner (Decision D-05) acknowledged and on a recurring sync.
+
+**Dependencies resolved by entry:** D-05.
+
+---
+
+### 6.6 Phase 4 — Feature-Area Migration
+
+**Goal.** Migrate every feature area in the POC to the new framework, retiring legacy specs as parity is reached.
+
+**Scope.** Migrate areas in this order, **one at a time**:
+
+| Order | Area | Why this order |
+|---|---|---|
+| 1 | `account-billing` | Most mature; reference patterns already validated by `C25193`. |
+| 2 | `create-account` | Heavy ag-Grid usage; validates the Component library under load. |
+| 3 | `bucket-exclusions` | XLSX builder logic; validates the `data/builders/` layer. |
+| 4 | `unmanaged-assets` | Similar shape to bucket exclusions; consolidates builder reuse. |
+| 5 | `platform-one/merge-prospect` | Cross-feature dependencies; validates auth/role matrix. |
+| 6 | `platform-one/auto-link` | Currently 100% `test.fixme`; not migrated as-is — handed to Phase 5. |
+
+For each area:
+1. Open a tracking issue listing every spec, its TestRail case ID, and its current status.
+2. Build any area-specific Page Objects under `src/pages/<area>/`.
+3. Rewrite specs into `tests/regression/<area>/`, one PR per spec or per closely related cluster.
+4. Run the new spec against qa2 and qa3 in CI for **five consecutive nights**. Failures reset the counter.
+5. After the parity gate is met, delete the legacy spec in the same PR that ports the last spec of its file.
+6. Update the area's row in the migration tracker with the deletion commit.
+
+**Deliverables.**
+- Per-area tracking issue closed.
+- All TestRail cases for the area mapped to a spec under `tests/regression/<area>/`.
+- Legacy `tests/<area>/` directory deleted.
+- Area-specific Page Objects covered by `WRITING-TESTS.md` examples.
+
+**Exit criteria (per area).**
+- [ ] 100% of in-scope TestRail cases have a green replacement under `tests/regression/<area>/`.
+- [ ] Legacy directory deleted; no orphan helpers remain in `tests/_helpers/`.
+- [ ] Area's pass rate ≥ 98% over the trailing 14 nights (Section 9 KPI).
+
+**Exit criteria (phase as a whole).**
+- [ ] All six areas above completed except `auto-link`, which is explicitly handed off.
+- [ ] Legacy `tests/_helpers/` reduced to only those modules still used by `auto-link` (or fully deleted if none).
+- [ ] `data-testid` coverage KPI ≥ 70% across migrated areas.
+
+**Dependencies resolved by entry:** D-06 (first migration scope), Phase 3 frontend kickoff in motion.
+
+---
+
+### 6.7 Phase 5 — Backlog Unblock & POC Sunset
+
+**Goal.** Resolve the `test.fixme` backlog that was deferred from earlier phases, retire the last legacy assets, and declare migration complete.
+
+**Scope.**
+- **Auto-link suite (`C26077`–`C26100`).** Implement disposable email pool via `ProspectFactory` (Section 4.2). Verify against qa2 with a fresh dummy firm per spec.
+- **Merge Prospect permission-disabled scenarios (`C26060`, `C26085`).** Requires backend cooperation: `/qa/createDummyFirm.do` must accept a `permissions` override or a sibling endpoint must allow toggling MERGE PROSPECT off post-creation. Tracked as a cross-team dependency in Section 8 (new row).
+- **Account Billing audit-trail gaps.** Coordinate with backend to confirm whether the qa3 audit pipeline has been fixed (Section 2 / `project_billing_form_quirks`). If yes, replace the `// QA-ARCH-001:waived` skips with real assertions.
+- **Sunset the legacy POC.** Delete `tests/_helpers/` entirely. Remove the CommonJS shim. Delete the legacy reporter `reporters/testrail-reporter.js`. Drop `allowJs` from `tsconfig.json`.
+- **Final documentation pass.** Update `docs/ARCHITECTURE.md` with the post-migration architecture; record lessons learned in `docs/RETROSPECTIVE.md`.
+
+**Deliverables.**
+- Auto-link suite green, no `test.fixme` markers.
+- Merge Prospect blockers either resolved or formally accepted as out-of-scope with a recorded waiver.
+- Legacy POC fully deleted.
+- `tsconfig.json` strict-only (no `allowJs`).
+- Retrospective document.
+
+**Exit criteria.**
+- [ ] `grep -r 'test\.fixme\|test\.skip' tests/` returns only entries with `QA-ARCH-001:waived <ticket>` markers (Section 5.4 rule 5).
+- [ ] `tests/_helpers/` directory removed.
+- [ ] CommonJS shim removed; legacy reporter removed.
+- [ ] All KPIs in Section 9 meet or exceed targets for the trailing 30 days.
+- [ ] Migration formally closed with a retrospective.
+
+**Dependencies resolved by entry:** Backend cooperation on permission toggle (new dependency, Section 8).
+
+---
+
+### 6.8 Phase Dependency Graph and Parallelism
+
+```
+Phase 0 ──► Phase 1 ──► Phase 2 ──┬──► Phase 3 ──┐
+                                   │              ├──► Phase 4 ──► Phase 5
+                                   └──────────────┘
+                                          (Phase 3 may run in parallel with the
+                                           first area of Phase 4 once kicked off)
+```
+
+**Strict ordering** (cannot be parallelized):
+- Phase 0 → Phase 1: CI cannot exist without a TS toolchain and a green walking skeleton.
+- Phase 1 → Phase 2: Component and API client work must run in CI from the first commit.
+- Phase 2 → Phase 4: Feature migration cannot start without the Component library, the API client, and the documentation set.
+
+**Permitted parallelism:**
+- Phase 3 (frontend coordination) may begin during the second half of Phase 2 — the kickoff meeting and convention agreement do not block Phase 2 deliverables.
+- Within Phase 4, **only one feature area is in flight at a time** (principle 6.1.6). However, Page Object scaffolding for the *next* area may begin while the current area is in its parity-gate window.
+- Cross-phase workstreams (Section 6.11) run continuously and never block phase transitions.
+
+**Forbidden parallelism:**
+- Two feature areas migrated simultaneously — review burden, conflicting helper changes, and ambiguous parity attribution.
+- Phase 5 backlog work before Phase 4 has retired the dependent legacy areas — risks duplicate fixes.
+
+### 6.9 Rollback and Contingency
+
+Each phase has a defined rollback path. Migration is reversible up to the point where legacy specs are deleted.
+
+| Phase | Failure mode | Rollback / Contingency |
+|---|---|---|
+| **0** | TypeScript toolchain incompatible with mixed JS/TS in Playwright | Revert `tsconfig.json` and `src/` skeleton on the feature branch; reopen D-01 with concrete reproduction; consider stricter JSDoc fallback. POC suite is untouched, so revert is a no-op for production. |
+| **0** | Credential rotation breaks the POC nightly | Restore rotated values via the new secret store; the POC reads from env vars introduced in Phase 0. POC behavior must be verified within 24 hours of rotation. |
+| **1** | Chosen CI platform cannot meet PR-gate latency target (≤ 8 min) | Re-evaluate sharding and runner sizing; if still over budget, escalate D-02 and consider an alternative platform. Walking skeleton remains runnable locally. |
+| **1** | TestRail reporter port produces inconsistent results vs the JS reporter | Keep the JS reporter pointed at Run 175; route the TS reporter at a sandbox run until parity is proven over five nights. Switch is atomic. |
+| **2** | Component shim breaks legacy specs | Revert the affected Component file; legacy `_helpers/ui.js` is restored from git; investigate root cause without phase pressure. |
+| **2** | `C25193` cannot reach the parity gate (5 green nights) | Analyze failure pattern: if environment-driven, escalate to Platform; if architectural, treat as a foundational defect and pause Phase 3 / 4 entries. |
+| **3** | Frontend cannot commit to `data-testid` rollout | Phase 4 still proceeds, but selectors fall back to the role/label rungs of Section 4.7. KPI 4.10.6 is reset to "blocked" and escalated monthly. Phase 5 cannot exit without a resolution. |
+| **4** | Migrated area fails the parity gate repeatedly | Pause migration of *that area only*; revert to the legacy spec serving Run 175; root-cause without freezing the rest of Phase 4. The phase is still gated by the area completing eventually. |
+| **4** | Legacy spec already deleted but new spec regressed in production | Restore the legacy spec from git (`git revert` of the deletion commit) until the regression is fixed. The parity gate exists to make this rare. |
+| **5** | Backend permission-toggle for MERGE PROSPECT not delivered | Record a formal waiver against C26060 / C26085 with a TestRail comment and a `QA-ARCH-001:waived` marker; close Phase 5 without those two cases and reopen as a future workstream. |
+| **5** | Auto-link disposable email pool unreliable | Quarantine `auto-link` under `@flaky` until stabilized; do not block Phase 5 sunset on this single area. |
+
+### 6.10 Phase Verification Checklist (Operational)
+
+A short, mechanical checklist used at every phase transition. The QA Lead walks through it on a recorded call with at least one second reviewer.
+
+1. All phase exit criteria checked off in the tracking issue.
+2. Decision register has no `OPEN` entries blocking the next phase.
+3. Section 8 dependencies for the next phase are resolved or have an accepted workaround.
+4. Section 9 KPIs have not regressed since the last phase entry.
+5. Section 10 risks reviewed; no new risk scored ≥ 12 without an owner.
+6. Retrospective notes captured in `docs/RETROSPECTIVE.md` (Phase 5 only) or in the tracking issue (other phases).
+7. Stakeholder communication sent to `#qa-alerts` summarizing what changed.
+
+### 6.11 Cross-Phase Workstreams
+
+These run continuously across multiple phases and are not phases in themselves:
+
+| Workstream | Active during | Owner | Notes |
+|---|---|---|---|
+| **Knowledge transfer (R-11 mitigation)** | Phases 0–5 | QA Lead | Pair-programming on every PR; weekly framework deep-dive sessions; recruit a second QA Automation contributor by end of Phase 2. |
+| **Decision register hygiene** | All phases | QA Lead | Every phase entry requires its blocking decisions resolved (Section 7). |
+| **Risk review** | Monthly | QA Lead | Reassess Section 10 risks; promote new risks discovered in-flight. |
+| **POC stabilization** | Phases 0–4 | QA Automation | The POC continues to deliver Run 175 results; bug fixes only, no new tests after the POC freeze in Phase 2. |
+| **Frontend `data-testid` rollout** | Phases 3–5 | Frontend lead | Continues per area as Phase 4 advances. |
+
+### 6.12 Resourcing and Effort Sizing
+
+Effort is expressed in T-shirt sizes against a baseline of one full-time QA Automation engineer. Sizes assume the dependencies in Section 8 are resolved on time; blocked phases are sized separately under "if blocked" notes.
+
+| Phase | Size | Drivers | Required skills | Primary owner | Supporting roles |
+|---|---|---|---|---|---|
+| **0** Foundation & Security Hotfix | **S** | Security rotation is the long pole, not the scaffold. | TypeScript setup, secret rotation, Playwright config. | QA Automation | Security (rotation), QA Lead (review). |
+| **1** CI Bootstrap | **M** | First-time CI setup against the chosen platform; pre-flight script; reporter port. | CI/CD (chosen platform), TS, TestRail API. | QA Automation | Platform / DevOps (provisioning), QA Lead (branch protection). |
+| **2** Components, API Client, Docs | **L** | Five Components × five API clients × four docs × the `C25193` graduation spec. The graduation spec is the long pole. | Playwright internals, React widget knowledge, Zod, technical writing. | QA Automation | QA Lead (doc reviews), second QA contributor (R-11). |
+| **3** Frontend Coordination Kickoff | **S** (QA effort) / **M** (frontend effort) | Mostly meetings, convention agreement, and a coverage script. Real cost is on the frontend side. | Stakeholder management, simple AST tooling. | QA Lead | Frontend lead (real implementer). |
+| **4** Feature-Area Migration | **XL** | Six feature areas × parity gate × CI stabilization. Dominates total effort. | All of the above plus deep familiarity with each feature area. | QA Automation | Per-feature QA contacts, second QA contributor. |
+| **5** Backlog Unblock & POC Sunset | **M** | Auto-link and merge-prospect blockers each have unknowns; sunset is mechanical. | Backend coordination, factory design. | QA Automation | Backend leads (toggles, audit fixes). |
+
+**If Phase 4 runs without a second QA contributor**, its size escalates to **XXL** and the phase becomes the dominant single-point-of-failure for the program (Risk R-11). The Cross-Phase Workstream "Knowledge transfer" exists specifically to prevent this; recruiting the second contributor is a *Phase 2 exit criterion* in spirit even though it is not formally listed.
+
+### 6.13 Bus-Factor Mitigation Milestones (R-11)
+
+Risk R-11 (single contributor, score 20) is the highest-scored risk in the register. The migration plan addresses it through these explicit milestones, not through hope:
+
+| Milestone | Phase | Definition of done |
+|---|---|---|
+| **M1 — Onboarding doc exists** | End of Phase 2 | `docs/ONBOARDING.md` is reviewed by a non-author who, without verbal help, can clone, configure, and run the walking-skeleton spec locally. |
+| **M2 — Pair-programming cadence** | Phases 0–5 | At least one PR per week is co-authored or pair-reviewed by a second person. Tracked in the weekly status report. |
+| **M3 — Second contributor identified** | End of Phase 2 | A named individual is committed for at least 50% of their time to the framework. If not met, escalate to Engineering Manager and pause Phase 4 entry. |
+| **M4 — Knowledge-transfer session series** | Phases 2–4 | Weekly 30-minute deep-dive on one architectural area (fixtures, Components, API client, isolation, CI). Recordings archived in Confluence. |
+| **M5 — Architecture decision records** | Phases 0–5 | Every non-obvious architectural choice is captured as an ADR in `docs/adr/` so the rationale survives the original author. |
+
+These milestones promote R-11 from "passive monitoring" to active risk reduction and are reviewed at every phase verification (Section 6.10).
 
 ---
 
@@ -613,15 +897,18 @@ Each decision below is owned, dated, and tracked through to acceptance. The regi
 | ID | Decision | Status | Recommendation | Owner | Due | Blocks |
 |---|---|---|---|---|---|---|
 | D-01 | Adopt TypeScript strict mode | OPEN | **Yes** — refactor safety dominates over time. | QA Lead | Pre-Phase 0 | All phases |
-| D-02 | CI platform (GitHub Actions / GitLab CI / Jenkins) | OPEN | TBD — depends on existing GeoWealth CI footprint. | Platform lead | Pre-Phase 3 | Phase 3 |
-| D-03 | Secret store (GitHub Secrets / Vault / AWS Secrets Manager) | OPEN | Align with whatever the chosen CI uses natively. | Security lead | Pre-Phase 3 | Phase 3 |
+| D-02 | CI platform (GitHub Actions / GitLab CI / Jenkins) | OPEN | TBD — depends on existing GeoWealth CI footprint. | Platform lead | Pre-Phase 1 | Phase 1 |
+| D-03 | Secret store (GitHub Secrets / Vault / AWS Secrets Manager) | OPEN | Align with whatever the chosen CI uses natively. | Security lead | Pre-Phase 0 | Phases 0 and 1 |
 | D-04 | Repository topology (standalone vs `~/nodejs/geowealth/e2e`) | OPEN | **Standalone** — independent release cycle, cleaner permissions. | QA Lead, Eng Mgr | Pre-Phase 0 | Phase 0 |
-| D-05 | Frontend `data-testid` rollout owner | OPEN | Nominate one frontend lead; staged adoption per feature area. | Frontend lead | Pre-Phase 2 | Phase 2 stability |
-| D-06 | First migration scope | OPEN | `account-billing` as the reference area. | QA Lead | Pre-Phase 2 | Phase 2 |
+| D-05 | Frontend `data-testid` rollout owner | OPEN | Nominate one frontend lead; staged adoption per feature area. | Frontend lead | Pre-Phase 3 | Phase 3 |
+| D-06 | First migration scope | OPEN | `account-billing` as the reference area. | QA Lead | Pre-Phase 4 | Phase 4 |
 | D-07 | TestRail Run 175 cadence during migration | OPEN | Phased approach; POC keeps reporting until each spec is ported. | QA Lead, Product | Pre-Phase 0 | Migration sequencing |
-| D-08 | React Query / Redux QA hooks on `window` (`FOR_QA=true`) | OPEN | Frontend exposes `__REACT_QUERY_CLIENT__`; gated by build flag. | Frontend lead | Pre-Phase 1 | Section 4.10.4 patterns |
+| D-08 | React Query / Redux QA hooks on `window` (`FOR_QA=true`) | OPEN | Frontend exposes `__REACT_QUERY_CLIENT__`; gated by build flag. | Frontend lead | Pre-Phase 2 | Section 4.10.4 patterns |
 | D-09 | Production safety: ban `/qa/*` calls when `TEST_ENV=production` | DECIDED | Implemented in `ApiClient` constructor. Never overridable. | QA Automation | 2026-04-09 | — |
 | D-10 | Dummy firm naming convention `e2e-<timestamp>` | DECIDED | Documented in Section 5.8. | QA Automation | 2026-04-09 | — |
+| D-11 | Treat existing committed credentials in `testrail.config.json` as compromised; rotate before any other Phase 0 work | OPEN | **Yes** — Critical-severity finding (Section 2.2). | Security, QA Lead | Phase 0, day 1 | Phase 0 |
+| D-12 | Parity gate: 5 consecutive green nightly runs before deleting any legacy spec | DECIDED | Codified in Section 6.1 principle 4. | QA Lead | 2026-04-09 | Phase 4 |
+| D-13 | POC freeze: no new specs in legacy `tests/<feature>/` after Phase 2 exit | DECIDED | Section 6.1 principle 5. | QA Lead | 2026-04-09 | Phase 4 |
 
 Status values: `OPEN` (awaiting decision), `DECIDED` (recorded with rationale), `SUPERSEDED` (replaced by a later decision; cross-reference required).
 
@@ -633,14 +920,17 @@ The framework cannot succeed in isolation. Each dependency below has a named own
 
 | Dependency | Required from | Required by phase | Status |
 |---|---|---|---|
-| `data-testid` attributes on Account Billing screens | Frontend team | Phase 2 (account-billing) | Not started |
-| `__REACT_QUERY_CLIENT__` exposed under `FOR_QA=true` | Frontend team | Phase 1 (component layer) | Not started |
+| `data-testid` attributes on Account Billing screens (and feature areas thereafter) | Frontend team | Phase 3 → Phase 4 | Not started — gated by D-05 |
+| `__REACT_QUERY_CLIENT__` exposed under `FOR_QA=true` | Frontend team | Phase 2 (component layer) | Not started — gated by D-08 |
 | Stable `/qa/createDummyFirm.do` under load (no qa2 queueing > 60 s) | Backend / Platform | Phase 0 | Known degradation; mitigated by retries |
-| CI platform provisioned and accessible from QA repo | Platform / DevOps | Phase 3 | Pending D-02 |
-| Secret store namespace for QA credentials | Security | Phase 3 | Pending D-03 |
-| Slack webhook to `#qa-alerts` | Platform | Phase 3 | Not started |
-| Time-series store endpoint for run metrics | Platform | Phase 3 | Not started |
+| CI platform provisioned and accessible from QA repo | Platform / DevOps | Phase 1 | Pending D-02 |
+| Secret store namespace for QA credentials | Security | Phase 0 | Pending D-03 |
+| Slack webhook to `#qa-alerts` | Platform | Phase 1 | Not started |
+| Time-series store endpoint for run metrics | Platform | Phase 1 (best effort) → Phase 2 (firm) | Not started |
 | Confluence space for living documentation | QA Lead | Phase 0 | Not started |
+| Second QA Automation contributor (R-11 mitigation, milestone M3) | Engineering Mgr | End of Phase 2 | Not started |
+| Backend permission-toggle for `MERGE PROSPECT` (per-firm) | Backend team | Phase 5 | Not started — required to unblock C26060 / C26085 |
+| Audit-trail fix for Account Billing Inception Date in qa3 | Backend team | Phase 5 | Open from POC notes |
 
 ---
 
@@ -661,6 +951,9 @@ The framework's value is measurable. The following KPIs are reviewed monthly by 
 | **Quarantine clearance** | `@flaky` specs resolved within 10 working days | ≥ 90% | TestRail / repo audit |
 | **Test debt ratio** | `(test.skip + test.fixme) / total specs` | ≤ 5% | Static analysis script |
 | **TestRail coverage** | Active `@regression` specs mapped to TestRail cases | 100% | TestRail reporter audit |
+| **Parity-gate compliance** | Migrated specs that reached 5 consecutive green nights before legacy deletion | 100% | Migration tracker |
+| **Phase exit on time** | Phases closed on or before their planned exit date | ≥ 80% | Phase tracking issues |
+| **Bus-factor coverage** | Architectural areas with at least two contributors who can review changes | ≥ 90% by end of Phase 2 | CODEOWNERS audit |
 
 ---
 
@@ -670,17 +963,17 @@ Risks are scored on a 1–5 scale for likelihood (L) and impact (I). Score = L �
 
 | ID | Risk | L | I | Score | Mitigation | Owner |
 |---|---|---|---|---|---|---|
-| R-01 | TypeScript adoption stalls migration if team is unfamiliar | 2 | 4 | 8 | Pair-programming during Phase 0; code-review checklist; team training session before Phase 1. | QA Lead |
-| R-02 | `data-testid` rollout deprioritized by frontend team | 4 | 4 | 16 | Negotiate per-feature commitment in Phase 2 kickoff; track in Section 9 KPI; escalate to engineering management at 60 days no movement. | QA Lead, Frontend lead |
+| R-01 | TypeScript adoption stalls migration if team is unfamiliar | 2 | 4 | 8 | Pair-programming during Phase 0; code-review checklist; team training session before Phase 2. | QA Lead |
+| R-02 | `data-testid` rollout deprioritized by frontend team | 4 | 4 | 16 | Phase 3 kickoff (Section 6.5) commits a frontend owner; track in Section 9 KPI; escalate to engineering management at 60 days no movement. Phase 5 cannot exit without resolution. | QA Lead, Frontend lead |
 | R-03 | Dummy firm accumulation degrades qa2 / qa3 performance | 2 | 4 | 8 | Quarterly Platform audit (Section 5.8); contingency cleanup script kept ready. | Platform lead |
 | R-04 | `/qa/*` endpoints change shape without notice | 3 | 3 | 9 | Zod schemas (Section 4.6); add `/qa/*` change notifications to backend team's PR template. | Backend leads |
 | R-05 | ag-Grid Enterprise upgrade breaks selectors and editor activation | 2 | 5 | 10 | Component class isolates the surface; nightly run will detect within 24 h; ag-Grid changelog subscription. | QA Automation |
-| R-06 | qa2 / qa3 environment instability causes false negatives | 4 | 3 | 12 | Pre-flight job (Section 5.9); environment quarantine workflow; clearly distinguishable env-failure errors. | Platform lead |
-| R-07 | Credential leak from POC's committed `testrail.config.json` | 3 | 5 | 15 | Phase 3 rotation + secret-scanning pre-commit hook; full git history audit by Security before public-facing release. | Security |
+| R-06 | qa2 / qa3 environment instability causes false negatives | 4 | 3 | 12 | Pre-flight job (Section 5.9, built in Phase 1); environment quarantine workflow; clearly distinguishable env-failure errors. | Platform lead |
+| R-07 | Credential leak from POC's committed `testrail.config.json` | 3 | 5 | 15 | **Phase 0 day-1 rotation** (Decision D-11) plus secret-scanning pre-commit hook; full git history audit by Security before public-facing release. | Security |
 | R-08 | Flake budget breached, freezing test additions | 3 | 3 | 9 | Stabilization SLA (Section 5.6); weekly review meeting; fast-track quarantine. | QA Lead |
-| R-09 | TestRail integration failure during nightly | 2 | 2 | 4 | Existing reporter retry/fallback (POC); local artifact retained for manual import. | QA Automation |
-| R-10 | Migration goes long; POC and new framework drift | 3 | 4 | 12 | Time-boxed phases; weekly status report; explicit sunset date for legacy spec dirs. | QA Lead |
-| R-11 | Single QA Automation contributor — bus factor of 1 | 4 | 5 | 20 | Pair sessions, ARCHITECTURE.md kept current, knowledge-transfer milestones in each phase, recruit second contributor. | Engineering Mgr |
+| R-09 | TestRail integration failure during nightly | 2 | 2 | 4 | Existing reporter retry/fallback (POC); TS port validated against sandbox in Phase 1 before pointing at Run 175; local artifact retained for manual import. | QA Automation |
+| R-10 | Migration goes long; POC and new framework drift | 3 | 4 | 12 | Time-boxed phases; POC freeze at Phase 2 exit (D-13); weekly status report; explicit sunset criteria in Phase 5. | QA Lead |
+| R-11 | Single QA Automation contributor — bus factor of 1 | 4 | 5 | 20 | Bus-factor milestones M1–M5 in Section 6.13. Recruiting a second contributor by end of Phase 2 is the program's hardest non-technical commitment. | Engineering Mgr |
 
 Highest-priority risks (score ≥ 12) — **R-11, R-02, R-07, R-06, R-10** — must have an active mitigation owner before Phase 0 begins.
 
@@ -690,15 +983,31 @@ Highest-priority risks (score ≥ 12) — **R-11, R-02, R-07, R-06, R-10** — m
 
 A pragmatic checklist that the QA Lead walks through before declaring Phase 0 ready to start. Each item references the section where it is specified in detail.
 
-- [ ] D-01 through D-08 either DECIDED or have a named owner with a due date (Section 7).
-- [ ] At least one frontend lead committed as the `data-testid` partner (Section 4.10.6, D-05).
-- [ ] CI platform selected; secret store namespace requested (D-02, D-03).
-- [ ] Repository topology confirmed (D-04).
-- [ ] Reference spec for Phase 0 chosen and code-walked with the team (D-06).
-- [ ] Dependencies in Section 8 either resolved or with a target date.
-- [ ] Risk owners (Section 10) acknowledged in writing.
+**Decisions (Section 7).** Phase 0 cannot begin until these are resolved:
+- [ ] **D-01** TypeScript strict mode — DECIDED.
+- [ ] **D-04** Repository topology — DECIDED.
+- [ ] **D-07** TestRail Run 175 cadence agreed with Product — DECIDED.
+- [ ] **D-11** Credential rotation owner committed (Security + QA Lead) — DECIDED.
+
+**Decisions due before later phases** (must have owner + due date, not necessarily decided):
+- [ ] **D-03** Secret store — owner committed (blocks Phase 0 day-1 rotation).
+- [ ] **D-02** CI platform — owner committed (blocks Phase 1).
+- [ ] **D-08** `__REACT_QUERY_CLIENT__` exposure — owner committed (blocks Phase 2).
+- [ ] **D-05** Frontend `data-testid` partner — owner committed (blocks Phase 3).
+- [ ] **D-06** First migration scope — owner committed (blocks Phase 4).
+
+**Dependencies (Section 8).**
 - [ ] Confluence space created and linked from this document.
-- [ ] Phase 0 kickoff scheduled.
+- [ ] Existing committed credentials inventoried; Security has rotation plan.
+- [ ] Engineering Manager has acknowledged the second-contributor commitment (R-11 / M3) target.
+
+**Risks (Section 10).**
+- [ ] All score-≥-12 risks (R-02, R-06, R-07, R-10, R-11) have a named mitigation owner who has acknowledged in writing.
+
+**Operational.**
+- [ ] Phase 0 tracking issue created with the Section 6.2 exit criteria as a checklist.
+- [ ] Phase 0 kickoff meeting scheduled.
+- [ ] This document linked from `MEMORY.md` and the Confluence space.
 
 ---
 
@@ -772,3 +1081,4 @@ Phase 1 was migrated away from Firm 106 after a parallel-load race condition: ei
 | 0.3 | 2026-04-09 | QA Automation | Iteration 3: added GeoWealth-specific patterns — Struts `.do` contracts, hash-routing waits, ag-Grid Enterprise quirks, Redux/React Query awareness, role matrix, `data-testid` reality, and a `/qa/*` endpoint catalog with a production safety guard. |
 | 0.4 | 2026-04-09 | QA Automation | Iteration 4: added Operations section — pipeline topology, sharding, secrets, branch protection, observability, flake management with SLAs, RACI ownership map, test data lifecycle, environment health pre-flight. Renumbered downstream sections. |
 | 0.5 | 2026-04-09 | QA Automation | Iteration 5: converted Open Decisions to a Decision Register; added Cross-Team Dependencies, Success Metrics & KPIs, Risk Register, and a Pre-Phase-0 Checklist. Strengthened the Executive Summary with headline asks. Final renumbering of the appendix and revision history. |
+| 0.6 | 2026-04-09 | QA Automation | Migration plan deep revision (5 iterations focused on Section 6). Restructured into six phases (0–5) addressing fifteen findings: security-first day-1 rotation, CI before content, walking skeleton, parity gate, POC freeze, frontend kickoff phase, backlog/sunset phase. Added per-phase deliverables and exit criteria, dependency graph, rollback table, verification checklist, resourcing/T-shirt sizing, and explicit R-11 bus-factor milestones. Added decisions D-11/D-12/D-13 and aligned the Decision Register, Dependencies, KPIs, Risks, and Pre-Phase-0 Checklist with the new phase numbering. Updated executive summary headline asks. |
