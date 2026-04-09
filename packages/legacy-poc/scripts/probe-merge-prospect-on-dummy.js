@@ -15,14 +15,23 @@
  * dummy firms via two worker-scoped fixtures: workerFirm + workerFirmProspect.
  */
 
+// Phase 0 Step 0.C: load .env.local from workspace root for standalone scripts.
+require('../load-env');
+
 const { chromium } = require('@playwright/test');
 const path = require('path');
 const fs = require('fs');
 const { setupWorkerFirm } = require('../tests/_helpers/worker-firm');
 
+// cfg kept loaded in case future fields are needed; secrets now come from env.
+// eslint-disable-next-line no-unused-vars
 const cfg = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'testrail.config.json'), 'utf8'));
 const STORAGE = path.join(__dirname, '..', 'tests', '.auth', 'tim1.json');
-const PASSWORD = cfg.appUnderTest.password;
+const PASSWORD = process.env.TIM1_PASSWORD;
+if (!PASSWORD) {
+  console.error('probe-merge-prospect-on-dummy: TIM1_PASSWORD must be set in .env.local.');
+  process.exit(2);
+}
 
 async function loginAs(page, username) {
   await page.goto('https://qa2.geowealth.com/');

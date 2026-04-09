@@ -24,9 +24,21 @@ const path = require('path');
 const cfg = JSON.parse(
   fs.readFileSync(path.join(__dirname, '..', '..', 'testrail.config.json'), 'utf8')
 );
+
+// Phase 0 Step 0.C: secrets moved out of testrail.config.json into env vars.
+// playwright.config.js loads .env.local from the workspace root before this
+// module is required, so process.env.TIM1_PASSWORD is already populated.
+const TIM1_PASSWORD = process.env.TIM1_PASSWORD;
+if (!TIM1_PASSWORD) {
+  throw new Error(
+    'worker-firm: TIM1_PASSWORD must be set ' +
+      '(workspace-root .env.local or shell). Phase 0 Step 0.C.'
+  );
+}
+
 const STORAGE = path.join(__dirname, '..', '.auth', 'tim1.json');
 const BASE = cfg.appUnderTest.url.replace(/\/$/, '');
-const PASSWORD = cfg.appUnderTest.password;
+const PASSWORD = TIM1_PASSWORD;
 
 const ENDPOINT = '/qa/createDummyFirm.do';
 

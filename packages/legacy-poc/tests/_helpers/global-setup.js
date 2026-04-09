@@ -20,6 +20,18 @@ const cfg = JSON.parse(
   fs.readFileSync(path.join(__dirname, '..', '..', 'testrail.config.json'), 'utf8')
 );
 
+// Phase 0 Step 0.C: secrets moved out of testrail.config.json into env vars.
+// playwright.config.js loads .env.local from the workspace root before this
+// module is required, so process.env.TIM1_* is already populated.
+const TIM1_USERNAME = process.env.TIM1_USERNAME;
+const TIM1_PASSWORD = process.env.TIM1_PASSWORD;
+if (!TIM1_USERNAME || !TIM1_PASSWORD) {
+  throw new Error(
+    'global-setup: TIM1_USERNAME / TIM1_PASSWORD must be set ' +
+      '(workspace-root .env.local or shell). Phase 0 Step 0.C.'
+  );
+}
+
 const STORAGE_STATE_PATH = path.join(__dirname, '..', '.auth', 'tim1.json');
 
 async function globalSetup() {
@@ -34,8 +46,8 @@ async function globalSetup() {
     // before touching the form fields. The form uses placeholder-only inputs
     // (no role/name/label), so we match by placeholder.
     await page.waitForURL(/#login/, { timeout: 30_000 });
-    await page.getByPlaceholder(/email|username/i).fill(cfg.appUnderTest.username);
-    await page.getByPlaceholder(/password/i).fill(cfg.appUnderTest.password);
+    await page.getByPlaceholder(/email|username/i).fill(TIM1_USERNAME);
+    await page.getByPlaceholder(/password/i).fill(TIM1_PASSWORD);
     await page.getByRole('button', { name: 'Login' }).click();
     // Wait until any post-login URL transition completes. tim1 may land on
     // either #platformOne (legacy admin landing) or #dashboard (advisor

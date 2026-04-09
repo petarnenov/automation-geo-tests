@@ -1,9 +1,7 @@
 {
   "appUnderTest": {
     "url": "https://qa3.geowealth.com/",
-    "username": "tim1",
-    "password": "c0w&ch1k3n",
-    "note": "Това е приложението, върху което се изпълняват автоматизираните тестове."
+    "note": "Application under test. Credentials (TIM1_USERNAME / TIM1_PASSWORD) are read from workspace-root .env.local since Phase 0 Step 0.C — they are no longer in this file."
   },
   "testrail": {
     "focusedRun": {
@@ -12,16 +10,16 @@
       "groupBy": "cases:section_id",
       "groupOrder": "asc",
       "display": "tree",
-      "note": "Автоматизацията се фокусира само върху тази тест сюита (run 175)."
+      "note": "The legacy POC focuses on TestRail Run 175."
     },
     "filter": {
       "label": "pepi",
-      "note": "От run 175 търсим и изпълняваме само тест кейсове, които имат label: pepi."
+      "note": "Within run 175, only cases tagged 'pepi' are executed."
     }
   },
   "playwright": {
     "runner": "playwright",
     "labelFilter": "pepi",
-    "note": "Playwright изпълнява само тестове, маркирани с label/tag 'pepi' (напр. @pepi в test title или test.describe)."
+    "note": "Playwright runs only tests carrying the @pepi tag in the title or describe."
   }
 }

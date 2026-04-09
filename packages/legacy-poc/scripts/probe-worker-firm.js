@@ -7,6 +7,10 @@
  * Usage: node scripts/probe-worker-firm.js
  */
 
+// Phase 0 Step 0.C: load .env.local BEFORE requiring worker-firm, which reads
+// process.env.TIM1_PASSWORD at module load time.
+require('../load-env');
+
 const { setupWorkerFirm } = require('../tests/_helpers/worker-firm');
 
 (async () => {

@@ -9,6 +9,9 @@
  * Usage: node scripts/probe-create-dummy-firm.js
  */
 
+// Phase 0 Step 0.C: load .env.local from workspace root for standalone scripts.
+require('../load-env');
+
 const { request } = require('@playwright/test');
 const path = require('path');
 const fs = require('fs');

@@ -23,7 +23,7 @@
 | 0.0 | Walking-skeleton selector reconnaissance | **Done** |
 | 0.A | Workspace bootstrap | **Done** |
 | 0.B | POC relocation | **Done** |
-| 0.C | POC env-var refactor | Pending |
+| 0.C | POC env-var refactor | **Done** |
 | 0.D | Credential rotation (with sandbox dry-run) | Pending |
 | 0.E | Git history audit + rewrite-vs-accept | Pending |
 | 0.F | Framework foundational layer | Pending |
@@ -212,6 +212,74 @@ Step 0.C is the env-var refactor:
 3. Move secret material from `packages/legacy-poc/testrail.config.json` to a workspace-root `.env.local` (gitignored). The JSON file becomes secret-free.
 4. Update `.env.example` with the discovered variable names.
 5. Verify POC nightly green from the new location with old credentials before Step 0.D.
+
+---
+
+## Step 0.C — POC env-var refactor
+
+**Done.** Secrets moved out of `packages/legacy-poc/testrail.config.json` into workspace-root `.env.local` (gitignored). The JSON file is now secret-free. POC's `global-setup.js` re-login flow verified end-to-end after the refactor.
+
+### Inventory (`grep -rn "testrail.config" packages/legacy-poc/`)
+
+Eleven files referenced `testrail.config.json` (plan estimated "at least 5"):
+
+| # | File | Used fields | Refactor type |
+|---|---|---|---|
+| 1 | `packages/legacy-poc/playwright.config.js` | `cfg.appUnderTest.url`, `cfg.playwright.labelFilter` | dotenv loader at top |
+| 2 | `packages/legacy-poc/tests/_helpers/global-setup.js` | `cfg.appUnderTest.url`, `username`, `password` | secrets → env |
+| 3 | `packages/legacy-poc/tests/_helpers/qa3.js` | `cfg.appUnderTest.username`, `password` (3 places) | secrets → env, kept `cfg` for the module's other consumers |
+| 4 | `packages/legacy-poc/tests/_helpers/worker-firm.js` | `cfg.appUnderTest.url`, `password` | secrets → env |
+| 5 | `packages/legacy-poc/scripts/list-pepi-cases.js` | `cfg.testrail.*` (no secrets) | dotenv loader |
+| 6 | `packages/legacy-poc/scripts/phase-0-selector-recon.js` | `cfg.appUnderTest.username`, `password` | secrets → env, dotenv loader |
+| 7 | `packages/legacy-poc/scripts/probe-create-dummy-firm.js` | `cfg.appUnderTest.url` (no secrets) | dotenv loader |
+| 8 | `packages/legacy-poc/scripts/probe-dummy-firm-advisor-login.js` | `cfg.appUnderTest.url`, `password` | secrets → env, dotenv loader |
+| 9 | `packages/legacy-poc/scripts/probe-dummy-firm-upload-page.js` | `cfg.appUnderTest.url` (no secrets) | dotenv loader |
+| 10 | `packages/legacy-poc/scripts/probe-merge-prospect-on-dummy.js` | `cfg.appUnderTest.password` | secrets → env, dotenv loader |
+| 11 | `packages/legacy-poc/reporters/testrail-reporter.js` | `cfg.testrail.*` (no secrets) | unchanged — already reads `TESTRAIL_USER` etc. from env |
+
+Plus `packages/legacy-poc/scripts/probe-worker-firm.js` got a dotenv loader because it `require()`s `worker-firm.js` which reads `TIM1_PASSWORD` at module load time.
+
+### New file
+
+`packages/legacy-poc/load-env.js` — single shared dotenv-flow loader. Resolves the workspace root via `path.resolve(__dirname, '..', '..')` and calls `dotenv-flow.config({ path: WORKSPACE_ROOT, silent: true })`. Required first by every standalone entry point. dotenv-flow does not overwrite already-set env vars, so CI's injected variables win over `.env.local`.
+
+### `testrail.config.json` after refactor
+
+Stripped of `appUnderTest.username` and `appUnderTest.password`. Kept all other fields: `appUnderTest.url`, `appUnderTest.note` (updated to point at `.env.local`), `testrail.focusedRun.*`, `testrail.filter.*`, `playwright.runner`, `playwright.labelFilter`, all `note` fields. Verified by `grep -E "username|password" packages/legacy-poc/testrail.config.json` returning zero matches.
+
+### Workspace-root `.env.local`
+
+Created with the **still-valid** credentials previously in the JSON. **Gitignored** (verified via `git check-ignore .env.local`). Will be rotated in Step 0.D.
+
+```
+TEST_ENV=qa2
+TIM1_USERNAME=tim1
+TIM1_PASSWORD=<elided>
+```
+
+### Verification
+
+| Check | Result |
+|---|---|
+| `git check-ignore .env.local` | ✅ ignored — won't be committed |
+| `grep -E "username\|password" packages/legacy-poc/testrail.config.json` | ✅ zero matches |
+| `npm run typecheck` | ✅ green |
+| `npm run lint` | ✅ 0 errors, 13 warnings (latent legacy POC tech debt; same count as Step 0.B) |
+| `cd packages/legacy-poc && npx playwright test --list --grep @pepi` | ✅ 70 tests in 65 files — discovery unchanged |
+| **End-to-end re-login**: removed `tests/.auth/tim1.json` and ran `node -e "require('./load-env'); require('./tests/_helpers/global-setup')()"` | ✅ `[global-setup] tim1 storage state saved → ...` — proves dotenv loader + global-setup env-var path login successfully |
+
+The end-to-end re-login is the most important check: it exercises the full chain (dotenv-flow loads `.env.local` → `global-setup.js` reads `process.env.TIM1_USERNAME` / `TIM1_PASSWORD` → Playwright opens a browser → fills the form with the env-var values → server returns a session cookie → storage state written). If this works, every subsequent test that uses storage state inherits the same login. **The credentials path is fully decoupled from the JSON file.**
+
+### Notes for Step 0.D (next)
+
+Step 0.D is the credential rotation:
+1. **Sandbox dry-run first** (Section 6.14, plus Phase −1 record's documented caveat that the Program Owner is also the acting Security counterpart — there is no separate Security team in the solo phase).
+2. Rotate the actual `tim1` credentials in the GeoWealth UI (or via whatever credential authority qa3 / qa2 honors).
+3. Update `.env.local` with the new password.
+4. Re-run the end-to-end re-login check.
+5. Verify nightly POC discovery still passes against the new credentials.
+
+The **threat model after Step 0.C** is: the *previous* `tim1` password is no longer in any tracked file in the working tree, but it remains in git history (in `testrail.config.json` before the strip commit). Step 0.E will run `detect-secrets` against the full history and Decision **D-20** records whether to rewrite history or formally accept the leak (the rotated credentials make the historical leak harmless).
 
 ---
 

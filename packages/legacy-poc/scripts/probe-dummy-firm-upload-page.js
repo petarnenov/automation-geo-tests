@@ -7,6 +7,9 @@
  * Usage: node scripts/probe-dummy-firm-upload-page.js
  */
 
+// Phase 0 Step 0.C: load .env.local from workspace root for standalone scripts.
+require('../load-env');
+
 const { chromium } = require('@playwright/test');
 const path = require('path');
 const fs = require('fs');

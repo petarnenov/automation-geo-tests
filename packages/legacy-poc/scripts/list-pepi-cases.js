@@ -8,6 +8,9 @@
  * Host: TESTRAIL_URL env overrides the host derived from testrail.config.json.
  */
 
+// Phase 0 Step 0.C: load .env.local from workspace root for standalone scripts.
+require('../load-env');
+
 const fs = require('fs');
 const path = require('path');
 

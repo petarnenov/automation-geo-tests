@@ -8,9 +8,23 @@ const { expect } = require('@playwright/test');
 const fs = require('fs');
 const path = require('path');
 
+// cfg keeps non-secret config (TestRail run, label filter, base URL note).
+// Several specs still import { cfg } from this module — leave it exported.
 const cfg = JSON.parse(
   fs.readFileSync(path.join(__dirname, '..', '..', 'testrail.config.json'), 'utf8')
 );
+
+// Phase 0 Step 0.C: secrets moved out of testrail.config.json into env vars.
+// playwright.config.js loads .env.local from the workspace root before this
+// module is required, so process.env.TIM1_* is already populated.
+const TIM1_USERNAME = process.env.TIM1_USERNAME;
+const TIM1_PASSWORD = process.env.TIM1_PASSWORD;
+if (!TIM1_USERNAME || !TIM1_PASSWORD) {
+  throw new Error(
+    'qa3: TIM1_USERNAME / TIM1_PASSWORD must be set ' +
+      '(workspace-root .env.local or shell). Phase 0 Step 0.C.'
+  );
+}
 
 /**
  * Log in via the qa3 login form. Works for both Platform One admins (lands on
@@ -58,7 +72,7 @@ async function loginPlatformOneAdmin(page) {
 
   if (await usernameInput.isVisible().catch(() => false)) {
     // Session is genuinely expired — full form login.
-    await login(page, cfg.appUnderTest.username, cfg.appUnderTest.password);
+    await login(page, TIM1_USERNAME, TIM1_PASSWORD);
     await page.waitForURL(/#(platformOne|dashboard)/, { timeout: 30_000 });
   }
 
@@ -77,7 +91,7 @@ async function loginPlatformOneAdmin(page) {
  * @param {number} firmCode
  */
 async function loginFirmAdvisor(page, firmCode) {
-  await login(page, `tim${firmCode}`, cfg.appUnderTest.password);
+  await login(page, `tim${firmCode}`, TIM1_PASSWORD);
   await expect(page).toHaveURL(/#dashboard/, { timeout: 30_000 });
 }
 
@@ -91,7 +105,7 @@ async function loginFirmAdvisor(page, firmCode) {
  * @param {string} loginName
  */
 async function loginAsAdvisor(page, loginName) {
-  await login(page, loginName, cfg.appUnderTest.password);
+  await login(page, loginName, TIM1_PASSWORD);
   await expect(page).toHaveURL(/#dashboard/, { timeout: 30_000 });
 }
 

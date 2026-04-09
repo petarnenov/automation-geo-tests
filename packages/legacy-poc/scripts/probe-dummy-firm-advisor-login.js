@@ -8,6 +8,9 @@
  * Usage: node scripts/probe-dummy-firm-advisor-login.js
  */
 
+// Phase 0 Step 0.C: load .env.local from workspace root for standalone scripts.
+require('../load-env');
+
 const { chromium, request } = require('@playwright/test');
 const fs = require('fs');
 const path = require('path');
@@ -15,7 +18,11 @@ const path = require('path');
 const STORAGE = path.join(__dirname, '..', 'tests', '.auth', 'tim1.json');
 const cfg = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'testrail.config.json'), 'utf8'));
 const BASE = cfg.appUnderTest.url.replace(/\/$/, '');
-const STANDARD_PASSWORD = cfg.appUnderTest.password;
+const STANDARD_PASSWORD = process.env.TIM1_PASSWORD;
+if (!STANDARD_PASSWORD) {
+  console.error('probe-dummy-firm-advisor-login: TIM1_PASSWORD must be set in .env.local.');
+  process.exit(2);
+}
 
 async function createDummyFirm() {
   const ctx = await request.newContext({

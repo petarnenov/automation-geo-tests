@@ -19,6 +19,9 @@
  *   TEST_ENV=qa3 node scripts/phase-0-selector-recon.js   # D-23 fallback
  */
 
+// Phase 0 Step 0.C: load .env.local from workspace root for standalone scripts.
+require('../load-env');
+
 const { chromium } = require('@playwright/test');
 const fs = require('node:fs');
 const path = require('node:path');
@@ -38,12 +41,15 @@ if (!BASE_URL) {
   process.exit(2);
 }
 
-// Step 0.0 reads compromised credentials from the existing POC config.
-// They will be rotated in Step 0.D. Using them once more for read-only
-// dashboard inspection does not change the threat surface.
-const cfg = require(path.join(REPO_ROOT, 'testrail.config.json'));
-const USERNAME = cfg.appUnderTest.username;
-const PASSWORD = cfg.appUnderTest.password;
+// Phase 0 Step 0.C: secrets now live in workspace-root .env.local, loaded
+// above via require('../load-env'). Step 0.0 originally read these from
+// testrail.config.json; that field is gone after Step 0.C.
+const USERNAME = process.env.TIM1_USERNAME;
+const PASSWORD = process.env.TIM1_PASSWORD;
+if (!USERNAME || !PASSWORD) {
+  console.error('phase-0-selector-recon: TIM1_USERNAME / TIM1_PASSWORD must be set in .env.local.');
+  process.exit(2);
+}
 
 if (!fs.existsSync(TRACE_DIR)) fs.mkdirSync(TRACE_DIR, { recursive: true });
 

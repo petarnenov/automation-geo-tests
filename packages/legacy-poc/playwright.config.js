@@ -1,4 +1,9 @@
 // @ts-check
+// Phase 0 Step 0.C: load workspace-root .env.local BEFORE any helper that
+// reads process.env (global-setup, worker-firm, qa3 all read the legacy POC's
+// secret env vars at module load time).
+require('./load-env');
+
 const playwrightTest = require('@playwright/test');
 const { defineConfig, devices } = playwrightTest;
 const fs = require('fs');
