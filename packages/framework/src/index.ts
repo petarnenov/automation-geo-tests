@@ -16,7 +16,7 @@ export {
   environments,
   type EnvironmentName,
   type EnvironmentConfig,
-} from './config/index.js';
+} from './config/index';
 
-export { test, expect } from './fixtures/base.js';
-export { STORAGE_STATE_PATH } from './fixtures/globalSetup.js';
+export { test, expect } from './fixtures/base';
+export { STORAGE_STATE_PATH } from './fixtures/globalSetup';

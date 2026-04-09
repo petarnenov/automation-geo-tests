@@ -1,0 +1,3 @@
+# Generated test artifacts for the Billing & Servicing team. Workspace-root .gitignore
+# already covers playwright-report/, test-results/, .auth/, etc. via **/
+# patterns; this file is here for any package-local additions.

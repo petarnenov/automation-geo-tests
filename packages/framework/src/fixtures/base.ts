@@ -11,7 +11,7 @@
  */
 
 import { mergeTests } from '@playwright/test';
-import { authFixtures } from './auth.fixture.js';
+import { authFixtures } from './auth.fixture';
 
 export const test = mergeTests(authFixtures);
 export { expect } from '@playwright/test';

@@ -24,7 +24,7 @@
 
 import { test as base, type APIRequestContext } from '@playwright/test';
 import * as fs from 'node:fs';
-import { STORAGE_STATE_PATH } from './globalSetup.js';
+import { STORAGE_STATE_PATH } from './globalSetup';
 
 /**
  * GeoWealth session TTL — empirically ~8 hours. The freshness check

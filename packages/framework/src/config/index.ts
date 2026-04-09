@@ -5,12 +5,12 @@
 export {
   definePlaywrightConfig,
   type DefinePlaywrightConfigOptions,
-} from './playwright.js';
+} from './playwright';
 export {
   environments,
   selectEnvironment,
   assertNotProduction,
   type EnvironmentName,
   type EnvironmentConfig,
-} from './environments.js';
-export { loadWorkspaceEnv, WORKSPACE_ROOT } from './dotenv-loader.js';
+} from './environments';
+export { loadWorkspaceEnv, WORKSPACE_ROOT } from './dotenv-loader';

@@ -1,6 +1,6 @@
-# `@geowealth/tests-billing-servicing`
+# `@geowealth/tests-{{slug}}`
 
-GeoWealth E2E tests for the **Billing & Servicing** team.
+GeoWealth E2E tests for the **{{name}}** team.
 
 > Generated from `packages/tooling/templates/team/` in Phase 0 Step 0.G (or via `npm run scaffold:team` in Phase 1+). The generation script and the future scaffold CLI share a single substitute function (D-34, no drift).
 
@@ -26,9 +26,9 @@ See `docs/WRITING-TESTS.md` (Phase 5 deliverable) for the canonical cookbook. In
 
 1. Place the spec under `tests/regression/<area>/C<id>.spec.ts`.
 2. `import { test, expect } from '@geowealth/e2e-framework/fixtures';`
-3. Tag with `@smoke` or `@regression` plus `@billing-servicing`.
+3. Tag with `@smoke` or `@regression` plus `@{{slug}}`.
 4. Use the framework's Page Objects and fixtures; never call `@playwright/test` directly.
 
 ## Ownership
 
-This package is owned by the Billing & Servicing team. Cross-team Page Objects belong in `@geowealth/e2e-framework`, not here. See Section 4.2.2 of `docs/OFFICIAL-FRAMEWORK-PROPOSAL.md` for the promotion rule.
+This package is owned by the {{name}} team. Cross-team Page Objects belong in `@geowealth/e2e-framework`, not here. See Section 4.2.2 of `docs/OFFICIAL-FRAMEWORK-PROPOSAL.md` for the promotion rule.

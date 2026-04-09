@@ -303,6 +303,85 @@ reporter are deferred to Phase 2 per the proposal.
   pre-existing legacy POC tech debt; framework files contribute zero
   warnings after removing premature `eslint-disable` directives).
 
+### Phase 0 Step 0.G — scaffold templates + bootstrap-from-templates
+
+The first commit where the new framework foundations are actually
+**consumed by a test**. Walking skeleton ran end-to-end against qa2
+in 19.7s, validating the entire Phase 0 stack (Steps 0.0 → 0.A →
+0.B → 0.C → 0.E → 0.F → 0.G).
+
+**New files**:
+- `packages/tooling/src/substitute.ts` — single substitution function
+  (D-34, no drift).
+- `packages/tooling/templates/team/` — nine template files
+  (`package.json.tpl`, `tsconfig.json.tpl`, `playwright.config.ts.tpl`,
+  `README.md.tpl`, `tests/smoke/dashboard.spec.ts.tpl`,
+  `tests/regression/.gitkeep.tpl`, `src/pages/.gitkeep.tpl`,
+  `.auth/.gitignore.tpl`, `.gitignore.tpl`).
+- `packages/tooling/scripts/expand-templates.ts` — generation script
+  with `--slug`, `--name`, `--owner`, `--confluence`,
+  `--testrail-section`, `--dry-run` flags.
+- `packages/tooling/scripts/verify-bootstrap-vs-templates.ts` —
+  parity verification (eliminates D-34 drift on day one).
+
+**Generated**:
+- `packages/tests-billing-servicing/` — re-generated from templates;
+  9 files; verified byte-for-byte against templates.
+
+**Changed**:
+- `packages/framework/package.json` — added
+  `./fixtures/globalSetup` subpath to `exports` so `definePlaywrightConfig`
+  can `require.resolve` it; **removed `"type": "module"`** because
+  Playwright's pirates loader treats framework files as CJS and
+  ESM-style imports cause `ReferenceError: exports is not defined`.
+- `packages/tooling/package.json` — same `"type": "module"` removal.
+- `packages/framework/src/config/dotenv-loader.ts` — replaced
+  `import.meta.url`-based path math with a `process.cwd()`-walking
+  algorithm that finds the workspace root by looking for
+  `tsconfig.base.json`. Module-system agnostic.
+- `packages/framework/src/config/playwright.ts` — added
+  `globalSetup: require.resolve('@geowealth/e2e-framework/fixtures/globalSetup')`
+  to the default config so every team package gets login wired up
+  out of the box.
+- `packages/framework/src/**` — bulk-replaced ESM-style `.js`
+  extensions on internal imports with extensionless imports
+  (`from './foo.js'` → `from './foo'`). Required for Playwright's
+  CJS-style transform to resolve them correctly.
+- `tsconfig.base.json` — added `allowImportingTsExtensions: true`
+  for tooling scripts that import `.ts` files explicitly.
+- `package.json` (workspace root) — `tsx ~4.19.0` added as devDep.
+  Required for running TypeScript scripts directly under
+  `packages/tooling/scripts/` (Node 20.19 lacks
+  `--experimental-strip-types`).
+
+**Walking-skeleton selector corrected (D-48 supersedes D-46)**:
+The original Step 0.0 recon enumerated 118 `<h4>` menu items and
+chose `Operations`. The end-to-end run revealed those `<h4>`s only
+appear after late SPA menu hydration; the first thing that renders
+is the `<h1>` "Welcome to Platform One!" splash heading. Updated
+the template, re-generated the bootstrap, re-verified parity,
+re-ran — green in 19.7s.
+
+**Verified**:
+- `npx tsx packages/tooling/scripts/verify-bootstrap-vs-templates.ts`
+  — 9 files match templates byte-for-byte.
+- `npm run typecheck` — green.
+- `npm run lint` — 0 errors, 13 warnings (same count as Step 0.F).
+- `cd packages/tests-billing-servicing && TEST_ENV=qa2
+  TESTRAIL_REPORT_RESULTS=0 npx playwright test --grep @smoke`
+  — **1 passed in 37.9s**.
+- `npm run discover:legacy:pepi` — 70 tests in 65 files
+  (legacy POC discovery unchanged; both worlds work side-by-side).
+
+**New decisions**:
+- D-48: Walking-skeleton selector is `Welcome to Platform One!`
+  `<h1>`, not `Operations` `<h4>`. Supersedes D-46.
+- D-49: Workspace TS source files use extensionless internal imports
+  and the framework / tooling packages do NOT declare `"type":
+  "module"`. Required for Playwright's CJS-style loader.
+- D-50: `tsx ~4.19.0` added as workspace devDep for running
+  TypeScript scripts directly.
+
 ## [0.1.0] — Phase 0 entry — 2026-04-09
 
 Initial monorepo skeleton. Phase 0 in progress — see `docs/phase-0-tracking.md`

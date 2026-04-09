@@ -17,16 +17,34 @@
  * under `packages/framework/src/config/`.
  */
 
+import * as fs from 'node:fs';
 import * as path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import dotenvFlow from 'dotenv-flow';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+/**
+ * Find the workspace root by walking up from `process.cwd()` looking for
+ * a marker file (`tsconfig.base.json` is unique to the workspace root).
+ *
+ * Module-system agnostic: works whether the framework is loaded by
+ * Playwright's CJS-style TS loader (no `import.meta.url`) or by a Node
+ * 22+ ESM runtime. Avoids hardcoding `__dirname` paths that depend on
+ * the file's location.
+ */
+function findWorkspaceRoot(): string {
+  let dir = process.cwd();
+  for (let i = 0; i < 16; i++) {
+    if (fs.existsSync(path.join(dir, 'tsconfig.base.json'))) return dir;
+    const parent = path.dirname(dir);
+    if (parent === dir) break;
+    dir = parent;
+  }
+  throw new Error(
+    'dotenv-loader: could not find workspace root (no tsconfig.base.json ' +
+      `walking up from ${process.cwd()})`
+  );
+}
 
-// packages/framework/src/config → packages/framework/src → packages/framework
-//   → packages → workspace root.
-export const WORKSPACE_ROOT = path.resolve(__dirname, '..', '..', '..', '..');
+export const WORKSPACE_ROOT = findWorkspaceRoot();
 
 let loaded = false;
 

@@ -12,6 +12,7 @@
     "forceConsistentCasingInFileNames": true,
     "allowJs": true,
     "checkJs": false,
+    "allowImportingTsExtensions": true,
     "lib": ["es2022", "dom", "dom.iterable"]
   }
 }

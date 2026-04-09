@@ -27,6 +27,7 @@
 | 0.D | Credential rotation | **DEFERRED** (D-11 OPEN, target ≤ 90 days; see Step 0.D defer note below) |
 | 0.E | Git history secrets audit | **Done** (D-20 = ACCEPT; see audit report) |
 | 0.F | Framework foundational layer | **Done** |
+| 0.G | Scaffold templates + bootstrap-from-templates | **Done** ✅ walking skeleton green end-to-end against qa2 |
 | 0.D | Credential rotation (with sandbox dry-run) | Pending |
 | 0.E | Git history audit + rewrite-vs-accept | Pending |
 | 0.F | Framework foundational layer | Pending |
@@ -420,6 +421,110 @@ Step 0.G is the scaffold templates first, bootstrap-from-templates flow:
 6. The walking-skeleton spec at `packages/tests-billing-servicing/tests/smoke/dashboard.spec.ts` consumes the framework's `authenticatedPage` fixture and asserts `getByRole('heading', { name: 'Operations' })` per Step 0.0 reconnaissance + D-46.
 
 This is the first time the new framework's foundational layer (Step 0.F) is **actually consumed** by a test. End-to-end smoke green proves the whole Phase 0 stack works.
+
+---
+
+## Step 0.G — Scaffold templates + bootstrap-from-templates
+
+**Done.** ✅ Walking skeleton ran end-to-end against qa2 in 19.7s, the framework foundations + scaffold + generated package + new spec all worked together. The whole Phase 0 stack is validated.
+
+### Files written
+
+| Path | Purpose |
+|---|---|
+| `packages/tooling/src/substitute.ts` | Single substitution function used by both Phase 0 manual expansion and the future Phase 1 scaffold script (D-34). Tiny, dependency-free, fail-fast on undefined placeholders. |
+| `packages/tooling/templates/team/package.json.tpl` | Per-team `package.json` template with `@geowealth/tests-{{slug}}` name. |
+| `packages/tooling/templates/team/tsconfig.json.tpl` | Per-team tsconfig that extends `tsconfig.base.json` with locally-duplicated `paths` block (Section 4.2.3.1). |
+| `packages/tooling/templates/team/playwright.config.ts.tpl` | Calls `definePlaywrightConfig({ projectName: '{{slug}}' })`. |
+| `packages/tooling/templates/team/README.md.tpl` | First-30-minutes checklist + ownership notes. |
+| `packages/tooling/templates/team/tests/smoke/dashboard.spec.ts.tpl` | Walking-skeleton spec consuming framework `test` / `expect` and asserting `getByRole('heading', { name: 'Welcome to Platform One!' })` (D-48). |
+| `packages/tooling/templates/team/tests/regression/.gitkeep.tpl` | Placeholder for regression specs. |
+| `packages/tooling/templates/team/src/pages/.gitkeep.tpl` | Placeholder for team-specific Page Objects. |
+| `packages/tooling/templates/team/.auth/.gitignore.tpl` | Per-package `.auth/` (storage states are workspace-root per D-41, but the file exists for any per-package state). |
+| `packages/tooling/templates/team/.gitignore.tpl` | Per-package `.gitignore`. |
+| `packages/tooling/scripts/expand-templates.ts` | Generation script. CLI: `--slug`, `--name`, `--owner`, `--confluence`, `--testrail-section`, `--dry-run`. Walks template tree, substitutes vars, writes target package. |
+| `packages/tooling/scripts/verify-bootstrap-vs-templates.ts` | Parity verification — diffs the on-disk `tests-billing-servicing/` against what `substitute()` would generate today. Eliminates D-34 drift on day one. |
+
+### Bootstrap generation
+
+`packages/tests-billing-servicing/` was deleted (Step 0.A placeholder) and re-generated from the templates with `slug=billing-servicing`, `name="Billing & Servicing"`. Nine files written:
+
+```
+packages/tests-billing-servicing/
+├── .auth/.gitignore
+├── .gitignore
+├── README.md
+├── package.json
+├── playwright.config.ts
+├── src/pages/.gitkeep
+├── tests/regression/.gitkeep
+├── tests/smoke/dashboard.spec.ts
+└── tsconfig.json
+```
+
+`verify-bootstrap-vs-templates` confirms all 9 files match templates byte-for-byte. **D-34 (no drift) is enforced from day one** — running the script again with the same inputs produces an identical package.
+
+### End-to-end validation (the moment of truth)
+
+```
+$ cd packages/tests-billing-servicing
+$ TEST_ENV=qa2 TESTRAIL_REPORT_RESULTS=0 npx playwright test --grep @smoke
+
+[framework globalSetup] tim1 storage state saved → /home/petar/automation-geo-tests/.auth/tim1.json
+
+Running 1 test using 1 worker
+
+  ✓  1 [billing-servicing] › tests/smoke/dashboard.spec.ts:27:5
+       › @smoke @billing-servicing walking skeleton — Platform One landing renders (19.7s)
+
+  1 passed (37.9s)
+```
+
+This is the first time **every** Phase 0 component is exercised in a real run:
+
+1. ✅ Framework `dotenv-loader` walks up from cwd to find the workspace root (D-49 module-system-agnostic resolution).
+2. ✅ Framework `selectEnvironment()` returns the typed qa2 config.
+3. ✅ Framework `globalSetup` logs in `tim1` against the qa2 SPA via the placeholder-based login flow lifted from the legacy POC's `global-setup.js`.
+4. ✅ Storage state is written to the workspace-root `.auth/tim1.json` (D-41 — shared across packages, single login per nightly).
+5. ✅ `definePlaywrightConfig()` wires globalSetup as `require.resolve('@geowealth/e2e-framework/fixtures/globalSetup')` and sets the default reporter list to `[['list'], ['html']]`.
+6. ✅ Generated `tests-billing-servicing/playwright.config.ts` (from template) imports `definePlaywrightConfig` from the framework via the workspace `workspace:*` link.
+7. ✅ Generated walking-skeleton spec (from template) imports `test, expect` from `@geowealth/e2e-framework`.
+8. ✅ Real Playwright browser starts, attaches the storage state, navigates to `/react/indexReact.do#platformOne`.
+9. ✅ Selector hit: `getByRole('heading', { name: 'Welcome to Platform One!' })` (D-48 correction of D-46).
+
+**The whole Phase 0 stack works.** Steps 0.0 → 0.A → 0.B → 0.C → 0.E → 0.F → 0.G are all validated end-to-end by this single 19.7-second test run.
+
+### Key fixes during Step 0.G
+
+**1. tsx as workspace devDep.**
+Node 20.19 LTS lacks `--experimental-strip-types` (Node 22.6+ feature). Added `tsx ~4.19.0` to run TypeScript scripts directly. Recorded as **D-50**.
+
+**2. Module-system-agnostic workspace root resolution.**
+The first version of `dotenv-loader.ts` used `import.meta.url` (ESM-only). Playwright's pirates-based loader compiles framework files as CJS, where `import.meta` does not exist → `ReferenceError: exports is not defined`. Replaced with a `process.cwd()`-walking algorithm that looks for `tsconfig.base.json` as the workspace marker. Works in any module system.
+
+**3. Removed `"type": "module"` from framework + tooling package.json.**
+With `"type": "module"`, Playwright's loader was confused about how to load framework files transitively from spec files (the test loading path uses a different transform than globalSetup). Dropping it makes both packages CJS-default while still using TypeScript source.
+
+**4. Dropped `.js` extensions from internal imports.**
+Framework files originally used ESM-style `import { x } from './foo.js'`. Playwright's CJS transform does not resolve these — Node's CJS resolver tries `./foo.js`, fails, tries `./foo/index.js`, fails. Bulk-replaced via `sed` with extensionless imports. With `moduleResolution: "bundler"` in `tsconfig.base.json`, TypeScript still resolves them correctly. Recorded as **D-49**.
+
+**5. `allowImportingTsExtensions: true` in `tsconfig.base.json`.**
+For tooling scripts under `packages/tooling/scripts/` that explicitly import `../src/substitute.ts` (with `.ts` extension because tsx supports it), TypeScript needs this flag.
+
+**6. `globalSetup` wired into `definePlaywrightConfig`.**
+The first version of `definePlaywrightConfig` did not include `globalSetup`, so the test ran without a storage state file. Added `globalSetup: require.resolve('@geowealth/e2e-framework/fixtures/globalSetup')` and added `./fixtures/globalSetup` to the framework's `package.json` `exports` field so Node's resolver can locate it.
+
+**7. Walking-skeleton selector corrected (D-48).**
+Step 0.0 recon enumerated 118 `<h4>` menu items and chose "Operations". The end-to-end run revealed those `<h4>`s only appear after late SPA menu hydration; the first thing that renders is the `<h1>` "Welcome to Platform One!" splash heading. Updated the template, re-generated the bootstrap, re-verified parity, re-ran — green in 19.7s.
+
+### Notes for Step 0.H (next)
+
+Step 0.H is the smallest of Phase 0:
+1. Confluence space — substituted by `docs/` in solo phase (already done in Phase −1 record).
+2. Open the Phase 0 tracking issue — substituted by `docs/phase-0-tracking.md` (already maintained throughout).
+3. Set `TEST_ENV=qa2` as the default — already done in `.env.local` and in the framework's `selectEnvironment()` default.
+
+In effect, Step 0.H is fully accomplished by side-effects of the earlier steps. Phase 0 (partial — D-11 deferred) exits after this step is formally checked off.
 
 ---
 

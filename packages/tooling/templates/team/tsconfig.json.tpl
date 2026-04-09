@@ -8,5 +8,5 @@
       "@geowealth/e2e-framework/*": ["../framework/src/*"]
     }
   },
-  "include": ["src/**/*.ts", "scripts/**/*.ts"]
+  "include": ["src/**/*.ts", "tests/**/*.ts", "playwright.config.ts"]
 }

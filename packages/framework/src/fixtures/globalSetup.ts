@@ -19,8 +19,8 @@
 import { chromium } from '@playwright/test';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import { selectEnvironment } from '../config/environments.js';
-import { loadWorkspaceEnv, WORKSPACE_ROOT } from '../config/dotenv-loader.js';
+import { selectEnvironment } from '../config/environments';
+import { loadWorkspaceEnv, WORKSPACE_ROOT } from '../config/dotenv-loader';
 
 loadWorkspaceEnv();
 

@@ -1,8 +1,8 @@
 {
-  "name": "@geowealth/tests-billing-servicing",
+  "name": "@geowealth/tests-{{slug}}",
   "version": "0.1.0",
   "private": true,
-  "description": "GeoWealth E2E tests for the Billing & Servicing team. Generated from packages/tooling/templates/team/ via expand-templates.ts (Phase 0 Step 0.G) or `npm run scaffold:team` (Phase 1, D-26).",
+  "description": "GeoWealth E2E tests for the {{name}} team. Generated from packages/tooling/templates/team/ via expand-templates.ts (Phase 0 Step 0.G) or `npm run scaffold:team` (Phase 1, D-26).",
   "scripts": {
     "test": "playwright test",
     "test:smoke": "playwright test --grep @smoke",

@@ -14,8 +14,8 @@
 import { defineConfig, devices } from '@playwright/test';
 import type { PlaywrightTestConfig, ReporterDescription } from '@playwright/test';
 import * as path from 'node:path';
-import { loadWorkspaceEnv, WORKSPACE_ROOT } from './dotenv-loader.js';
-import { selectEnvironment } from './environments.js';
+import { loadWorkspaceEnv, WORKSPACE_ROOT } from './dotenv-loader';
+import { selectEnvironment } from './environments';
 
 loadWorkspaceEnv();
 
@@ -81,6 +81,10 @@ export function definePlaywrightConfig(
     timeout: 60_000,
     expect: { timeout: 10_000 },
     reporter,
+    // Per Phase 0 Step 0.F: every team package's playwright.config.ts
+    // gets globalSetup wired up by default. require.resolve returns the
+    // absolute file path on disk, which Playwright loads at startup.
+    globalSetup: require.resolve('@geowealth/e2e-framework/fixtures/globalSetup'),
     use: {
       baseURL: env.baseUrl,
       actionTimeout: 15_000,
