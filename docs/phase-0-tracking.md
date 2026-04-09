@@ -26,6 +26,7 @@
 | 0.C | POC env-var refactor | **Done** |
 | 0.D | Credential rotation | **DEFERRED** (D-11 OPEN, target ≤ 90 days; see Step 0.D defer note below) |
 | 0.E | Git history secrets audit | **Done** (D-20 = ACCEPT; see audit report) |
+| 0.F | Framework foundational layer | **Done** |
 | 0.D | Credential rotation (with sandbox dry-run) | Pending |
 | 0.E | Git history audit + rewrite-vs-accept | Pending |
 | 0.F | Framework foundational layer | Pending |
@@ -369,6 +370,56 @@ See `docs/phase-0-step-0-E-secrets-audit.md` for the full report. Headline:
 - ✅ Step 0.E `account-billing/_helpers.js` fix validated: `C25193` and the rest of the account-billing area passed.
 - ✅ TestRail Run 175 reset to a known-good post-refactor baseline. The previous mid-refactor pollution from `b99m6cgnr` / `bi2tyf2ve` has been overwritten with current-state results.
 - ⏸️ The two pre-existing merge-prospect failures are tracked as legacy POC tech debt; they will be addressed in Phase 4 / Phase 5 when those specs are migrated.
+
+---
+
+## Step 0.F — Framework foundational layer
+
+**Done.** First commit with new framework code under `packages/framework/src/`. Implements only what the walking skeleton (Step 0.0) needs to consume; the full Component library, API client, and TestRail reporter are deferred to Phase 2 per the proposal.
+
+### Files written
+
+| Path | Purpose |
+|---|---|
+| `packages/framework/src/config/environments.ts` | Typed env definitions (qa1–qa10, qatrd) with `selectEnvironment()`, `assertNotProduction()` (D-09), and `EnvironmentConfig` interface that bakes in the Step 0.0 reconnaissance findings: `loginHashRoute = /#login/`, `postLoginHashRoute = /#(platformOne\|dashboard)/` (D-45). |
+| `packages/framework/src/config/dotenv-loader.ts` | TypeScript / ESM dotenv-flow wrapper for the workspace root. Resolves the workspace root via `path.resolve(__dirname, '..', '..', '..', '..')` from `packages/framework/src/config/`. Idempotent. |
+| `packages/framework/src/config/playwright.ts` | `definePlaywrightConfig()` — the function every per-team `playwright.config.ts` calls. Phase 0 reporter list = `[['list'], ['html', { open: 'never' }]]`; conditionally appends the framework's TestRail reporter when `TESTRAIL_REPORTING=on`, guarded by a try/catch so Phase 0 doesn't fail on the missing module. Default `use.storageState` points at workspace-root `<WORKSPACE_ROOT>/.auth/tim1.json` per D-41. |
+| `packages/framework/src/config/index.ts` | Public re-export for `@geowealth/e2e-framework/config`. |
+| `packages/framework/src/fixtures/globalSetup.ts` | Logs `tim1` once and writes the storage state. Mirrors the legacy POC's pattern but reads credentials exclusively from `process.env`. Uses the typed environment selector. Tim1 lands on `#platformOne` per D-45 (the `postLoginHashRoute` regex tolerates either route). |
+| `packages/framework/src/fixtures/auth.fixture.ts` | `tim1StorageState` worker-scoped fixture with **freshness re-validation** (R-14, R-25 mitigation). Phase 0 implementation: file-mtime gated; throws clearly when stale. Phase 1 will swap the throw for an in-fixture re-login through the framework API client. |
+| `packages/framework/src/fixtures/base.ts` | `mergeTests(authFixtures)` — composed `test`/`expect`. Phase 2 will layer firm / worker-firm / api / page fixtures here. |
+| `packages/framework/src/fixtures/index.ts` | Public re-export for `@geowealth/e2e-framework/fixtures`. |
+| `packages/framework/src/index.ts` | Top-level public surface — `definePlaywrightConfig`, `selectEnvironment`, `environments`, `test`, `expect`, `STORAGE_STATE_PATH`, types. |
+| `packages/framework/src/{pages,components,api,reporters,helpers,types}/index.ts` | Empty `export {}` stubs. Required by D-36 because the `exports` field in `package.json` declares all subpaths up front; Node refuses subpath imports whose target file does not exist. Phase 2 fills these. |
+
+### tsconfig change
+
+`packages/framework/tsconfig.json` `include` switched from `[]` to `["src/**/*.ts"]`. The `files: []` line was removed (it was conflicting with the new include).
+
+### Workspace dependency added
+
+`@types/node` `~20.0.0` added to the workspace root `devDependencies`. Required for `node:fs`, `node:path`, `node:url`, `process`, `require` symbols in the new TypeScript framework code. Without it, the first `tsc --noEmit` after writing the new files surfaced ~13 missing-symbol errors.
+
+### Verification
+
+| Check | Result |
+|---|---|
+| `npm install` clean | ✅ |
+| `npm run typecheck` (framework + tooling) | ✅ green |
+| `npm run lint` | ✅ 0 errors, 13 warnings (same count as Step 0.E — all pre-existing legacy POC tech debt) |
+
+### Notes for Step 0.G (next)
+
+Step 0.G is the scaffold templates first, bootstrap-from-templates flow:
+
+1. `packages/tooling/src/substitute.ts` — single substitution function used by both Phase 0 manual expansion and the future Phase 1 scaffold script (D-34, no drift possible).
+2. `packages/tooling/templates/team/` — eight enumerated templates (`package.json.tpl`, `tsconfig.json.tpl`, `playwright.config.ts.tpl`, `README.md.tpl`, `tests/smoke/dashboard.spec.ts.tpl`, `tests/regression/.gitkeep.tpl`, `src/pages/.gitkeep.tpl`, `.auth/.gitignore.tpl`, `.gitignore.tpl`).
+3. `packages/tooling/scripts/expand-templates.ts` — generation script.
+4. `packages/tooling/scripts/verify-bootstrap-vs-templates.ts` — diff-the-bootstrap-against-templates parity check.
+5. Generate `packages/tests-billing-servicing/` from the templates with `slug=billing-servicing`.
+6. The walking-skeleton spec at `packages/tests-billing-servicing/tests/smoke/dashboard.spec.ts` consumes the framework's `authenticatedPage` fixture and asserts `getByRole('heading', { name: 'Operations' })` per Step 0.0 reconnaissance + D-46.
+
+This is the first time the new framework's foundational layer (Step 0.F) is **actually consumed** by a test. End-to-end smoke green proves the whole Phase 0 stack works.
 
 ---
 

@@ -251,6 +251,58 @@ exactly. The refactored credentials path was exercised across all 64
 passing specs. TestRail Run 175 is now reset to a known-good post-
 refactor baseline.
 
+### Phase 0 Step 0.F — framework foundational layer
+
+First commit with new framework code under `packages/framework/src/`.
+Implements only what the walking skeleton (Step 0.0) needs to consume;
+the full Component library, API client, factories, and TestRail
+reporter are deferred to Phase 2 per the proposal.
+
+**New files** (10 source files + 6 stub index files):
+- `src/config/environments.ts` — typed env definitions for qa1..qa10
+  and qatrd; `selectEnvironment()`, `assertNotProduction()` (D-09);
+  bakes in Step 0.0 reconnaissance findings (`postLoginHashRoute =
+  /#(platformOne|dashboard)/` per D-45).
+- `src/config/dotenv-loader.ts` — TypeScript / ESM dotenv-flow wrapper;
+  resolves the workspace root from this file's location; idempotent.
+- `src/config/playwright.ts` — `definePlaywrightConfig()`. Phase 0
+  reporter list is `[['list'], ['html', { open: 'never' }]]`;
+  conditionally appends the framework TestRail reporter when
+  `TESTRAIL_REPORTING=on`, guarded by try/catch so Phase 0 doesn't
+  fail on the missing module. Default `use.storageState` points at
+  workspace-root `<WORKSPACE_ROOT>/.auth/tim1.json` (D-41).
+- `src/config/index.ts` — public re-export.
+- `src/fixtures/globalSetup.ts` — logs `tim1` once and writes the
+  storage state. Reads credentials exclusively from `process.env`.
+  Uses the typed environment selector. Default lands on `#platformOne`
+  per D-45; tolerates `#dashboard` for advisor users.
+- `src/fixtures/auth.fixture.ts` — `tim1StorageState` worker-scoped
+  fixture with freshness re-validation (R-14, R-25 mitigation). Phase
+  0: file-mtime gated; throws when stale. Phase 1 will swap the throw
+  for an in-fixture re-login through the framework API client.
+- `src/fixtures/base.ts` — `mergeTests(authFixtures)` composing
+  `test`/`expect`. Phase 2 will layer firm/api/page fixtures here.
+- `src/fixtures/index.ts` — public re-export.
+- `src/index.ts` — top-level public surface.
+- `src/{pages,components,api,reporters,helpers,types}/index.ts` —
+  empty `export {}` stubs so Node's resolver does not reject subpath
+  imports declared in the `package.json` `exports` field (D-36).
+  Phase 2 fills these.
+
+**Changed**:
+- `packages/framework/tsconfig.json` — `include` switched from `[]`
+  to `["src/**/*.ts"]`; the conflicting `files: []` line removed.
+- `package.json` (workspace root) — `@types/node ~20.0.0` added to
+  `devDependencies`. Required for `node:*` modules and `process` /
+  `require` symbols in the new TypeScript framework code.
+
+**Verified**:
+- `npm install` clean.
+- `npm run typecheck` green (framework + tooling tsconfigs).
+- `npm run lint` 0 errors, 13 warnings (same count as Step 0.E — all
+  pre-existing legacy POC tech debt; framework files contribute zero
+  warnings after removing premature `eslint-disable` directives).
+
 ## [0.1.0] — Phase 0 entry — 2026-04-09
 
 Initial monorepo skeleton. Phase 0 in progress — see `docs/phase-0-tracking.md`

@@ -9,6 +9,5 @@
       "@geowealth/e2e-framework/*": ["./src/*"]
     }
   },
-  "include": [],
-  "files": []
+  "include": ["src/**/*.ts"]
 }
