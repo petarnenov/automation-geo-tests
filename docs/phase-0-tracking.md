@@ -28,6 +28,7 @@
 | 0.E | Git history secrets audit | **Done** (D-20 = ACCEPT; see audit report) |
 | 0.F | Framework foundational layer | **Done** |
 | 0.G | Scaffold templates + bootstrap-from-templates | **Done** ✅ walking skeleton green end-to-end against qa2 |
+| 0.H | Confluence, tracking, target environment | **Done** (substituted in solo phase per Phase −1 record) |
 | 0.D | Credential rotation (with sandbox dry-run) | Pending |
 | 0.E | Git history audit + rewrite-vs-accept | Pending |
 | 0.F | Framework foundational layer | Pending |
@@ -525,6 +526,81 @@ Step 0.H is the smallest of Phase 0:
 3. Set `TEST_ENV=qa2` as the default — already done in `.env.local` and in the framework's `selectEnvironment()` default.
 
 In effect, Step 0.H is fully accomplished by side-effects of the earlier steps. Phase 0 (partial — D-11 deferred) exits after this step is formally checked off.
+
+---
+
+## Step 0.H — Confluence, tracking, target environment
+
+**Done** by side-effects of the earlier steps:
+
+| Plan requirement | Solo-phase substitute (per Phase −1 record) |
+|---|---|
+| Confluence space for living documentation | `docs/` directory in this repository. Will be migrated to a real Confluence space if/when a corporate workspace becomes available. |
+| Phase 0 tracking issue with exit-criteria checklist | `docs/phase-0-tracking.md` (this file) — maintained continuously since Step 0.0. |
+| `TEST_ENV=qa2` default | Set in workspace-root `.env.local` (Step 0.C) AND in framework's `selectEnvironment()` default fallback (`packages/framework/src/config/environments.ts`, Step 0.F). |
+| qa2 stability fallback (D-23) | `TEST_ENV=qa3` is a one-line environment override; framework's `environments.qa3` is fully wired. |
+
+No new files; no new commits required for Step 0.H itself.
+
+---
+
+## Phase 0 — Exit verification
+
+**Status: Phase 0 (partial) — D-11 deferred. Exiting to Phase 1.**
+
+### Phase 0 exit criteria (from Section 6.2)
+
+- [x] Zero committed secrets verified by audit (Step 0.E `grep` + `git log -S` audit; `detect-secrets` install deferred to Phase 1).
+- [x] `npm run lint`, `tsc --noEmit`, and the walking-skeleton spec all green locally.
+- [x] Existing legacy POC specs still pass unchanged (`allowJs` regression check + 70 tests in 65 files discovery + 64-passed regression run).
+- [ ] **Security has confirmed credential rotation in writing.** ❌ Not met — Step 0.D deferred. D-11 OPEN with target ≤ 90 days from 2026-04-09. Risks R-07 / R-16 elevated until D-11 closes.
+
+Three of four exit criteria met; the fourth requires D-11 execution, which is gated on the Program Owner having both rotation authority on qa2/qa3 and a quiet window for the credential change. Per the Decision Register Phase Index, D-11 does **not** strictly block Phase 1 entry (only D-03 secret store and D-20 history audit decision do), so Phase 1 can proceed with Phase 0 partially closed.
+
+### What Phase 0 actually delivered
+
+| Step | Status | Commit |
+|---|---|---|
+| 0.0 — Walking-skeleton selector reconnaissance | ✅ Done | `d13c394` |
+| 0.A — Workspace bootstrap | ✅ Done | `87089eb` |
+| 0.B — POC pure rename | ✅ Done | `15e0bc5` |
+| 0.B post-incident — workspace passthrough fix | ✅ Done | `2fe5b41` |
+| 0.C — POC env-var refactor | ✅ Done | `348988d` |
+| 0.D — Credential rotation | ⏸️ DEFERRED (D-11 OPEN) | — |
+| 0.E — Git history secrets audit + Step 0.D defer | ✅ Done (D-20 ACCEPT) | `dc1cf9a` |
+| 0.F — Framework foundational layer | ✅ Done | `81399b7` |
+| 0.G — Scaffold templates + bootstrap-from-templates | ✅ Done (walking skeleton green) | `b5e2837` |
+| 0.H — Confluence, tracking, target environment | ✅ Done (this commit) | (this commit) |
+
+### Phase 0 → Phase 1 entry checklist
+
+| Decision Register Phase Index requires | State |
+|---|---|
+| D-03 Secret store namespace populated | OPEN — defaults to GitHub Secrets per Phase −1 record; will be provisioned in Phase 1 alongside CI platform |
+| D-20 History rewrite/accept decision | ✅ DECIDED — ACCEPT (Step 0.E) |
+
+D-03 is OPEN but is itself a Phase 1 deliverable (CI platform + secret store provisioning happen together at the start of Phase 1). Phase 1 can begin.
+
+### Phase 0 — Lessons learned (for the Phase 1 team to absorb)
+
+1. **Step 0.0 selector recon is worth its weight in gold.** It surfaced D-45 / D-46 (the `#platformOne` landing route + the `<h4>` menu structure) before any code was written, and even though D-46 was later corrected by D-48 (the `<h1>` welcome heading), the recon was the cheapest way to discover that the plan's "guess: `<h1>` matching `/dashboard/i`" was wrong. **Always spend the 30 minutes**.
+
+2. **Module-system pitfalls are real.** Playwright's pirates loader compiles framework files as CJS regardless of `"type": "module"` in `package.json`. The framework cannot use `import.meta.url`, `.js` extensions on internal imports, or top-level await. Recorded as D-49.
+
+3. **Two background tasks accidentally polluted TestRail Run 175** during Step 0.B/C verification because nested `npm run --workspace=...` chains drop additional CLI args silently. The post-incident fix rewrote the workspace scripts to invoke `playwright test --config` directly. **Lesson:** any script that posts to a shared destination (TestRail, Slack, S3, etc.) must default to a safe mode and require an explicit flag to enable posting, not the other way around.
+
+4. **D-34 byte-parity verification works.** The `verify-bootstrap-vs-templates.ts` script caught zero drift in Step 0.G, but the ergonomics matter — when D-48 corrected the walking-skeleton selector, the workflow was: edit template → re-generate bootstrap → re-verify → re-run. The verifier is the safety net that lets the cycle stay short.
+
+5. **Latent legacy POC tech debt exists**: 13 lint warnings remain (no-force-option, no-unused-vars, unused eslint-disable) — none introduced by Phase 0 work. They are bounded by the legacy POC's lifetime (deleted at Phase 5 sunset).
+
+6. **Phase 0 took 11 commits across one development session.** Future Phase 1+ work should be commit-per-step where reasonable. The post-incident pattern (one mistake → one fix → one commit) keeps history readable.
+
+### Phase 0 exit verification record
+
+This serves as the Phase 0 → Phase 1 verification artifact per Section 6.10. Walked through the checklist; outcome:
+- **Decision: Phase 1 entry approved**, with D-11 carried as an explicit OPEN-DEFERRED item. R-07 and R-16 remain elevated.
+- **Stakeholder communication**: this section serves as the announcement (no `#qa-alerts` channel exists in solo phase yet — that channel is itself a Phase 1 deliverable).
+- **Phase 1 kickoff**: ready when Program Owner is ready. Phase 1 scope is large (scaffold script CLI + CI bootstrap + reporter port + per-package matrix) and re-sized to L per D-29; recommend not starting it without M3 (second contributor) being at least in active recruitment.
 
 ---
 

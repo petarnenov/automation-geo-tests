@@ -382,6 +382,58 @@ re-ran — green in 19.7s.
 - D-50: `tsx ~4.19.0` added as workspace devDep for running
   TypeScript scripts directly.
 
+### Phase 0 Step 0.H — exit verification (partial)
+
+**Step 0.H itself** is fully accomplished by side-effects of earlier
+steps:
+- Confluence space → `docs/` directory in this repository (Phase −1
+  substitute).
+- Phase 0 tracking issue → `docs/phase-0-tracking.md` (maintained
+  continuously since Step 0.0).
+- `TEST_ENV=qa2` default → set in workspace-root `.env.local` (Step
+  0.C) AND in framework's `selectEnvironment()` default (Step 0.F).
+
+**Phase 0 exits as Phase 0 (partial) — D-11 deferred.** Three of four
+exit criteria met; the fourth requires Step 0.D credential rotation
+which is gated on the Program Owner having rotation authority and a
+quiet window. Per the Decision Register Phase Index, D-11 does not
+strictly block Phase 1 entry — only D-03 (secret store) and D-20
+(history audit decision) do, and both are addressed (D-03 defaults to
+GitHub Secrets, D-20 = ACCEPT).
+
+**Phase 0 verification record**: `docs/phase-verifications/phase-0.md`.
+Lists exit criteria, Phase 1 entry checklist, all decisions confirmed
+during Phase 0, decisions deferred or held OPEN, risks reviewed, and
+the formal Phase 1 approval. Two new risks identified for the next
+monthly risk review:
+
+- R-27 (Playwright pirates loader CJS-only) — mitigated by D-49.
+- R-28 (workspace passthrough scripts drop CLI args) — mitigated by
+  the post-Step-0.B incident fix.
+
+**Phase 1 readiness**:
+- Workspace + framework foundations built. ✅
+- Legacy POC nightly working from new location (70 tests, 64 passed). ✅
+- Walking skeleton green end-to-end against qa2 (19.7s). ✅
+- M3 (second contributor) — not started, explicitly carried as
+  Phase 2 entry gate (NOT Phase 1 entry).
+- D-02 / D-03 — finalize at Phase 1 kickoff.
+
+## [0.1.0] — Phase 0 (partial) exit — 2026-04-09
+
+Phase 0 closed with D-11 deferred. The repository is now an npm
+workspace with:
+- A working framework foundational layer (`@geowealth/e2e-framework`)
+  that can be consumed by per-team packages.
+- A working scaffold templates + bootstrap-from-templates flow
+  (`packages/tooling/scripts/expand-templates.ts`).
+- A bootstrap `tests-billing-servicing` package with a green
+  walking-skeleton spec running end-to-end against qa2.
+- The legacy POC running unchanged from `packages/legacy-poc/` (70
+  tests in 65 files, 64 passed in latest regression).
+
+Phase 1 is approved to start when the Program Owner is ready.
+
 ## [0.1.0] — Phase 0 entry — 2026-04-09
 
 Initial monorepo skeleton. Phase 0 in progress — see `docs/phase-0-tracking.md`
