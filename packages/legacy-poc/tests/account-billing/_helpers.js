@@ -31,7 +31,16 @@ const { setReactDatePicker, setComboBoxValue, setReactNumericInput } = require('
 
 const ADMIN_USERNAME = 'tim106';
 const NON_ADMIN_USERNAME = 'tyler@plimsollfp.com';
-const SHARED_PASSWORD = 'c0w&ch1k3n';
+// Phase 0 Step 0.E discovered this hardcoded copy of the tim1 shared password
+// (Step 0.C grep was scoped to testrail.config references and missed it).
+// All firm advisors and tyler share the same password convention.
+const SHARED_PASSWORD = process.env.TIM1_PASSWORD;
+if (!SHARED_PASSWORD) {
+  throw new Error(
+    'account-billing/_helpers: TIM1_PASSWORD must be set ' +
+      '(workspace-root .env.local or shell). Phase 0 Step 0.E.'
+  );
+}
 
 const CLIENT_UUID = 'A80D472B04874979AAA3D8C3FFE9BD3A';
 const ACCOUNT_UUID = '5588D454741342FBB9AABA8FF17A85EE';

@@ -176,6 +176,81 @@ This proves the entire credentials path is decoupled from the JSON file.
   70 tests in 65 files (unchanged from Step 0.B).
 - End-to-end re-login via refactored global-setup — green.
 
+### Phase 0 post-incident — workspace passthrough scripts fixed
+
+After two background discovery commands accidentally ran the full
+`@pepi` regression suite (because nested `npm run --workspace=...`
+chains drop additional CLI args silently), the workspace root scripts
+in `package.json` were rewritten to invoke `playwright test --config
+packages/legacy-poc/playwright.config.js` directly. New `discover:legacy:pepi`
+script always sets `TESTRAIL_REPORT_RESULTS=0` and `--list` for safe
+read-only discovery. Documented in `docs/phase-0-tracking.md` under
+"Incident report — Step 0.B/C accidental TestRail Run 175 posts".
+
+### Phase 0 Step 0.D — DEFERRED
+
+Credential rotation deferred until the Program Owner has both rotation
+authority on qa2/qa3 and a quiet window for the credential change.
+Target: ≤ 90 days from 2026-04-09 (the D-20 reversal trigger).
+
+D-11 remains OPEN-DEFERRED in the Decision Register. The historical
+credential leak is formally accepted under D-20 (Step 0.E), with the
+binding mitigation being the future D-11 rotation. Risks R-07 and R-16
+remain elevated until D-11 closes.
+
+Phase 0 EXIT criterion "Security has confirmed credential rotation in
+writing" is not met. Phase 0 is therefore exited as **Phase 0 (partial)
+— D-11 deferred**, not Phase 0 (complete). Phase 1 ENTRY does not
+strictly require D-11; only D-03 (secret store) and D-20 (history
+audit decision) per the Decision Register Phase Index. Phase 1 can
+proceed.
+
+### Phase 0 Step 0.E — git history secrets audit
+
+Performed manually with `grep` + `git log -S 'c0w&ch1k3n'` after
+`detect-secrets` install was blocked in the solo phase (PEP 668 +
+`python3-venv` not installed). Full report in
+`docs/phase-0-step-0-E-secrets-audit.md`.
+
+**Findings**:
+- Working-tree audit found **one Step 0.C miss**: hardcoded
+  `SHARED_PASSWORD = 'c0w&ch1k3n'` in
+  `packages/legacy-poc/tests/account-billing/_helpers.js:34`. Step 0.C
+  grep was scoped to `testrail.config` references and missed it.
+  Fixed in this commit: refactored to read from
+  `process.env.TIM1_PASSWORD` with a fail-fast check.
+- Working-tree broader sweep: zero additional hits.
+- Git history: three commits touched the secret literal:
+  `978b222` (introduced JSON), `d39b03d` (introduced `_helpers.js`),
+  `348988d` (Step 0.C removal from JSON).
+
+**Decision D-20**: ACCEPT the historical exposure. Rationale: internal-
+only single-author repo, rotation is the binding mitigation, full repo
+rewrite is too disruptive for the marginal benefit. Reversal triggers
+documented in the audit report (external access, compliance review,
+rotation > 90 days, mirror/fork).
+
+**`detect-secrets` install** is deferred to Phase 1 — added as a
+follow-up item. The grep-based audit is appropriate for the legacy
+POC's small surface area but is not as thorough as `detect-secrets`
+would be against high-entropy strings.
+
+### Post-Step-0.C / 0.E regression run
+
+`npm run test:legacy:pepi` ran end-to-end against qa3 in 11.9 minutes
+and posted 68 results to TestRail Run 175. Final state:
+
+- 64 passed
+- 2 failed (`merge-prospect/C26057`, `C26082` — both pre-existing
+  flaky merge-prospect smoke specs, NOT regressions from the refactor)
+- 1 flaky (`account-billing/C25200` — passed on retry)
+- 3 skipped (auto-link `test.fixme` set)
+
+Pass rate **97%** (64/66), matching the pre-Step-0.B baseline pattern
+exactly. The refactored credentials path was exercised across all 64
+passing specs. TestRail Run 175 is now reset to a known-good post-
+refactor baseline.
+
 ## [0.1.0] — Phase 0 entry — 2026-04-09
 
 Initial monorepo skeleton. Phase 0 in progress — see `docs/phase-0-tracking.md`

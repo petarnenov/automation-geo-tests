@@ -24,6 +24,8 @@
 | 0.A | Workspace bootstrap | **Done** |
 | 0.B | POC relocation | **Done** |
 | 0.C | POC env-var refactor | **Done** |
+| 0.D | Credential rotation | **DEFERRED** (D-11 OPEN, target ≤ 90 days; see Step 0.D defer note below) |
+| 0.E | Git history secrets audit | **Done** (D-20 = ACCEPT; see audit report) |
 | 0.D | Credential rotation (with sandbox dry-run) | Pending |
 | 0.E | Git history audit + rewrite-vs-accept | Pending |
 | 0.F | Framework foundational layer | Pending |
@@ -312,16 +314,61 @@ The TestRail Run 175 currently reflects two ad-hoc runs from the middle of Step 
 
 The unintentional runs were *legitimate*, so neither option is strictly necessary. Documenting the incident here is the actual deliverable.
 
-### Notes for Step 0.D (next)
+### Step 0.D — DEFERRED
 
-Step 0.D is the credential rotation:
-1. **Sandbox dry-run first** (Section 6.14, plus Phase −1 record's documented caveat that the Program Owner is also the acting Security counterpart — there is no separate Security team in the solo phase).
-2. Rotate the actual `tim1` credentials in the GeoWealth UI (or via whatever credential authority qa3 / qa2 honors).
-3. Update `.env.local` with the new password.
-4. Re-run the end-to-end re-login check.
-5. Verify nightly POC discovery still passes against the new credentials.
+Per the Program Owner decision after Step 0.C: Step 0.D is **deferred until the Program Owner has both rotation authority on qa2/qa3 and a quiet window for the credential change**. Target: ≤ 90 days from 2026-04-09 (the D-20 reversal trigger). D-11 remains OPEN.
 
-The **threat model after Step 0.C** is: the *previous* `tim1` password is no longer in any tracked file in the working tree, but it remains in git history (in `testrail.config.json` before the strip commit). Step 0.E will run `detect-secrets` against the full history and Decision **D-20** records whether to rewrite history or formally accept the leak (the rotated credentials make the historical leak harmless).
+**Why deferred (not skipped):**
+- The solo phase has no separate Security counterpart. The Program Owner self-acknowledged the role in the Phase −1 ratification record.
+- `tim1` is a shared credential (every `timN` advisor across firms uses the same password). Rotating it impacts manual testers and any other tooling that authenticates as `timN` against qa2/qa3, which is multi-stakeholder coordination outside QA Automation's reach in solo phase.
+- Real rotation requires logging into the GeoWealth UI as a GW admin and changing the password in user management. The agent executing this plan cannot perform interactive UI flows; only the Program Owner can.
+
+**What Phase 0 looks like without 0.D done:**
+- Phase 0 EXIT criterion "Security has confirmed credential rotation in writing" is **not met**. Phase 0 is therefore exited as **Phase 0 (partial) — D-11 deferred**, not Phase 0 (complete).
+- Phase 1 ENTRY does not strictly require D-11 (the Decision Register Phase Index lists only D-03 and D-20 as Phase 0 → Phase 1 blockers). Phase 1 can proceed.
+- The historical credential leak is **formally accepted** under D-20 (Step 0.E decision), with reversal triggers documented.
+- Until D-11 closes, the leaked credential value remains live. Risks R-07 (score 15) and R-16 (score 12) stay elevated. Both are owned by the Program Owner.
+
+**When the Program Owner is ready to execute D-11:**
+1. Sandbox dry-run against a throwaway TestRail user + dummy firm admin.
+2. Coordinate with any other consumers of the shared `tim*` password.
+3. Rotate the credential in the GeoWealth UI (or via whatever credential authority qa2/qa3 honors).
+4. Update workspace-root `.env.local` with the new password.
+5. Re-run `cd packages/legacy-poc && rm -f tests/.auth/tim1.json && node -e "require('./load-env'); require('./tests/_helpers/global-setup')()"` for the end-to-end verification.
+6. Run `npm run test:legacy:pepi` for the full regression check (overwrites Run 175 with post-rotation results).
+7. Update D-11 to DECIDED in the proposal Decision Register.
+
+---
+
+### Step 0.E — Git history secrets audit (Done)
+
+See `docs/phase-0-step-0-E-secrets-audit.md` for the full report. Headline:
+
+- **Working-tree audit found one Step 0.C miss**: `packages/legacy-poc/tests/account-billing/_helpers.js:34` had a hardcoded `SHARED_PASSWORD = 'c0w&ch1k3n'`. Step 0.C grep was scoped to `testrail.config` references and missed it. This file is fixed in the same commit as the audit report (`SHARED_PASSWORD = process.env.TIM1_PASSWORD` with fail-fast check).
+- **Working-tree broader sweep**: zero additional hits.
+- **Git history scan** (`git log -S 'c0w&ch1k3n'`): three commits touched the secret (`978b222` introduced JSON, `d39b03d` introduced `_helpers.js`, `348988d` removed JSON in Step 0.C).
+- **Decision D-20**: ACCEPT the historical exposure. Rationale and reversal triggers in the audit report.
+- **`detect-secrets` install**: deferred to Phase 1 — system Python tooling unavailable in solo phase (PEP 668 + `python3-venv` not installed). Manual `grep` audit used as the equivalent for the legacy POC's small surface area.
+
+### Regression run after Step 0.C / 0.E
+
+`npm run test:legacy:pepi` ran end-to-end against qa3 after the Step 0.C / Step 0.E / post-incident commits. Wall time **11.9 minutes**, **68 results posted to TestRail Run 175** (auth=password).
+
+| Category | Count | Notes |
+|---|---|---|
+| Passed | **64** | All `account-billing/`, `billing-specs/`, `bucket-exclusions/`, `create-account/`, `unmanaged-assets/` (incl. validation) — every spec that exercises the refactored helpers (`global-setup`, `qa3`, `worker-firm`, `account-billing/_helpers`). |
+| Failed | **2** | `platform-one/merge-prospect/C26057`, `C26082` — both **known pre-existing flaky** merge-prospect smoke specs (C26082 also failed in the Step 0.C smoke verification run `bx0q7emj6`, which used pre-Step-0.E code). Not regressions caused by Step 0.B/0.C/0.E. |
+| Flaky (passed on retry) | **1** | `account-billing/C25200` — pre-existing, not introduced by the refactor. |
+| Skipped | **3** | `platform-one/auto-link/` `test.fixme` set (Phase 5 unblock target). |
+| **Total** | **70** | Matches discovery count. |
+
+**Pass rate: 64/(64+2) = 97%.** Slightly under the ≥98% Section 9 KPI target, but the failure pattern is **identical to pre-Step-0.B baseline** — same two specs, same root cause (merge-prospect Site 1 / Site 61 SR processing flake). No regression introduced by Steps 0.B / 0.C / 0.E.
+
+**Verdicts:**
+- ✅ Step 0.C env-var refactor end-to-end validated under real Playwright conditions: every helper that reads `process.env.TIM1_*` worked correctly across 64 specs.
+- ✅ Step 0.E `account-billing/_helpers.js` fix validated: `C25193` and the rest of the account-billing area passed.
+- ✅ TestRail Run 175 reset to a known-good post-refactor baseline. The previous mid-refactor pollution from `b99m6cgnr` / `bi2tyf2ve` has been overwritten with current-state results.
+- ⏸️ The two pre-existing merge-prospect failures are tracked as legacy POC tech debt; they will be addressed in Phase 4 / Phase 5 when those specs are migrated.
 
 ---
 
