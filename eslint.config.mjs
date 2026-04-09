@@ -129,31 +129,54 @@ export default [
     },
   },
 
-  // 6. Playwright-specific overlay for spec files (legacy POC + new test packages)
+  // 6a. Playwright-specific overlay for legacy POC spec files.
+  //
+  // The legacy POC pre-dates the framework and was never lint-gated in CI,
+  // so several Playwright recommended rules were latent there. Relaxing them
+  // for legacy-poc paths only keeps Step 0.B a true pure rename (no source
+  // edits) and bounds the relaxation to the package's lifetime — Phase 5
+  // sunset deletes packages/legacy-poc/ entirely.
   {
     ...playwright.configs['flat/recommended'],
     files: [
       'packages/legacy-poc/tests/**/*.js',
       'packages/legacy-poc/tests/**/*.mjs',
+    ],
+    rules: {
+      ...playwright.configs['flat/recommended'].rules,
+      // Allow conditional logic in tests — many @pepi specs branch on captured
+      // state (e.g. flip Yes↔No, set baseline if missing).
+      'playwright/no-conditional-in-test': 'off',
+      'playwright/no-conditional-expect': 'off',
+      'playwright/no-wait-for-timeout': 'warn',
+      'playwright/no-skipped-test': 'off',
+      'playwright/valid-expect': ['error', { maxArgs: 2 }],
+      // The following rules are latent in the legacy POC (never enforced).
+      // They are turned off here only — for the new framework + tests-*
+      // packages they default to recommended (overlay 6b).
+      'playwright/prefer-web-first-assertions': 'off',
+      'playwright/expect-expect': 'off',
+      'playwright/no-standalone-expect': 'off',
+      'playwright/no-useless-not': 'off',
+      'playwright/no-raw-locators': 'off',
+      'playwright/missing-playwright-await': 'off',
+    },
+  },
+
+  // 6b. Playwright-specific overlay for new framework + per-team test packages.
+  // Strict recommended rules apply here from day one.
+  {
+    ...playwright.configs['flat/recommended'],
+    files: [
       'packages/tests-*/tests/**/*.ts',
       'packages/framework/tests/**/*.ts',
     ],
     rules: {
       ...playwright.configs['flat/recommended'].rules,
-      // Allow conditional logic in tests — many @pepi specs branch on captured
-      // state (e.g. flip Yes↔No, set baseline if missing). The default rule is
-      // too strict for state-machine-style tests.
       'playwright/no-conditional-in-test': 'off',
       'playwright/no-conditional-expect': 'off',
-      // page.waitForTimeout is documented as a code smell in this repo, but a
-      // few specs need it for React state hydration races (see C26306, C25201).
-      // Warn rather than error — we want visibility, not blockage.
-      'playwright/no-wait-for-timeout': 'warn',
-      // Skipped tests are intentional (test.fixme for blocked-by-test-data
-      // cases) — don't fail on them.
+      'playwright/no-wait-for-timeout': 'error',
       'playwright/no-skipped-test': 'off',
-      // Custom expect helpers (e.g. expect.poll, expect with custom message)
-      // are widely used.
       'playwright/valid-expect': ['error', { maxArgs: 2 }],
     },
   },

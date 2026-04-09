@@ -15,11 +15,11 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "typecheck": "tsc -p packages/framework/tsconfig.json --noEmit && tsc -p packages/tooling/tsconfig.json --noEmit",
-    "_comment_legacy_scripts_": "Until Step 0.B relocates the POC into packages/legacy-poc/, the workspace root keeps the POC's npm scripts directly. Step 0.B will replace these with --workspace=@geowealth/legacy-poc passthroughs.",
-    "test": "playwright test",
-    "test:pepi": "playwright test --grep @pepi",
-    "test:pepi:dry": "TESTRAIL_REPORT_RESULTS=0 playwright test --grep @pepi",
-    "report": "playwright show-report"
+    "test": "npm run test --workspace=@geowealth/legacy-poc",
+    "test:legacy": "npm run test --workspace=@geowealth/legacy-poc",
+    "test:legacy:pepi": "npm run test:pepi --workspace=@geowealth/legacy-poc",
+    "test:legacy:pepi:dry": "npm run test:pepi:dry --workspace=@geowealth/legacy-poc",
+    "report:legacy": "npm run report --workspace=@geowealth/legacy-poc"
   },
   "devDependencies": {
     "@eslint/js": "~10.0.1",

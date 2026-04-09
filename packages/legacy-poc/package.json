@@ -2,8 +2,11 @@
   "name": "@geowealth/legacy-poc",
   "version": "0.1.0",
   "private": true,
-  "description": "Placeholder for the existing automation-geo-tests POC. Step 0.B replaces this file with the relocated POC content.",
+  "description": "GeoWealth E2E legacy POC — relocated from the repo root in Phase 0 Step 0.B. Continues to deliver TestRail Run 175 results until Phase 5 sunset (D-13, D-35).",
   "scripts": {
-    "_phase-0-placeholder": "echo 'legacy-poc placeholder; real content lands in Phase 0 Step 0.B' && exit 0"
+    "test": "playwright test",
+    "test:pepi": "playwright test --grep @pepi",
+    "test:pepi:dry": "TESTRAIL_REPORT_RESULTS=0 playwright test --grep @pepi",
+    "report": "playwright show-report"
   }
 }

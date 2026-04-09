@@ -57,6 +57,53 @@ every workspace package (D-27). One bump → all packages.
 - `npx playwright test --list --grep @pepi` discovers 70 tests in 65 files —
   POC test resolution works unchanged from the workspace root.
 
+### Phase 0 Step 0.B — POC pure rename into `packages/legacy-poc/`
+
+**Moved** (`git mv`, history preserved):
+- `tests/` → `packages/legacy-poc/tests/`
+- `reporters/` → `packages/legacy-poc/reporters/`
+- `scripts/` → `packages/legacy-poc/scripts/`
+- `playwright.config.js` → `packages/legacy-poc/playwright.config.js` (D-31, kept `.js`)
+- `testrail.config.json` → `packages/legacy-poc/testrail.config.json`
+- `pepi-cases.json` → `packages/legacy-poc/pepi-cases.json` (referenced from
+  `scripts/list-pepi-cases.js`)
+
+**Replaced**:
+- `packages/legacy-poc/package.json` — Step 0.A placeholder replaced with
+  the POC's real npm scripts (`test`, `test:pepi`, `test:pepi:dry`,
+  `report`). Per D-43 hoist policy, zero `devDependencies` — everything
+  is hoisted from the workspace root.
+- `packages/legacy-poc/README.md` — placeholder text replaced with real
+  scope, hoist policy, and end-of-life documentation.
+
+**Workspace root changes** (not source edits, just rerouting):
+- `package.json` scripts: removed direct `playwright test` invocations,
+  added `--workspace=@geowealth/legacy-poc` passthroughs (`test`,
+  `test:legacy`, `test:legacy:pepi`, `test:legacy:pepi:dry`, `report:legacy`).
+- `.gitignore` updated to use `**/` patterns (`**/.auth/`,
+  `**/playwright-report/`, `**/test-results/`, `**/.playwright-mcp/`)
+  so the gitignore matches the new locations under `packages/legacy-poc/`.
+- `eslint.config.mjs` Playwright overlay split into two scopes:
+  - **6a** for `packages/legacy-poc/tests/**/*.js` — relaxed rules
+    (`prefer-web-first-assertions`, `expect-expect`,
+    `no-standalone-expect`, `no-useless-not`, `no-raw-locators`,
+    `missing-playwright-await` all turned off) because the legacy POC
+    was never lint-gated in CI and these rules surfaced ~40 latent
+    issues during the relocation. The relaxation is bounded: Phase 5
+    sunset deletes `packages/legacy-poc/`.
+  - **6b** for `packages/tests-*/tests/**/*.ts` and
+    `packages/framework/tests/**/*.ts` — strict recommended rules
+    enforced from day one for new code.
+
+**Verification**:
+- `git mv` (history preserved on every move).
+- `npm install` clean.
+- `npm run typecheck` green.
+- `npm run lint` 0 errors, 13 warnings (all latent legacy POC tech debt).
+- `cd packages/legacy-poc && npx playwright test --list --grep @pepi`
+  discovers **70 tests in 65 files** — identical to Step 0.A discovery,
+  confirming pure rename.
+
 ## [0.1.0] — Phase 0 entry — 2026-04-09
 
 Initial monorepo skeleton. Phase 0 in progress — see `docs/phase-0-tracking.md`

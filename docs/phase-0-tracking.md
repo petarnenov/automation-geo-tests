@@ -22,7 +22,7 @@
 |---|---|---|
 | 0.0 | Walking-skeleton selector reconnaissance | **Done** |
 | 0.A | Workspace bootstrap | **Done** |
-| 0.B | POC relocation | Pending |
+| 0.B | POC relocation | **Done** |
 | 0.C | POC env-var refactor | Pending |
 | 0.D | Credential rotation (with sandbox dry-run) | Pending |
 | 0.E | Git history audit + rewrite-vs-accept | Pending |
@@ -142,6 +142,76 @@ Step 0.B relocates the POC into `packages/legacy-poc/` as a **pure rename**:
 - `testrail.config.json` → `packages/legacy-poc/testrail.config.json`
 
 The Step 0.B PR contains **only** moves and the new `legacy-poc/package.json` (which absorbs the legacy scripts: `test`, `test:pepi`, `test:pepi:dry`, `report`). The workspace root's `test*` scripts then become passthroughs (`npm run test --workspace=@geowealth/legacy-poc`).
+
+---
+
+## Step 0.B — POC relocation
+
+**Done.** Pure `git mv` of all POC content into `packages/legacy-poc/`. Workspace root scripts repointed via `--workspace=@geowealth/legacy-poc` passthrough. POC discovery still finds the same 70 tests in 65 files, this time from the new location.
+
+### Moves performed (`git mv`, history preserved)
+
+| From (root) | To |
+|---|---|
+| `tests/` | `packages/legacy-poc/tests/` |
+| `reporters/` | `packages/legacy-poc/reporters/` |
+| `scripts/` | `packages/legacy-poc/scripts/` (the Step 0.0 `phase-0-selector-recon.js` rode along) |
+| `playwright.config.js` | `packages/legacy-poc/playwright.config.js` (kept as `.js` per D-31) |
+| `testrail.config.json` | `packages/legacy-poc/testrail.config.json` |
+| `pepi-cases.json` | `packages/legacy-poc/pepi-cases.json` (referenced from `scripts/list-pepi-cases.js` via `__dirname/..`) |
+
+### Files left at workspace root (workspace-wide concerns, not POC-specific)
+
+- `package.json` (workspace) — scripts repointed to `--workspace=@geowealth/legacy-poc` passthroughs
+- `package-lock.json` (single workspace lockfile per D-43)
+- `tsconfig.base.json`, `eslint.config.mjs`, `.eslintrc.legacy-areas.json`
+- `.nvmrc`, `.env.example`, `CODEOWNERS`
+- `.prettierrc.json`, `.prettierignore` (workspace Prettier config; consistent with `eslint.config.mjs` living at root)
+- `.gitignore` (updated: `tests/.auth/` → `**/.auth/`, plus `**/playwright-report/`, `**/test-results/`, `**/.playwright-mcp/` to match the new location)
+
+### Replaced files
+
+| Path | Replacement |
+|---|---|
+| `packages/legacy-poc/package.json` | Was a Step 0.A placeholder. Now declares the POC's npm scripts (`test`, `test:pepi`, `test:pepi:dry`, `report`). Per D-43 hoist policy: zero `devDependencies` — everything is hoisted from the workspace root. |
+| `packages/legacy-poc/README.md` | Updated from the Phase 0 placeholder text to a real README documenting scope, hoist policy, and end-of-life. |
+
+### Lint scope correction (config, not source — preserves "pure rename")
+
+The relocation moved `tests/...` files into `packages/legacy-poc/tests/...` for the first time. Step 0.A's `eslint.config.mjs` had a Playwright overlay scoped to `packages/legacy-poc/tests/**/*.js` — meaning that pre-relocation, the legacy POC's spec files **never matched the overlay** (they were at root) and Playwright recommended rules were not actually enforced. Step 0.B's relocation triggered the overlay for the first time, surfacing 1 latent error and ~40 latent warnings.
+
+The error was `playwright/prefer-web-first-assertions` on `tests/billing-specs/C25084.spec.js:115` — a legitimate exception (the spec needs the value of an attribute for downstream logic, which web-first assertions cannot return).
+
+Fix applied (config only, no source edits):
+- Split the Playwright overlay into two: **6a** for `packages/legacy-poc/tests/**/*.js` (legacy POC, latent rules disabled) and **6b** for `packages/tests-*/tests/**/*.ts` and `packages/framework/tests/**/*.ts` (new code, strict from day one).
+- Disabled in legacy POC overlay only: `prefer-web-first-assertions`, `expect-expect`, `no-standalone-expect`, `no-useless-not`, `no-raw-locators`, `missing-playwright-await`.
+- All other Playwright rules remain enforced. The new framework + tests-* packages get strict recommended rules from day one (overlay 6b).
+
+This relaxation is **bounded**: the legacy POC is deleted at Phase 5 sunset, so the looser overlay disappears with it.
+
+### Recon script after relocation
+
+`packages/legacy-poc/scripts/phase-0-selector-recon.js` is now at the new path. Its `path.resolve(__dirname, '..')` resolves to `packages/legacy-poc/`, where `testrail.config.json` now lives — credential loading still works. However, its `OUTPUT_MD` path resolves to `packages/legacy-poc/docs/phase-0-selector-recon-output.md`, not the workspace-root `docs/`, so re-running it post-Step-0.B would write to the wrong location. The script is a one-shot — it already ran and committed its output in Step 0.0, so this is acceptable. If anyone needs to re-run it, fix the path first.
+
+### Verification
+
+| Check | Result |
+|---|---|
+| `git mv` (history-preserving renames) | ✅ |
+| `npm install` clean | ✅ |
+| `npm run typecheck` | ✅ |
+| `npm run lint` | ✅ 0 errors, 13 warnings (all latent legacy POC tech debt) |
+| `cd packages/legacy-poc && npx playwright test --list --grep @pepi` | ✅ **70 tests in 65 files** discovered — identical to Step 0.A discovery, confirming pure rename |
+| Workspace root passthrough scripts work | ✅ `npm run test:legacy:pepi` reaches the legacy POC's `npx playwright test --grep @pepi` |
+
+### Notes for Step 0.C (next)
+
+Step 0.C is the env-var refactor:
+1. Run `grep -rn "testrail.config" packages/legacy-poc/` to inventory every reference.
+2. Refactor each reference to read from `process.env`.
+3. Move secret material from `packages/legacy-poc/testrail.config.json` to a workspace-root `.env.local` (gitignored). The JSON file becomes secret-free.
+4. Update `.env.example` with the discovered variable names.
+5. Verify POC nightly green from the new location with old credentials before Step 0.D.
 
 ---
 

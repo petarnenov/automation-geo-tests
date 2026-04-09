@@ -1,11 +1,11 @@
 # Dependencies
 node_modules/
 
-# Playwright
-playwright-report/
-test-results/
-.playwright-mcp/
-tests/.auth/
+# Playwright (anywhere in the workspace, including packages/*)
+**/playwright-report/
+**/test-results/
+**/.playwright-mcp/
+**/.auth/
 .playwright-recon/
 
 # Environment / secrets
