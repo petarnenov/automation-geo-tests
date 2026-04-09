@@ -10,5 +10,8 @@
   },
   "devDependencies": {
     "@geowealth/e2e-framework": "*"
+  },
+  "engines": {
+    "node": ">=24"
   }
 }

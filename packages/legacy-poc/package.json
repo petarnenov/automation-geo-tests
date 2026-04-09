@@ -8,5 +8,8 @@
     "test:pepi": "playwright test --grep @pepi",
     "test:pepi:dry": "TESTRAIL_REPORT_RESULTS=0 playwright test --grep @pepi",
     "report": "playwright show-report"
+  },
+  "engines": {
+    "node": ">=24"
   }
 }

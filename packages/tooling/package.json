@@ -5,5 +5,8 @@
   "description": "GeoWealth E2E CLI utilities — scaffold script, affected-package detection, CI matrix generator, ESLint local rules, version checker, TestRail aggregator. NOT consumed at test runtime.",
   "scripts": {
     "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "engines": {
+    "node": ">=24"
   }
 }

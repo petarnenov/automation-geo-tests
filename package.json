@@ -4,7 +4,7 @@
   "private": true,
   "description": "GeoWealth E2E test framework — monorepo root. Hosts framework, tooling, legacy POC, and per-team test packages.",
   "engines": {
-    "node": "20.x"
+    "node": ">=24"
   },
   "workspaces": [
     "packages/*"
