@@ -1,0 +1,14 @@
+{
+  "name": "@geowealth/tests-trading",
+  "version": "0.1.0",
+  "private": true,
+  "description": "GeoWealth E2E tests for the Trading team. Generated from packages/tooling/templates/team/ via expand-templates.ts (Phase 0 Step 0.G) or `npm run scaffold:team` (Phase 1, D-26).",
+  "scripts": {
+    "test": "playwright test",
+    "test:smoke": "playwright test --grep @smoke",
+    "test:regression": "playwright test --grep @regression"
+  },
+  "devDependencies": {
+    "@geowealth/e2e-framework": "*"
+  }
+}

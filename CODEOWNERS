@@ -10,6 +10,12 @@
 
 # === BEGIN scaffold-managed: team packages ===
 # (populated by `npm run scaffold:team` in Phase 1; one row per team package)
+/packages/tests-platform/  @TODO-platform-qa @TODO-qa-leads
+/packages/tests-trading/  @TODO-trading-qa @TODO-qa-leads
+/packages/tests-reporting/  @TODO-reporting-qa @TODO-qa-leads
+/packages/tests-investments/  @TODO-investments-qa @TODO-qa-leads
+/packages/tests-integrations/  @TODO-integrations-qa @TODO-qa-leads
+/packages/tests-custody-pa/  @TODO-custody-pa-qa @TODO-qa-leads
 # === END scaffold-managed ===
 
 # === BEGIN human-managed: framework, tooling, legacy ===

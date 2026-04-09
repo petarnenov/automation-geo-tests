@@ -1,0 +1,3 @@
+# Team-specific Page Objects for the Investments team. Cross-team Page Objects
+# (Login, Navigation, FirmAdmin, ...) belong in @geowealth/e2e-framework, not
+# here, per the promotion rule in Section 4.2.2 of OFFICIAL-FRAMEWORK-PROPOSAL.md.

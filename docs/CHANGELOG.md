@@ -418,6 +418,12 @@ monthly risk review:
 - M3 (second contributor) — not started, explicitly carried as
   Phase 2 entry gate (NOT Phase 1 entry).
 - D-02 / D-03 — finalize at Phase 1 kickoff.
+- Onboarded team package `@geowealth/tests-platform` (scaffold).
+- Onboarded team package `@geowealth/tests-trading` (scaffold).
+- Onboarded team package `@geowealth/tests-reporting` (scaffold).
+- Onboarded team package `@geowealth/tests-investments` (scaffold).
+- Onboarded team package `@geowealth/tests-integrations` (scaffold).
+- Onboarded team package `@geowealth/tests-custody-pa` (scaffold).
 
 ## [0.1.0] — Phase 0 (partial) exit — 2026-04-09
 

@@ -131,6 +131,36 @@ The seven POC areas land in `packages/tests-billing-servicing/` per D-25.
 | C26094 | `packages/legacy-poc/tests/platform-one/auto-link/C26094.spec.js` | _Phase 5 unblock_ | `pending` | QA Automation | 2026-04-09 | |
 | C26100 | `packages/legacy-poc/tests/platform-one/auto-link/C26100.spec.js` | _Phase 5 unblock_ | `pending` | QA Automation | 2026-04-09 | |
 
+
+### Platform — empty package (created by scaffold)
+
+_Created by `scaffold-team` on 2026-04-09._ No specs yet; team begins authoring tests after Phase 5.
+
+
+### Trading — empty package (created by scaffold)
+
+_Created by `scaffold-team` on 2026-04-09._ No specs yet; team begins authoring tests after Phase 5.
+
+
+### Reporting — empty package (created by scaffold)
+
+_Created by `scaffold-team` on 2026-04-09._ No specs yet; team begins authoring tests after Phase 5.
+
+
+### Investments — empty package (created by scaffold)
+
+_Created by `scaffold-team` on 2026-04-09._ No specs yet; team begins authoring tests after Phase 5.
+
+
+### Integrations — empty package (created by scaffold)
+
+_Created by `scaffold-team` on 2026-04-09._ No specs yet; team begins authoring tests after Phase 5.
+
+
+### Custody & PA — empty package (created by scaffold)
+
+_Created by `scaffold-team` on 2026-04-09._ No specs yet; team begins authoring tests after Phase 5.
+
 ### Other team areas
 
 The other six team packages (`tests-platform`, `tests-trading`, `tests-reporting`, `tests-investments`, `tests-integrations`, `tests-custody-pa`) currently have **no specs** — they exist as empty bootstraps. This tracker grows section headers for them as the scaffold script is invoked for each, and rows as those teams begin authoring tests post-Phase-5.
