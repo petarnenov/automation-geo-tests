@@ -20,8 +20,8 @@
 import { mergeTests } from '@playwright/test';
 import { authFixtures } from './auth.fixture';
 import { apiFixtures } from './api.fixture';
-import { workerFirmFixtures } from './workerFirm.fixture';
+import { workerFirmFixtures, testFirmFixtures } from './workerFirm.fixture';
 import { pageFixtures } from './pages.fixture';
 
-export const test = mergeTests(authFixtures, apiFixtures, workerFirmFixtures, pageFixtures);
+export const test = mergeTests(authFixtures, apiFixtures, workerFirmFixtures, testFirmFixtures, pageFixtures);
 export { expect } from '@playwright/test';

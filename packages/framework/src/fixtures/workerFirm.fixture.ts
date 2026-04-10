@@ -60,6 +60,15 @@ export interface WorkerFirm extends DummyFirm {
 
 export type WorkerFirmFixtures = {
   workerFirm: WorkerFirm;
+  /** Pool of N dummy firms created once per worker. Test-scoped
+   *  `testFirm` picks a unique firm by test index. */
+  firmPool: WorkerFirm[];
+};
+
+export type TestFirmFixtures = {
+  /** A unique firm from the worker's pool, assigned by test parallel index.
+   *  Use this when multiple tests in the same worker must not share a firm. */
+  testFirm: WorkerFirm;
 };
 
 export const workerFirmFixtures = baseWithApi.extend<object, WorkerFirmFixtures>({
@@ -123,4 +132,32 @@ export const workerFirmFixtures = baseWithApi.extend<object, WorkerFirmFixtures>
     },
     { scope: 'worker' },
   ],
+
+  firmPool: [
+    async ({ apiClient }, use) => {
+      const password = process.env.TIM1_PASSWORD;
+      if (!password) {
+        throw new Error('firmPool: TIM1_PASSWORD must be set.');
+      }
+
+      const poolSize = Number(process.env.FIRM_POOL_SIZE ?? '8');
+      const firms: WorkerFirm[] = [];
+
+      for (let i = 0; i < poolSize; i++) {
+        const dummyFirm = await new DummyFirmApi(apiClient).create();
+        firms.push({ ...dummyFirm, password });
+      }
+
+      await use(firms);
+    },
+    { scope: 'worker' },
+  ],
+});
+
+/** Test-scoped fixture that picks a unique firm from the pool by test index. */
+export const testFirmFixtures = workerFirmFixtures.extend<TestFirmFixtures>({
+  testFirm: async ({ firmPool }, use, testInfo) => {
+    const index = testInfo.parallelIndex % firmPool.length;
+    await use(firmPool[index]);
+  },
 });
