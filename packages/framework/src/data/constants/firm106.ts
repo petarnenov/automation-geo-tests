@@ -49,6 +49,13 @@ export function arnoldDelaneyAccountBillingUrl(): string {
 }
 
 /**
+ * Build the Unmanaged Assets tab URL for the Arnold/Delaney account.
+ */
+export function arnoldDelaneyUnmanagedAssetsUrl(): string {
+  return `/react/indexReact.do#/client/1/${ARNOLD_DELANEY.clientUuid}/accounts/${ARNOLD_DELANEY.accountUuid}/unmanagedAssets`;
+}
+
+/**
  * Firm 106 numeric firmCd. Hard-coded because the firm is the
  * Plimsoll FP firm with its specific role definitions; this is not a
  * "any firm" placeholder.

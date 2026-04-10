@@ -16,6 +16,7 @@
 export {
   ARNOLD_DELANEY,
   arnoldDelaneyAccountBillingUrl,
+  arnoldDelaneyUnmanagedAssetsUrl,
   FIRM_106_CD,
 } from './firm106';
 
