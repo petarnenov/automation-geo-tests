@@ -12,6 +12,7 @@
  */
 
 export type EnvironmentName =
+  | 'local'
   | 'qa1'
   | 'qa2'
   | 'qa3'
@@ -48,6 +49,13 @@ const makeQa = (n: number): EnvironmentConfig => ({
 });
 
 export const environments = {
+  local: {
+    name: 'local',
+    baseUrl: 'http://192.168.1.223:8080/',
+    loginPath: '/react/loginReact.do',
+    loginHashRoute: /#login/,
+    postLoginHashRoute: /#(platformOne|dashboard)/,
+  } satisfies EnvironmentConfig,
   qa1: makeQa(1),
   qa2: makeQa(2),
   qa3: makeQa(3),
@@ -73,7 +81,7 @@ export const environments = {
  * failures).
  */
 export function selectEnvironment(): EnvironmentConfig {
-  const requested = (process.env.TEST_ENV ?? 'qa2') as EnvironmentName;
+  const requested = (process.env.TEST_ENV ?? 'local') as EnvironmentName;
   const env = environments[requested];
   if (!env) {
     throw new Error(
