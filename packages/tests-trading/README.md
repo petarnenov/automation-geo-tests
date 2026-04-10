@@ -7,7 +7,7 @@ GeoWealth E2E tests for the **Trading** team.
 ## First 30 minutes
 
 ```bash
-# 1. Make sure Node 20 LTS is active.
+# 1. Make sure Node 24 is active.
 nvm use            # reads .nvmrc
 
 # 2. Make sure the workspace .env.local is populated.

@@ -63,7 +63,7 @@ For the package files themselves, re-running requires `--force`.
 
 A team that runs `npm run scaffold:team` against a clean clone has a green smoke spec running locally within **30 minutes**, **provided the developer has met the following pre-conditions**:
 
-1. **Node 20 LTS installed** (matches `.nvmrc`).
+1. **Node 24 installed** (matches `.nvmrc`).
 2. **Network access** to `qa2.geowealth.com` (or `qa3` via `TEST_ENV=qa3`).
 3. **`.env.local` populated** at the workspace root with `TIM1_USERNAME` and `TIM1_PASSWORD`. See `docs/ONBOARDING.md` (Phase 2 deliverable) for how to retrieve them from the secret store.
 4. **`feat/corporate-e2e-migration` branch** checked out (or a later branch).
