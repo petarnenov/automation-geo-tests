@@ -36,30 +36,30 @@ The seven POC areas land in `packages/tests-billing-servicing/` per D-25.
 
 | case_id | legacy_path | new_path | state | owner | last_state_change | notes |
 |---|---|---|---|---|---|---|
-| C25193 | `packages/legacy-poc/tests/account-billing/C25193.spec.js` | `packages/tests-billing-servicing/tests/regression/account-billing/C25193.spec.ts` | `ported` | QA Automation | 2026-04-10 | Phase 2 graduation spec (commit `9b9de4e`). |
-| C25194 | `packages/legacy-poc/tests/account-billing/C25194.spec.js` | `packages/tests-billing-servicing/tests/regression/account-billing/C25194.spec.ts` | `ported` | QA Automation | 2026-04-10 | Phase 4 — Billing Method combo (icon-only variant). |
-| C25195 | `packages/legacy-poc/tests/account-billing/C25195.spec.js` | `packages/tests-billing-servicing/tests/regression/account-billing/C25195.spec.ts` | `ported` | QA Automation | 2026-04-10 | Phase 4 — Account for Billing combo (icon-only variant). |
-| C25196 | `packages/legacy-poc/tests/account-billing/C25196.spec.js` | `packages/tests-billing-servicing/tests/regression/account-billing/C25196.spec.ts` | `ported` | QA Automation | 2026-04-10 | Phase 4 — Adviser Billing Spec combo (typeAhead) + Active Date. Firm 106 only (no workerFirm). |
-| C25197 | `packages/legacy-poc/tests/account-billing/C25197.spec.js` | `packages/tests-billing-servicing/tests/regression/account-billing/C25197.spec.ts` | `ported` | QA Automation | 2026-04-10 | Phase 4 — 6 billing-bucket exclude radios + History check. |
-| C25198 | `packages/legacy-poc/tests/account-billing/C25198.spec.js` | `packages/tests-billing-servicing/tests/regression/account-billing/C25198.spec.ts` | `ported` | QA Automation | 2026-04-10 | Phase 4 — Adjustment Percent + Expiration Date (ComboBox + NumericInput + DatePicker). |
-| C25199 | `packages/legacy-poc/tests/account-billing/C25199.spec.js` | `packages/tests-billing-servicing/tests/regression/account-billing/C25199.spec.ts` | `ported` | QA Automation | 2026-04-10 | Phase 4 — Adjustment Amount [$] mirror of C25198. |
-| C25200 | `packages/legacy-poc/tests/account-billing/C25200.spec.js` | `packages/tests-billing-servicing/tests/regression/account-billing/C25200.spec.ts` | `ported` | QA Automation | 2026-04-10 | Phase 4 — Advisor Split Create. Firm 106 only. Pre-existing flaky in legacy POC. |
-| C25201 | `packages/legacy-poc/tests/account-billing/C25201.spec.js` | `packages/tests-billing-servicing/tests/regression/account-billing/C25201.spec.ts` | `ported` | QA Automation | 2026-04-10 | Phase 4 — Commission Fee (CDP-click exception). |
-| C25206 | `packages/legacy-poc/tests/account-billing/C25206.spec.js` | `packages/tests-billing-servicing/tests/regression/unmanaged-assets/C25206.spec.ts` | `ported` | QA Automation | 2026-04-10 | Phase 4 — UA Create Exclude from Performance (MSFT). Firm 106 only. |
-| C25207 | `packages/legacy-poc/tests/account-billing/C25207.spec.js` | `packages/tests-billing-servicing/tests/regression/unmanaged-assets/C25207.spec.ts` | `ported` | QA Automation | 2026-04-10 | Phase 4 — UA Update Exclude from Performance (AAPL). Firm 106 only. |
-| C25208 | `packages/legacy-poc/tests/account-billing/C25208.spec.js` | `packages/tests-billing-servicing/tests/regression/unmanaged-assets/C25208.spec.ts` | `ported` | QA Automation | 2026-04-10 | Phase 4 — UA Create Exclude from Billing (AAPL). Firm 106 only. |
-| C25209 | `packages/legacy-poc/tests/account-billing/C25209.spec.js` | `packages/tests-billing-servicing/tests/regression/unmanaged-assets/C25209.spec.ts` | `ported` | QA Automation | 2026-04-10 | Phase 4 — UA Update Exclude from Billing (AAPL). Firm 106 only. |
-| C25249 | `packages/legacy-poc/tests/account-billing/C25249.spec.js` | `packages/tests-billing-servicing/tests/regression/account-billing/C25249.spec.ts` | `ported` | QA Automation | 2026-04-10 | Phase 4 — Advisor Split Update (firm 106 only). |
-| C26490 | `packages/legacy-poc/tests/account-billing/C26490.spec.js` | `packages/tests-billing-servicing/tests/regression/account-billing/C26490.spec.ts` | `ported` | QA Automation | 2026-04-10 | Phase 4 — Open Account BO deprecation banner. Firm 106 only. |
+| C25193 | `packages/legacy-poc/tests/account-billing/C25193.spec.js` | `packages/tests-billing-servicing/tests/regression/account-billing/C25193.spec.ts` | `deleted` | QA Automation | 2026-04-10 | Legacy deleted. Phase 2 graduation spec. |
+| C25194 | `packages/legacy-poc/tests/account-billing/C25194.spec.js` | `packages/tests-billing-servicing/tests/regression/account-billing/C25194.spec.ts` | `deleted` | QA Automation | 2026-04-10 | Legacy deleted. |
+| C25195 | `packages/legacy-poc/tests/account-billing/C25195.spec.js` | `packages/tests-billing-servicing/tests/regression/account-billing/C25195.spec.ts` | `deleted` | QA Automation | 2026-04-10 | Legacy deleted. |
+| C25196 | `packages/legacy-poc/tests/account-billing/C25196.spec.js` | `packages/tests-billing-servicing/tests/regression/account-billing/C25196.spec.ts` | `deleted` | QA Automation | 2026-04-10 | Legacy deleted. |
+| C25197 | `packages/legacy-poc/tests/account-billing/C25197.spec.js` | `packages/tests-billing-servicing/tests/regression/account-billing/C25197.spec.ts` | `deleted` | QA Automation | 2026-04-10 | Legacy deleted. |
+| C25198 | `packages/legacy-poc/tests/account-billing/C25198.spec.js` | `packages/tests-billing-servicing/tests/regression/account-billing/C25198.spec.ts` | `deleted` | QA Automation | 2026-04-10 | Legacy deleted. |
+| C25199 | `packages/legacy-poc/tests/account-billing/C25199.spec.js` | `packages/tests-billing-servicing/tests/regression/account-billing/C25199.spec.ts` | `deleted` | QA Automation | 2026-04-10 | Legacy deleted. |
+| C25200 | `packages/legacy-poc/tests/account-billing/C25200.spec.js` | `packages/tests-billing-servicing/tests/regression/account-billing/C25200.spec.ts` | `deleted` | QA Automation | 2026-04-10 | Legacy deleted. |
+| C25201 | `packages/legacy-poc/tests/account-billing/C25201.spec.js` | `packages/tests-billing-servicing/tests/regression/account-billing/C25201.spec.ts` | `deleted` | QA Automation | 2026-04-10 | Legacy deleted. |
+| C25206 | `packages/legacy-poc/tests/account-billing/C25206.spec.js` | `packages/tests-billing-servicing/tests/regression/unmanaged-assets/C25206.spec.ts` | `deleted` | QA Automation | 2026-04-10 | Legacy deleted. |
+| C25207 | `packages/legacy-poc/tests/account-billing/C25207.spec.js` | `packages/tests-billing-servicing/tests/regression/unmanaged-assets/C25207.spec.ts` | `deleted` | QA Automation | 2026-04-10 | Legacy deleted. |
+| C25208 | `packages/legacy-poc/tests/account-billing/C25208.spec.js` | `packages/tests-billing-servicing/tests/regression/unmanaged-assets/C25208.spec.ts` | `deleted` | QA Automation | 2026-04-10 | Legacy deleted. |
+| C25209 | `packages/legacy-poc/tests/account-billing/C25209.spec.js` | `packages/tests-billing-servicing/tests/regression/unmanaged-assets/C25209.spec.ts` | `deleted` | QA Automation | 2026-04-10 | Legacy deleted. |
+| C25249 | `packages/legacy-poc/tests/account-billing/C25249.spec.js` | `packages/tests-billing-servicing/tests/regression/account-billing/C25249.spec.ts` | `deleted` | QA Automation | 2026-04-10 | Legacy deleted. |
+| C26490 | `packages/legacy-poc/tests/account-billing/C26490.spec.js` | `packages/tests-billing-servicing/tests/regression/account-billing/C26490.spec.ts` | `deleted` | QA Automation | 2026-04-10 | Legacy deleted. |
 
 ### Billing & Servicing — `billing-specs/` (4 specs)
 
 | case_id | legacy_path | new_path | state | owner | last_state_change | notes |
 |---|---|---|---|---|---|---|
-| C24935 | `packages/legacy-poc/tests/billing-specs/C24935.spec.js` | `packages/tests-billing-servicing/tests/regression/billing-specs/C24935.spec.ts` | `ported` | QA Automation | 2026-04-10 | Phase 4 — Edit Billing Spec (read-only, firm 1). |
-| C25084 | `packages/legacy-poc/tests/billing-specs/C25084.spec.js` | `packages/tests-billing-servicing/tests/regression/billing-specs/C25084.spec.ts` | `ported` | QA Automation | 2026-04-10 | Phase 4 — Account Min/Max columns (read-only, firm 1). |
-| C25085 | `packages/legacy-poc/tests/billing-specs/C25085.spec.js` | `packages/tests-billing-servicing/tests/regression/billing-specs/C25085.spec.ts` | `ported` | QA Automation | 2026-04-10 | Phase 4 — Export xlsx Account Min/Max (read-only, firm 1). |
-| C26306 | `packages/legacy-poc/tests/billing-specs/C26306.spec.js` | `packages/tests-billing-servicing/tests/regression/billing-specs/C26306.spec.ts` | `ported` | QA Automation | 2026-04-10 | Phase 4 — Copy billing spec to workerFirm. |
+| C24935 | `packages/legacy-poc/tests/billing-specs/C24935.spec.js` | `packages/tests-billing-servicing/tests/regression/billing-specs/C24935.spec.ts` | `deleted` | QA Automation | 2026-04-10 | Legacy deleted. |
+| C25084 | `packages/legacy-poc/tests/billing-specs/C25084.spec.js` | `packages/tests-billing-servicing/tests/regression/billing-specs/C25084.spec.ts` | `deleted` | QA Automation | 2026-04-10 | Legacy deleted. |
+| C25085 | `packages/legacy-poc/tests/billing-specs/C25085.spec.js` | `packages/tests-billing-servicing/tests/regression/billing-specs/C25085.spec.ts` | `deleted` | QA Automation | 2026-04-10 | Legacy deleted. |
+| C26306 | `packages/legacy-poc/tests/billing-specs/C26306.spec.js` | `packages/tests-billing-servicing/tests/regression/billing-specs/C26306.spec.ts` | `deleted` | QA Automation | 2026-04-10 | Legacy deleted. |
 
 ### Billing & Servicing — `create-account/` (7 specs)
 
