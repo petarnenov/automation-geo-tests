@@ -166,6 +166,23 @@ export class AccountBillingPage {
   readonly accountForBilling: ComboBox;
 
   /**
+   * The Advisor Entity Split combo (typeAhead variant). Options are
+   * firm-specific — firm 106 has "77.5% Ruffing/22.5% Rawal".
+   * Dummy firms do NOT seed advisor splits.
+   */
+  readonly advisorSplit: ComboBox;
+
+  /**
+   * The Advisor Entity Split Active Date picker.
+   */
+  readonly advisorSplitActiveDate: ReactDatePicker;
+
+  /**
+   * The Advisor Entity Split Inactive Date picker.
+   */
+  readonly advisorSplitInactiveDate: ReactDatePicker;
+
+  /**
    * The Adviser Billing Discount Type combo (icon-only variant).
    * Options: "Percent [%]", "Amount [$]".
    */
@@ -228,6 +245,9 @@ export class AccountBillingPage {
     this.adviserBillingSpec = new ComboBox(page, 'adviserBillingSpecification');
     this.activeDate = new ReactDatePicker(page, '#adviserBillingActiveDate');
     this.accountForBilling = new ComboBox(page, 'autoSelectClientAccount');
+    this.advisorSplit = new ComboBox(page, 'billingAdvisorSplit');
+    this.advisorSplitActiveDate = new ReactDatePicker(page, '#billingAdvisorSplitActiveDate');
+    this.advisorSplitInactiveDate = new ReactDatePicker(page, '#billingAdvisorSplitInactiveDate');
     this.adviserDiscountType = new ComboBox(page, 'adviserBillingDiscountType');
     this.adviserDiscountAmount = new NumericInput(page, 'adviserBillingDiscountAmountField');
     this.adviserDiscountExpiration = new ReactDatePicker(page, '#adviserBillingDiscountDate');
