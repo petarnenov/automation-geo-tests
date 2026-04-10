@@ -117,6 +117,12 @@ export class AccountBillingPage {
   readonly displayedBillingMethod: Locator;
 
   /**
+   * The persisted Commission Fee displayed on the summary card.
+   * Same sibling-axis pattern.
+   */
+  readonly displayedCommissionFee: Locator;
+
+  /**
    * The persisted Adviser Billing Spec displayed on the summary card.
    * Unlike the sibling-axis fields above, this one renders as a button
    * inside a `section[data-key="adviserBillingSpecification"]`.
@@ -228,6 +234,11 @@ export class AccountBillingPage {
 
     this.displayedBillingMethod = page
       .locator('text=Billing Method')
+      .first()
+      .locator('xpath=following-sibling::*[1]');
+
+    this.displayedCommissionFee = page
+      .locator('text=Commission Fee')
       .first()
       .locator('xpath=following-sibling::*[1]');
 
@@ -368,6 +379,14 @@ export class AccountBillingPage {
    */
   async getDisplayedBillingMethod(): Promise<string> {
     return (await this.displayedBillingMethod.innerText()).trim();
+  }
+
+  /**
+   * Read the persisted Commission Fee from the summary card.
+   * Returns "Yes" or "No".
+   */
+  async getDisplayedCommissionFee(): Promise<string> {
+    return (await this.displayedCommissionFee.innerText()).trim();
   }
 
   /**
