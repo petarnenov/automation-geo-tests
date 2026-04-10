@@ -56,10 +56,10 @@ The seven POC areas land in `packages/tests-billing-servicing/` per D-25.
 
 | case_id | legacy_path | new_path | state | owner | last_state_change | notes |
 |---|---|---|---|---|---|---|
-| C24935 | `packages/legacy-poc/tests/billing-specs/C24935.spec.js` | _pending_ | `pending` | QA Automation | 2026-04-09 | |
-| C25084 | `packages/legacy-poc/tests/billing-specs/C25084.spec.js` | _pending_ | `pending` | QA Automation | 2026-04-09 | |
-| C25085 | `packages/legacy-poc/tests/billing-specs/C25085.spec.js` | _pending_ | `pending` | QA Automation | 2026-04-09 | |
-| C26306 | `packages/legacy-poc/tests/billing-specs/C26306.spec.js` | _pending_ | `pending` | QA Automation | 2026-04-09 | |
+| C24935 | `packages/legacy-poc/tests/billing-specs/C24935.spec.js` | `packages/tests-billing-servicing/tests/regression/billing-specs/C24935.spec.ts` | `ported` | QA Automation | 2026-04-10 | Phase 4 — Edit Billing Spec (read-only, firm 1). |
+| C25084 | `packages/legacy-poc/tests/billing-specs/C25084.spec.js` | `packages/tests-billing-servicing/tests/regression/billing-specs/C25084.spec.ts` | `ported` | QA Automation | 2026-04-10 | Phase 4 — Account Min/Max columns (read-only, firm 1). |
+| C25085 | `packages/legacy-poc/tests/billing-specs/C25085.spec.js` | `packages/tests-billing-servicing/tests/regression/billing-specs/C25085.spec.ts` | `ported` | QA Automation | 2026-04-10 | Phase 4 — Export xlsx Account Min/Max (read-only, firm 1). |
+| C26306 | `packages/legacy-poc/tests/billing-specs/C26306.spec.js` | `packages/tests-billing-servicing/tests/regression/billing-specs/C26306.spec.ts` | `ported` | QA Automation | 2026-04-10 | Phase 4 — Copy billing spec to workerFirm. |
 
 ### Billing & Servicing — `create-account/` (7 specs)
 
