@@ -154,10 +154,43 @@ export const workerFirmFixtures = baseWithApi.extend<object, WorkerFirmFixtures>
   ],
 });
 
-/** Test-scoped fixture that picks a unique firm from the pool by test index. */
+/**
+ * Simple checkout/return pool that guarantees no two concurrent
+ * tests within the same worker get the same firm.
+ */
+class FirmCheckout {
+  private readonly inUse = new Set<number>();
+
+  checkout(pool: WorkerFirm[]): { firm: WorkerFirm; index: number } {
+    for (let i = 0; i < pool.length; i++) {
+      if (!this.inUse.has(i)) {
+        this.inUse.add(i);
+        return { firm: pool[i], index: i };
+      }
+    }
+    throw new Error(
+      `FirmCheckout: all ${pool.length} firms are in use. ` +
+        `Increase FIRM_POOL_SIZE or reduce parallelism.`
+    );
+  }
+
+  release(index: number): void {
+    this.inUse.delete(index);
+  }
+}
+
+/** One checkout instance per worker (module-level singleton). */
+const checkout = new FirmCheckout();
+
+/** Test-scoped fixture that checks out a unique firm from the pool
+ *  and returns it when the test finishes. */
 export const testFirmFixtures = workerFirmFixtures.extend<TestFirmFixtures>({
-  testFirm: async ({ firmPool }, use, testInfo) => {
-    const index = testInfo.parallelIndex % firmPool.length;
-    await use(firmPool[index]);
+  testFirm: async ({ firmPool }, use) => {
+    const { firm, index } = checkout.checkout(firmPool);
+    try {
+      await use(firm);
+    } finally {
+      checkout.release(index);
+    }
   },
 });
