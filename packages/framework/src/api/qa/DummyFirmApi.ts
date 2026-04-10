@@ -204,11 +204,11 @@ export function flattenFirm(raw: CreateDummyFirmResponse): DummyFirmTuple[] {
  *   await page.goto(`#/client/1/${firm.client.uuid}/accounts/${firm.accounts[0].uuid}/billing`);
  */
 export class DummyFirmApi {
-  private static readonly ENDPOINT = '/qa/createDummyFirm.do';
+  private static readonly ENDPOINT = '/qa/createDummyFirmExtended.do';
 
-  // The endpoint can take 30+ seconds under parallel load. Default
-  // ApiClient timeout is 30s; bump it to 60s for this specific call.
-  private static readonly TIMEOUT_MS = 60_000;
+  // The extended endpoint provisions a firm with Platform One access.
+  // Can take 60+ seconds under load or on local servers.
+  private static readonly TIMEOUT_MS = 120_000;
 
   constructor(private readonly client: ApiClient) {}
 

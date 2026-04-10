@@ -85,6 +85,9 @@ export type PageFixtures = {
    * complete in one commit.
    */
   tim106Page: Page;
+
+  /** Page logged in as tim1 — cross-firm GW Admin / Platform One. */
+  tim1Page: Page;
 };
 
 /**
@@ -113,15 +116,17 @@ async function buildRolePage(
   password: string
 ): Promise<{ page: Page; context: BrowserContext }> {
   const env = selectEnvironment();
+  const isHttp = env.baseUrl.startsWith('http://');
   const context = await browser.newContext({
     baseURL: env.baseUrl,
     ignoreHTTPSErrors: true,
-    // Seed from the workspace tim1.json — carries the SPA's
-    // localStorage bootstrap state. Cookies are dropped immediately
-    // below.
-    storageState: STORAGE_STATE_PATH,
+    // Seed from tim1.json for localStorage bootstrap (HTTPS only).
+    // Over HTTP the storage state has no localStorage, so skip it.
+    ...(isHttp ? {} : { storageState: STORAGE_STATE_PATH }),
   });
-  await context.clearCookies();
+  if (!isHttp) {
+    await context.clearCookies();
+  }
   const page = await context.newPage();
   await loginViaForm(page, username, password, env.baseUrl);
   return { page, context };
@@ -163,6 +168,20 @@ export const pageFixtures = baseWithWorkerFirm.extend<PageFixtures>({
       throw new Error('tim106Page: TIM1_PASSWORD must be set in workspace .env.local.');
     }
     const { page, context } = await buildRolePage(browser, PLIMSOLL_FP_ADMIN.username, password);
+    try {
+      await use(page);
+    } finally {
+      await context.close();
+    }
+  },
+
+  tim1Page: async ({ browser }, use) => {
+    const username = process.env.TIM1_USERNAME;
+    const password = process.env.TIM1_PASSWORD;
+    if (!username || !password) {
+      throw new Error('tim1Page: TIM1_USERNAME and TIM1_PASSWORD must be set.');
+    }
+    const { page, context } = await buildRolePage(browser, username, password);
     try {
       await use(page);
     } finally {

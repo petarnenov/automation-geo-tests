@@ -93,6 +93,7 @@ export function definePlaywrightConfig(
     globalSetup: require.resolve('@geowealth/e2e-framework/fixtures/globalSetup'),
     use: {
       baseURL: env.baseUrl,
+      ignoreHTTPSErrors: true,
       actionTimeout: 15_000,
       navigationTimeout: 30_000,
       trace: 'on-first-retry',
@@ -104,7 +105,16 @@ export function definePlaywrightConfig(
     projects: [
       {
         name: opts.projectName,
-        use: { ...devices['Desktop Chrome'] },
+        use: {
+          ...devices['Desktop Chrome'],
+          // Allow cookies over plain HTTP (needed for local dev servers).
+          // On HTTPS environments this is a no-op.
+          launchOptions: {
+            args: env.baseUrl.startsWith('http://')
+              ? [`--unsafely-treat-insecure-origin-as-secure=${env.baseUrl}`]
+              : [],
+          },
+        },
       },
     ],
   });

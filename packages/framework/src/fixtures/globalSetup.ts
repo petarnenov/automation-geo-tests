@@ -40,7 +40,11 @@ async function globalSetup(): Promise<void> {
 
   fs.mkdirSync(path.dirname(STORAGE_STATE_PATH), { recursive: true });
 
-  const browser = await chromium.launch();
+  const browser = await chromium.launch({
+    args: env.baseUrl.startsWith('http://')
+      ? [`--unsafely-treat-insecure-origin-as-secure=${env.baseUrl}`]
+      : [],
+  });
   const context = await browser.newContext({ ignoreHTTPSErrors: true });
   const page = await context.newPage();
   try {

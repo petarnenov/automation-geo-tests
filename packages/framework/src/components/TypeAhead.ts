@@ -94,6 +94,18 @@ export class TypeAhead {
       input.focus();
       input.select();
     });
+    // If a firm is already selected (auto-populated by the extended
+    // endpoint), skip re-selection. Check if the input has a value
+    // that looks like a firm name (contains "Firm" or the firmCd).
+    const currentValue = await ta.inputValue();
+    if (currentValue && (
+      currentValue.includes(target.firmName) ||
+      currentValue.includes(`(${target.firmCd})`) ||
+      currentValue.startsWith('Firm-')
+    )) {
+      return;
+    }
+
     // 80-keypress clear — `.fill('')` is unreliable; preserved
     // verbatim from the legacy.
     for (let i = 0; i < 80; i++) await ta.press('Backspace');

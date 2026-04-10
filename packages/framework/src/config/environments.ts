@@ -51,7 +51,7 @@ const makeQa = (n: number): EnvironmentConfig => ({
 export const environments = {
   local: {
     name: 'local',
-    baseUrl: 'http://192.168.1.223:8080/',
+    baseUrl: 'https://192.168.1.223:8443/',
     loginPath: '/react/loginReact.do',
     loginHashRoute: /#login/,
     postLoginHashRoute: /#(platformOne|dashboard)/,
@@ -81,7 +81,7 @@ export const environments = {
  * failures).
  */
 export function selectEnvironment(): EnvironmentConfig {
-  const requested = (process.env.TEST_ENV ?? 'local') as EnvironmentName;
+  const requested = (process.env.TEST_ENV ?? 'qa2') as EnvironmentName;
   const env = environments[requested];
   if (!env) {
     throw new Error(

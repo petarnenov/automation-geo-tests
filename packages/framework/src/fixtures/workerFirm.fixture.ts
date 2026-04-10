@@ -32,10 +32,12 @@
  * `loginAsWorkerFirmAdmin`).
  */
 
-import { test as base, mergeTests } from '@playwright/test';
-import { DummyFirmApi, type DummyFirm } from '../api/qa/DummyFirmApi';
+import { test as base, mergeTests, chromium } from '@playwright/test';
+import { DummyFirmApi, type DummyFirm, createDummyFirmResponseSchema } from '../api/qa/DummyFirmApi';
 import { authFixtures } from './auth.fixture';
 import { apiFixtures } from './api.fixture';
+import { selectEnvironment } from '../config/environments';
+import { loginViaForm } from './loginViaForm';
 
 // Merge upstream fixtures so this file can consume `apiClient`
 // without re-declaring it. See the same pattern in api.fixture.ts.
@@ -75,7 +77,45 @@ export const workerFirmFixtures = baseWithApi.extend<object, WorkerFirmFixtures>
         );
       }
 
-      const dummyFirm = await new DummyFirmApi(apiClient).create();
+      let dummyFirm: DummyFirm;
+      const env = selectEnvironment();
+
+      if (env.baseUrl.startsWith('http://')) {
+        // HTTP environments: APIRequestContext does not reliably carry
+        // cookies over plain HTTP. Fall back to a browser-based call.
+        const username = process.env.TIM1_USERNAME ?? 'tim1';
+        const browser = await chromium.launch({
+          args: [`--unsafely-treat-insecure-origin-as-secure=${env.baseUrl}`],
+        });
+        const context = await browser.newContext({ baseURL: env.baseUrl, ignoreHTTPSErrors: true });
+        const page = await context.newPage();
+        try {
+          await loginViaForm(page, username, password, env.baseUrl);
+          // Use page.evaluate + XMLHttpRequest to get raw JSON response
+          // (fetch/page.request may not carry cookies over HTTP).
+          const text = await page.evaluate(
+            (url) =>
+              new Promise<string>((resolve, reject) => {
+                const xhr = new XMLHttpRequest();
+                xhr.open('POST', url, true);
+                xhr.withCredentials = true;
+                xhr.timeout = 120_000;
+                xhr.onload = () => resolve(xhr.responseText);
+                xhr.onerror = () => reject(new Error('XHR network error'));
+                xhr.ontimeout = () => reject(new Error('XHR timeout'));
+                xhr.send();
+              }),
+            '/qa/createDummyFirmExtended.do'
+          );
+          const raw = JSON.parse(text);
+          dummyFirm = DummyFirmApi.fromRecordedResponse(raw);
+        } finally {
+          await browser.close();
+        }
+      } else {
+        dummyFirm = await new DummyFirmApi(apiClient).create();
+      }
+
       const workerFirm: WorkerFirm = { ...dummyFirm, password };
       await use(workerFirm);
       // No teardown — dummy firms accumulate per Section 5.8 of the

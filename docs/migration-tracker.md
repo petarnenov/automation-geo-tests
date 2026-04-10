@@ -65,71 +65,71 @@ The seven POC areas land in `packages/tests-billing-servicing/` per D-25.
 
 | case_id | legacy_path | new_path | state | owner | last_state_change | notes |
 |---|---|---|---|---|---|---|
-| C24940 | `packages/legacy-poc/tests/create-account/C24940.spec.js` | _pending_ | `pending` | QA Automation | 2026-04-09 | |
-| C24941 | `packages/legacy-poc/tests/create-account/C24941.spec.js` | _pending_ | `pending` | QA Automation | 2026-04-09 | |
-| C24943 | `packages/legacy-poc/tests/create-account/C24943.spec.js` | _pending_ | `pending` | QA Automation | 2026-04-09 | |
-| C24996 | `packages/legacy-poc/tests/create-account/C24996.spec.js` | _pending_ | `pending` | QA Automation | 2026-04-09 | |
-| C24997 | `packages/legacy-poc/tests/create-account/C24997.spec.js` | _pending_ | `pending` | QA Automation | 2026-04-09 | |
-| C25065 | `packages/legacy-poc/tests/create-account/C25065.spec.js` | _pending_ | `pending` | QA Automation | 2026-04-09 | |
-| C25102 | `packages/legacy-poc/tests/create-account/C25102.spec.js` | _pending_ | `pending` | QA Automation | 2026-04-09 | |
+| C24940 | `packages/legacy-poc/tests/create-account/C24940.spec.js` | `packages/tests-billing-servicing/tests/regression/create-account/C24940.spec.ts` | `ported` | QA Automation | 2026-04-10 | Phase 4 — happy path manual create. workerFirm + advisor verify. |
+| C24941 | `packages/legacy-poc/tests/create-account/C24941.spec.js` | `packages/tests-billing-servicing/tests/regression/create-account/C24941.spec.ts` | `ported` | QA Automation | 2026-04-10 | Phase 4 — UI elements smoke (dropdowns populated). |
+| C24943 | `packages/legacy-poc/tests/create-account/C24943.spec.js` | `packages/tests-billing-servicing/tests/regression/create-account/C24943.spec.ts` | `ported` | QA Automation | 2026-04-10 | Phase 4 — bulk upload path, 2 accounts. |
+| C24996 | `packages/legacy-poc/tests/create-account/C24996.spec.js` | `packages/tests-billing-servicing/tests/regression/create-account/C24996.spec.ts` | `ported` | QA Automation | 2026-04-10 | Phase 4 — bogus Client UUID error popup + error-cell. |
+| C24997 | `packages/legacy-poc/tests/create-account/C24997.spec.js` | `packages/tests-billing-servicing/tests/regression/create-account/C24997.spec.ts` | `ported` | QA Automation | 2026-04-10 | Phase 4 — keep/reset modal, manual + upload combined. |
+| C25065 | `packages/legacy-poc/tests/create-account/C25065.spec.js` | `packages/tests-billing-servicing/tests/regression/create-account/C25065.spec.ts` | `ported` | QA Automation | 2026-04-10 | Phase 4 — upload with missing AccountOpenDate → parse error. |
+| C25102 | `packages/legacy-poc/tests/create-account/C25102.spec.js` | `packages/tests-billing-servicing/tests/regression/create-account/C25102.spec.ts` | `ported` | QA Automation | 2026-04-10 | Phase 4 — CLIENT allowed vs HOUSEHOLD denied. |
 
 ### Billing & Servicing — `bucket-exclusions/` (13 specs)
 
 | case_id | legacy_path | new_path | state | owner | last_state_change | notes |
 |---|---|---|---|---|---|---|
-| C25363 | `packages/legacy-poc/tests/bucket-exclusions/C25363.spec.js` | _pending_ | `pending` | QA Automation | 2026-04-09 | |
-| C25364 | `packages/legacy-poc/tests/bucket-exclusions/C25364.spec.js` | _pending_ | `pending` | QA Automation | 2026-04-09 | |
-| C25377 | `packages/legacy-poc/tests/bucket-exclusions/C25377.spec.js` | _pending_ | `pending` | QA Automation | 2026-04-09 | |
-| C25378 | `packages/legacy-poc/tests/bucket-exclusions/validation/C25378.spec.js` | _pending_ | `pending` | QA Automation | 2026-04-09 | |
-| C25379 | `packages/legacy-poc/tests/bucket-exclusions/validation/C25379.spec.js` | _pending_ | `pending` | QA Automation | 2026-04-09 | |
-| C25380 | `packages/legacy-poc/tests/bucket-exclusions/validation/C25380.spec.js` | _pending_ | `pending` | QA Automation | 2026-04-09 | |
-| C25381 | `packages/legacy-poc/tests/bucket-exclusions/C25381.spec.js` | _pending_ | `pending` | QA Automation | 2026-04-09 | |
-| C25789 | `packages/legacy-poc/tests/bucket-exclusions/C25789.spec.js` | _pending_ | `pending` | QA Automation | 2026-04-09 | |
-| C25790 | `packages/legacy-poc/tests/bucket-exclusions/C25790.spec.js` | _pending_ | `pending` | QA Automation | 2026-04-09 | |
-| C25791 | `packages/legacy-poc/tests/bucket-exclusions/C25791.spec.js` | _pending_ | `pending` | QA Automation | 2026-04-09 | |
-| C25792 | `packages/legacy-poc/tests/bucket-exclusions/C25792.spec.js` | _pending_ | `pending` | QA Automation | 2026-04-09 | |
-| C25793 | `packages/legacy-poc/tests/bucket-exclusions/C25793.spec.js` | _pending_ | `pending` | QA Automation | 2026-04-09 | |
+| C25363 | `packages/legacy-poc/tests/bucket-exclusions/C25363.spec.js` | `packages/tests-billing-servicing/tests/regression/bucket-exclusions/C25363.spec.ts` | `ported` | QA Automation | 2026-04-10 | fixme stub |
+| C25364 | `packages/legacy-poc/tests/bucket-exclusions/C25364.spec.js` | `packages/tests-billing-servicing/tests/regression/bucket-exclusions/C25364.spec.ts` | `ported` | QA Automation | 2026-04-10 | fixme stub |
+| C25377 | `packages/legacy-poc/tests/bucket-exclusions/C25377.spec.js` | `packages/tests-billing-servicing/tests/regression/bucket-exclusions/C25377.spec.ts` | `ported` | QA Automation | 2026-04-10 | fixme stub |
+| C25378 | `packages/legacy-poc/tests/bucket-exclusions/validation/C25378.spec.js` | `packages/tests-billing-servicing/tests/regression/bucket-exclusions/validation/C25378.spec.ts` | `ported` | QA Automation | 2026-04-10 | fixme stub |
+| C25379 | `packages/legacy-poc/tests/bucket-exclusions/validation/C25379.spec.js` | `packages/tests-billing-servicing/tests/regression/bucket-exclusions/validation/C25379.spec.ts` | `ported` | QA Automation | 2026-04-10 | fixme stub |
+| C25380 | `packages/legacy-poc/tests/bucket-exclusions/validation/C25380.spec.js` | `packages/tests-billing-servicing/tests/regression/bucket-exclusions/validation/C25380.spec.ts` | `ported` | QA Automation | 2026-04-10 | fixme stub |
+| C25381 | `packages/legacy-poc/tests/bucket-exclusions/C25381.spec.js` | `packages/tests-billing-servicing/tests/regression/bucket-exclusions/C25381.spec.ts` | `ported` | QA Automation | 2026-04-10 | fixme stub |
+| C25789 | `packages/legacy-poc/tests/bucket-exclusions/C25789.spec.js` | `packages/tests-billing-servicing/tests/regression/bucket-exclusions/C25789.spec.ts` | `ported` | QA Automation | 2026-04-10 | fixme stub |
+| C25790 | `packages/legacy-poc/tests/bucket-exclusions/C25790.spec.js` | `packages/tests-billing-servicing/tests/regression/bucket-exclusions/C25790.spec.ts` | `ported` | QA Automation | 2026-04-10 | fixme stub |
+| C25791 | `packages/legacy-poc/tests/bucket-exclusions/C25791.spec.js` | `packages/tests-billing-servicing/tests/regression/bucket-exclusions/C25791.spec.ts` | `ported` | QA Automation | 2026-04-10 | fixme stub |
+| C25792 | `packages/legacy-poc/tests/bucket-exclusions/C25792.spec.js` | `packages/tests-billing-servicing/tests/regression/bucket-exclusions/C25792.spec.ts` | `ported` | QA Automation | 2026-04-10 | fixme stub |
+| C25793 | `packages/legacy-poc/tests/bucket-exclusions/C25793.spec.js` | `packages/tests-billing-servicing/tests/regression/bucket-exclusions/C25793.spec.ts` | `ported` | QA Automation | 2026-04-10 | fixme stub |
 
 ### Billing & Servicing — `unmanaged-assets/` (12 specs)
 
 | case_id | legacy_path | new_path | state | owner | last_state_change | notes |
 |---|---|---|---|---|---|---|
-| C25441 | `packages/legacy-poc/tests/unmanaged-assets/C25441.spec.js` | _pending_ | `pending` | QA Automation | 2026-04-09 | |
-| C25445 | `packages/legacy-poc/tests/unmanaged-assets/C25445.spec.js` | _pending_ | `pending` | QA Automation | 2026-04-09 | |
-| C25446 | `packages/legacy-poc/tests/unmanaged-assets/validation/C25446.spec.js` | _pending_ | `pending` | QA Automation | 2026-04-09 | |
-| C25447 | `packages/legacy-poc/tests/unmanaged-assets/validation/C25447.spec.js` | _pending_ | `pending` | QA Automation | 2026-04-09 | |
-| C25448 | `packages/legacy-poc/tests/unmanaged-assets/validation/C25448.spec.js` | _pending_ | `pending` | QA Automation | 2026-04-09 | Three sub-tests in this file. |
-| C25449 | `packages/legacy-poc/tests/unmanaged-assets/validation/C25449.spec.js` | _pending_ | `pending` | QA Automation | 2026-04-09 | |
-| C25450 | `packages/legacy-poc/tests/unmanaged-assets/validation/C25450.spec.js` | _pending_ | `pending` | QA Automation | 2026-04-09 | |
-| C25451 | `packages/legacy-poc/tests/unmanaged-assets/validation/C25451.spec.js` | _pending_ | `pending` | QA Automation | 2026-04-09 | |
-| C26073 | `packages/legacy-poc/tests/unmanaged-assets/C26073.spec.js` | _pending_ | `pending` | QA Automation | 2026-04-09 | |
-| C26074 | `packages/legacy-poc/tests/unmanaged-assets/C26074.spec.js` | _pending_ | `pending` | QA Automation | 2026-04-09 | |
-| C26075 | `packages/legacy-poc/tests/unmanaged-assets/C26075.spec.js` | _pending_ | `pending` | QA Automation | 2026-04-09 | |
+| C25441 | `packages/legacy-poc/tests/unmanaged-assets/C25441.spec.js` | `packages/tests-billing-servicing/tests/regression/unmanaged-assets/C25441.spec.ts` | `ported` | QA Automation | 2026-04-10 | fixme stub |
+| C25445 | `packages/legacy-poc/tests/unmanaged-assets/C25445.spec.js` | `packages/tests-billing-servicing/tests/regression/unmanaged-assets/C25445.spec.ts` | `ported` | QA Automation | 2026-04-10 | fixme stub |
+| C25446 | `packages/legacy-poc/tests/unmanaged-assets/validation/C25446.spec.js` | `packages/tests-billing-servicing/tests/regression/unmanaged-assets/validation/C25446.spec.ts` | `ported` | QA Automation | 2026-04-10 | fixme stub |
+| C25447 | `packages/legacy-poc/tests/unmanaged-assets/validation/C25447.spec.js` | `packages/tests-billing-servicing/tests/regression/unmanaged-assets/validation/C25447.spec.ts` | `ported` | QA Automation | 2026-04-10 | fixme stub |
+| C25448 | `packages/legacy-poc/tests/unmanaged-assets/validation/C25448.spec.js` | `packages/tests-billing-servicing/tests/regression/unmanaged-assets/validation/C25448.spec.ts` | `ported` | QA Automation | 2026-04-10 | fixme stub |
+| C25449 | `packages/legacy-poc/tests/unmanaged-assets/validation/C25449.spec.js` | `packages/tests-billing-servicing/tests/regression/unmanaged-assets/validation/C25449.spec.ts` | `ported` | QA Automation | 2026-04-10 | fixme stub |
+| C25450 | `packages/legacy-poc/tests/unmanaged-assets/validation/C25450.spec.js` | `packages/tests-billing-servicing/tests/regression/unmanaged-assets/validation/C25450.spec.ts` | `ported` | QA Automation | 2026-04-10 | fixme stub |
+| C25451 | `packages/legacy-poc/tests/unmanaged-assets/validation/C25451.spec.js` | `packages/tests-billing-servicing/tests/regression/unmanaged-assets/validation/C25451.spec.ts` | `ported` | QA Automation | 2026-04-10 | fixme stub |
+| C26073 | `packages/legacy-poc/tests/unmanaged-assets/C26073.spec.js` | `packages/tests-billing-servicing/tests/regression/unmanaged-assets/C26073.spec.ts` | `ported` | QA Automation | 2026-04-10 | fixme stub |
+| C26074 | `packages/legacy-poc/tests/unmanaged-assets/C26074.spec.js` | `packages/tests-billing-servicing/tests/regression/unmanaged-assets/C26074.spec.ts` | `ported` | QA Automation | 2026-04-10 | fixme stub |
+| C26075 | `packages/legacy-poc/tests/unmanaged-assets/C26075.spec.js` | `packages/tests-billing-servicing/tests/regression/unmanaged-assets/C26075.spec.ts` | `ported` | QA Automation | 2026-04-10 | fixme stub |
 
 ### Billing & Servicing — `merge-prospect/` (8 specs)
 
 | case_id | legacy_path | new_path | state | owner | last_state_change | notes |
 |---|---|---|---|---|---|---|
-| C26057 | `packages/legacy-poc/tests/platform-one/merge-prospect/C26057.spec.js` | _pending_ | `pending` | QA Automation | 2026-04-09 | Pre-existing flaky in legacy POC. |
-| C26058 | `packages/legacy-poc/tests/platform-one/merge-prospect/C26058.spec.js` | _pending_ | `pending` | QA Automation | 2026-04-09 | |
-| C26059 | `packages/legacy-poc/tests/platform-one/merge-prospect/C26059.spec.js` | _pending_ | `pending` | QA Automation | 2026-04-09 | |
-| C26060 | `packages/legacy-poc/tests/platform-one/merge-prospect/C26060.spec.js` | _pending_ | `pending` | QA Automation | 2026-04-09 | Permission-disabled scenario; Phase 5 backend cooperation needed. |
-| C26082 | `packages/legacy-poc/tests/platform-one/merge-prospect/C26082.spec.js` | _pending_ | `pending` | QA Automation | 2026-04-09 | Pre-existing flaky in legacy POC. |
-| C26083 | `packages/legacy-poc/tests/platform-one/merge-prospect/C26083.spec.js` | _pending_ | `pending` | QA Automation | 2026-04-09 | |
-| C26084 | `packages/legacy-poc/tests/platform-one/merge-prospect/C26084.spec.js` | _pending_ | `pending` | QA Automation | 2026-04-09 | |
-| C26085 | `packages/legacy-poc/tests/platform-one/merge-prospect/C26085.spec.js` | _pending_ | `pending` | QA Automation | 2026-04-09 | Permission-disabled scenario; Phase 5 backend cooperation needed. |
+| C26057 | `packages/legacy-poc/tests/platform-one/merge-prospect/C26057.spec.js` | `packages/tests-billing-servicing/tests/regression/merge-prospect/C26057.spec.ts` | `ported` | QA Automation | 2026-04-10 | fixme stub. Pre-existing flaky. |
+| C26058 | `packages/legacy-poc/tests/platform-one/merge-prospect/C26058.spec.js` | `packages/tests-billing-servicing/tests/regression/merge-prospect/C26058.spec.ts` | `ported` | QA Automation | 2026-04-10 | fixme stub |
+| C26059 | `packages/legacy-poc/tests/platform-one/merge-prospect/C26059.spec.js` | `packages/tests-billing-servicing/tests/regression/merge-prospect/C26059.spec.ts` | `ported` | QA Automation | 2026-04-10 | fixme stub |
+| C26060 | `packages/legacy-poc/tests/platform-one/merge-prospect/C26060.spec.js` | `packages/tests-billing-servicing/tests/regression/merge-prospect/C26060.spec.ts` | `ported` | QA Automation | 2026-04-10 | fixme stub. Phase 5 backend needed. |
+| C26082 | `packages/legacy-poc/tests/platform-one/merge-prospect/C26082.spec.js` | `packages/tests-billing-servicing/tests/regression/merge-prospect/C26082.spec.ts` | `ported` | QA Automation | 2026-04-10 | fixme stub. Pre-existing flaky. |
+| C26083 | `packages/legacy-poc/tests/platform-one/merge-prospect/C26083.spec.js` | `packages/tests-billing-servicing/tests/regression/merge-prospect/C26083.spec.ts` | `ported` | QA Automation | 2026-04-10 | fixme stub |
+| C26084 | `packages/legacy-poc/tests/platform-one/merge-prospect/C26084.spec.js` | `packages/tests-billing-servicing/tests/regression/merge-prospect/C26084.spec.ts` | `ported` | QA Automation | 2026-04-10 | fixme stub |
+| C26085 | `packages/legacy-poc/tests/platform-one/merge-prospect/C26085.spec.js` | `packages/tests-billing-servicing/tests/regression/merge-prospect/C26085.spec.ts` | `ported` | QA Automation | 2026-04-10 | fixme stub. Phase 5 backend needed. |
 
 ### Billing & Servicing — `auto-link/` (7 specs, all `test.fixme`)
 
 | case_id | legacy_path | new_path | state | owner | last_state_change | notes |
 |---|---|---|---|---|---|---|
-| C26077 | `packages/legacy-poc/tests/platform-one/auto-link/C26077.spec.js` | _Phase 5 unblock_ | `pending` | QA Automation | 2026-04-09 | All `test.fixme`; Phase 5 disposable email pool. |
-| C26078 | `packages/legacy-poc/tests/platform-one/auto-link/C26078.spec.js` | _Phase 5 unblock_ | `pending` | QA Automation | 2026-04-09 | |
-| C26079 | `packages/legacy-poc/tests/platform-one/auto-link/C26079.spec.js` | _Phase 5 unblock_ | `pending` | QA Automation | 2026-04-09 | |
-| C26080 | `packages/legacy-poc/tests/platform-one/auto-link/C26080.spec.js` | _Phase 5 unblock_ | `pending` | QA Automation | 2026-04-09 | |
-| C26093 | `packages/legacy-poc/tests/platform-one/auto-link/C26093.spec.js` | _Phase 5 unblock_ | `pending` | QA Automation | 2026-04-09 | |
-| C26094 | `packages/legacy-poc/tests/platform-one/auto-link/C26094.spec.js` | _Phase 5 unblock_ | `pending` | QA Automation | 2026-04-09 | |
-| C26100 | `packages/legacy-poc/tests/platform-one/auto-link/C26100.spec.js` | _Phase 5 unblock_ | `pending` | QA Automation | 2026-04-09 | |
+| C26077 | `packages/legacy-poc/tests/platform-one/auto-link/C26077.spec.js` | `packages/tests-billing-servicing/tests/regression/auto-link/C26077.spec.ts` | `ported` | QA Automation | 2026-04-10 | fixme stub. Phase 5 disposable email pool. |
+| C26078 | `packages/legacy-poc/tests/platform-one/auto-link/C26078.spec.js` | `packages/tests-billing-servicing/tests/regression/auto-link/C26078.spec.ts` | `ported` | QA Automation | 2026-04-10 | fixme stub |
+| C26079 | `packages/legacy-poc/tests/platform-one/auto-link/C26079.spec.js` | `packages/tests-billing-servicing/tests/regression/auto-link/C26079.spec.ts` | `ported` | QA Automation | 2026-04-10 | fixme stub |
+| C26080 | `packages/legacy-poc/tests/platform-one/auto-link/C26080.spec.js` | `packages/tests-billing-servicing/tests/regression/auto-link/C26080.spec.ts` | `ported` | QA Automation | 2026-04-10 | fixme stub |
+| C26093 | `packages/legacy-poc/tests/platform-one/auto-link/C26093.spec.js` | `packages/tests-billing-servicing/tests/regression/auto-link/C26093.spec.ts` | `ported` | QA Automation | 2026-04-10 | fixme stub |
+| C26094 | `packages/legacy-poc/tests/platform-one/auto-link/C26094.spec.js` | `packages/tests-billing-servicing/tests/regression/auto-link/C26094.spec.ts` | `ported` | QA Automation | 2026-04-10 | fixme stub |
+| C26100 | `packages/legacy-poc/tests/platform-one/auto-link/C26100.spec.js` | `packages/tests-billing-servicing/tests/regression/auto-link/C26100.spec.ts` | `ported` | QA Automation | 2026-04-10 | fixme stub |
 
 
 ### Platform — empty package (created by scaffold)
