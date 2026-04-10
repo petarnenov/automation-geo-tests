@@ -8,15 +8,14 @@
 
 import { test, expect } from '@geowealth/e2e-framework/fixtures';
 
-const FIRM_CODE = 3;
-
 test('@regression @billing-servicing C26079 Auto-link - non-GW Admin user cannot link', async ({
   tim1Page,
+  workerFirm,
 }) => {
   test.setTimeout(180_000);
 
-  await test.step(`Open Firm Admin → Users for firm ${FIRM_CODE}`, async () => {
-    await tim1Page.goto(`/react/indexReact.do#platformOne/firmAdmin/users/${FIRM_CODE}`);
+  await test.step(`Open Firm Admin → Users for firm ${workerFirm.firmCd}`, async () => {
+    await tim1Page.goto(`/react/indexReact.do#platformOne/firmAdmin/users/${workerFirm.firmCd}`);
     await expect(tim1Page.getByRole('button', { name: 'Create New User' })).toBeVisible({
       timeout: 30_000,
     });
