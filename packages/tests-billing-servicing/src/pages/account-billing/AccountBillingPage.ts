@@ -122,6 +122,12 @@ export class AccountBillingPage {
    */
   readonly displayedAdviserBillingSpec: Locator;
 
+  /**
+   * The persisted Account for Billing displayed on the summary card.
+   * Same sibling-axis pattern as `displayedInceptionDate`.
+   */
+  readonly displayedAccountForBilling: Locator;
+
   // ─── Components for form widgets ─────────────────────────────────
 
   /**
@@ -152,6 +158,12 @@ export class AccountBillingPage {
    */
   readonly activeDate: ReactDatePicker;
 
+  /**
+   * The Account for Billing combo (icon-only variant, no typeAhead).
+   * Options are the client's accounts rendered as "{title} ({num})".
+   */
+  readonly accountForBilling: ComboBox;
+
   constructor(page: Page) {
     this.page = page;
 
@@ -180,10 +192,16 @@ export class AccountBillingPage {
       .locator('section[data-key="adviserBillingSpecification"] button')
       .first();
 
+    this.displayedAccountForBilling = page
+      .locator('text=Account for Billing')
+      .first()
+      .locator('xpath=following-sibling::*[1]');
+
     this.inceptionDate = new ReactDatePicker(page, '#billingInceptionDate');
     this.billingMethod = new ComboBox(page, 'billingMethodCd');
     this.adviserBillingSpec = new ComboBox(page, 'adviserBillingSpecification');
     this.activeDate = new ReactDatePicker(page, '#adviserBillingActiveDate');
+    this.accountForBilling = new ComboBox(page, 'autoSelectClientAccount');
   }
 
   /**
@@ -309,6 +327,14 @@ export class AccountBillingPage {
    */
   async getDisplayedAdviserBillingSpec(): Promise<string> {
     return (await this.displayedAdviserBillingSpec.innerText()).trim();
+  }
+
+  /**
+   * Read the persisted Account for Billing from the summary card.
+   * Returns the trimmed text, e.g. "Arnold, Delaney (12287266)".
+   */
+  async getDisplayedAccountForBilling(): Promise<string> {
+    return (await this.displayedAccountForBilling.innerText()).trim();
   }
 
   /**

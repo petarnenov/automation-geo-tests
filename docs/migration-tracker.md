@@ -38,7 +38,7 @@ The seven POC areas land in `packages/tests-billing-servicing/` per D-25.
 |---|---|---|---|---|---|---|
 | C25193 | `packages/legacy-poc/tests/account-billing/C25193.spec.js` | `packages/tests-billing-servicing/tests/regression/account-billing/C25193.spec.ts` | `ported` | QA Automation | 2026-04-10 | Phase 2 graduation spec (commit `9b9de4e`). |
 | C25194 | `packages/legacy-poc/tests/account-billing/C25194.spec.js` | `packages/tests-billing-servicing/tests/regression/account-billing/C25194.spec.ts` | `ported` | QA Automation | 2026-04-10 | Phase 4 — Billing Method combo (icon-only variant). |
-| C25195 | `packages/legacy-poc/tests/account-billing/C25195.spec.js` | _pending_ | `pending` | QA Automation | 2026-04-09 | |
+| C25195 | `packages/legacy-poc/tests/account-billing/C25195.spec.js` | `packages/tests-billing-servicing/tests/regression/account-billing/C25195.spec.ts` | `ported` | QA Automation | 2026-04-10 | Phase 4 — Account for Billing combo (icon-only variant). |
 | C25196 | `packages/legacy-poc/tests/account-billing/C25196.spec.js` | `packages/tests-billing-servicing/tests/regression/account-billing/C25196.spec.ts` | `ported` | QA Automation | 2026-04-10 | Phase 4 — Adviser Billing Spec combo (typeAhead) + Active Date. Firm 106 only (no workerFirm). |
 | C25197 | `packages/legacy-poc/tests/account-billing/C25197.spec.js` | _pending_ | `pending` | QA Automation | 2026-04-09 | |
 | C25198 | `packages/legacy-poc/tests/account-billing/C25198.spec.js` | _pending_ | `pending` | QA Automation | 2026-04-09 | |
