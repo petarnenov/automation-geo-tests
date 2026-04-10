@@ -115,6 +115,13 @@ export class AccountBillingPage {
    */
   readonly displayedBillingMethod: Locator;
 
+  /**
+   * The persisted Adviser Billing Spec displayed on the summary card.
+   * Unlike the sibling-axis fields above, this one renders as a button
+   * inside a `section[data-key="adviserBillingSpecification"]`.
+   */
+  readonly displayedAdviserBillingSpec: Locator;
+
   // ─── Components for form widgets ─────────────────────────────────
 
   /**
@@ -130,6 +137,20 @@ export class AccountBillingPage {
    * (renders as blank on the summary card).
    */
   readonly billingMethod: ComboBox;
+
+  /**
+   * The Adviser Billing Spec combo (typeAhead variant). Options are
+   * firm-specific — firm 106 has "55 BPS", "55 BPS-Flows", "60 BPS",
+   * etc. Dummy firms do NOT seed billing specs, so specs that exercise
+   * this combo must run on firm 106.
+   */
+  readonly adviserBillingSpec: ComboBox;
+
+  /**
+   * The Adviser Billing Active Date picker. Only enabled when the
+   * Adviser Billing Spec is set to a non-Inherit value.
+   */
+  readonly activeDate: ReactDatePicker;
 
   constructor(page: Page) {
     this.page = page;
@@ -155,8 +176,14 @@ export class AccountBillingPage {
       .first()
       .locator('xpath=following-sibling::*[1]');
 
+    this.displayedAdviserBillingSpec = page
+      .locator('section[data-key="adviserBillingSpecification"] button')
+      .first();
+
     this.inceptionDate = new ReactDatePicker(page, '#billingInceptionDate');
     this.billingMethod = new ComboBox(page, 'billingMethodCd');
+    this.adviserBillingSpec = new ComboBox(page, 'adviserBillingSpecification');
+    this.activeDate = new ReactDatePicker(page, '#adviserBillingActiveDate');
   }
 
   /**
@@ -273,6 +300,15 @@ export class AccountBillingPage {
    */
   async getDisplayedBillingMethod(): Promise<string> {
     return (await this.displayedBillingMethod.innerText()).trim();
+  }
+
+  /**
+   * Read the persisted Adviser Billing Spec from the summary card.
+   * Returns the trimmed button text (e.g. "55 BPS", "Inherit from
+   * Household (60 BPS-HH)").
+   */
+  async getDisplayedAdviserBillingSpec(): Promise<string> {
+    return (await this.displayedAdviserBillingSpec.innerText()).trim();
   }
 
   /**
