@@ -71,6 +71,7 @@ import {
 } from '@geowealth/e2e-framework/data/constants';
 import { ReactDatePicker } from '@geowealth/e2e-framework/components/ReactDatePicker';
 import { ComboBox } from '@geowealth/e2e-framework/components/ComboBox';
+import { NumericInput } from '@geowealth/e2e-framework/components/NumericInput';
 import type { WorkerFirm } from '@geowealth/e2e-framework/fixtures';
 
 /**
@@ -164,6 +165,31 @@ export class AccountBillingPage {
    */
   readonly accountForBilling: ComboBox;
 
+  /**
+   * The Adviser Billing Discount Type combo (icon-only variant).
+   * Options: "Percent [%]", "Amount [$]".
+   */
+  readonly adviserDiscountType: ComboBox;
+
+  /**
+   * The Adviser Billing Discount Amount numeric input.
+   */
+  readonly adviserDiscountAmount: NumericInput;
+
+  /**
+   * The Adviser Billing Discount Expiration Date picker.
+   */
+  readonly adviserDiscountExpiration: ReactDatePicker;
+
+  // ─── Edit modal action links ────────────────────────────────────
+
+  /**
+   * The "Add An Adjustment" link inside the Adviser Billing section
+   * of the edit modal. Only visible when no adjustment has been saved
+   * yet; clicking it reveals the discount type/amount/date fields.
+   */
+  readonly addAdjustmentLink: Locator;
+
   constructor(page: Page) {
     this.page = page;
 
@@ -202,6 +228,10 @@ export class AccountBillingPage {
     this.adviserBillingSpec = new ComboBox(page, 'adviserBillingSpecification');
     this.activeDate = new ReactDatePicker(page, '#adviserBillingActiveDate');
     this.accountForBilling = new ComboBox(page, 'autoSelectClientAccount');
+    this.adviserDiscountType = new ComboBox(page, 'adviserBillingDiscountType');
+    this.adviserDiscountAmount = new NumericInput(page, 'adviserBillingDiscountAmountField');
+    this.adviserDiscountExpiration = new ReactDatePicker(page, '#adviserBillingDiscountDate');
+    this.addAdjustmentLink = page.locator('a', { hasText: 'Add An Adjustment' }).first();
   }
 
   /**
@@ -335,6 +365,20 @@ export class AccountBillingPage {
    */
   async getDisplayedAccountForBilling(): Promise<string> {
     return (await this.displayedAccountForBilling.innerText()).trim();
+  }
+
+  /**
+   * Ensure the Adviser Billing adjustment fields are visible inside
+   * the open edit modal. If no adjustment exists yet, clicks the
+   * "Add An Adjustment" link; otherwise this is a no-op.
+   */
+  async ensureAdjustmentExpanded(): Promise<void> {
+    if (await this.addAdjustmentLink.isVisible().catch(() => false)) {
+      await this.addAdjustmentLink.click();
+    }
+    await this.page
+      .locator('#adviserBillingDiscountTypeDiv')
+      .waitFor({ state: 'visible', timeout: 5000 });
   }
 
   /**

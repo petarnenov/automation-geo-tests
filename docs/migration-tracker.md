@@ -41,7 +41,7 @@ The seven POC areas land in `packages/tests-billing-servicing/` per D-25.
 | C25195 | `packages/legacy-poc/tests/account-billing/C25195.spec.js` | `packages/tests-billing-servicing/tests/regression/account-billing/C25195.spec.ts` | `ported` | QA Automation | 2026-04-10 | Phase 4 — Account for Billing combo (icon-only variant). |
 | C25196 | `packages/legacy-poc/tests/account-billing/C25196.spec.js` | `packages/tests-billing-servicing/tests/regression/account-billing/C25196.spec.ts` | `ported` | QA Automation | 2026-04-10 | Phase 4 — Adviser Billing Spec combo (typeAhead) + Active Date. Firm 106 only (no workerFirm). |
 | C25197 | `packages/legacy-poc/tests/account-billing/C25197.spec.js` | `packages/tests-billing-servicing/tests/regression/account-billing/C25197.spec.ts` | `ported` | QA Automation | 2026-04-10 | Phase 4 — 6 billing-bucket exclude radios + History check. |
-| C25198 | `packages/legacy-poc/tests/account-billing/C25198.spec.js` | _pending_ | `pending` | QA Automation | 2026-04-09 | |
+| C25198 | `packages/legacy-poc/tests/account-billing/C25198.spec.js` | `packages/tests-billing-servicing/tests/regression/account-billing/C25198.spec.ts` | `ported` | QA Automation | 2026-04-10 | Phase 4 — Adjustment Percent + Expiration Date (ComboBox + NumericInput + DatePicker). |
 | C25199 | `packages/legacy-poc/tests/account-billing/C25199.spec.js` | _pending_ | `pending` | QA Automation | 2026-04-09 | |
 | C25200 | `packages/legacy-poc/tests/account-billing/C25200.spec.js` | _pending_ | `pending` | QA Automation | 2026-04-09 | Pre-existing flaky in legacy POC. |
 | C25201 | `packages/legacy-poc/tests/account-billing/C25201.spec.js` | _pending_ | `pending` | QA Automation | 2026-04-09 | |
