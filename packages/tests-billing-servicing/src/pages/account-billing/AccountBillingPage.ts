@@ -70,6 +70,7 @@ import {
   arnoldDelaneyAccountBillingUrl,
 } from '@geowealth/e2e-framework/data/constants';
 import { ReactDatePicker } from '@geowealth/e2e-framework/components/ReactDatePicker';
+import { ComboBox } from '@geowealth/e2e-framework/components/ComboBox';
 import type { WorkerFirm } from '@geowealth/e2e-framework/fixtures';
 
 /**
@@ -108,6 +109,12 @@ export class AccountBillingPage {
    */
   readonly displayedInceptionDate: Locator;
 
+  /**
+   * The persisted Billing Method displayed on the summary card.
+   * Same sibling-axis pattern as `displayedInceptionDate`.
+   */
+  readonly displayedBillingMethod: Locator;
+
   // ─── Components for form widgets ─────────────────────────────────
 
   /**
@@ -116,6 +123,13 @@ export class AccountBillingPage {
    * Specs call `accountBillingPage.inceptionDate.setValue('06/15/2025')`.
    */
   readonly inceptionDate: ReactDatePicker;
+
+  /**
+   * The Billing Method combo (icon-only variant, no typeAhead).
+   * Options: "Electronic", "Paper". Default on dummy firms is empty
+   * (renders as blank on the summary card).
+   */
+  readonly billingMethod: ComboBox;
 
   constructor(page: Page) {
     this.page = page;
@@ -136,7 +150,13 @@ export class AccountBillingPage {
       .first()
       .locator('xpath=following-sibling::*[1]');
 
+    this.displayedBillingMethod = page
+      .locator('text=Billing Method')
+      .first()
+      .locator('xpath=following-sibling::*[1]');
+
     this.inceptionDate = new ReactDatePicker(page, '#billingInceptionDate');
+    this.billingMethod = new ComboBox(page, 'billingMethodCd');
   }
 
   /**
@@ -244,6 +264,15 @@ export class AccountBillingPage {
    */
   async getDisplayedInceptionDate(): Promise<string> {
     return (await this.displayedInceptionDate.innerText()).trim();
+  }
+
+  /**
+   * Read the persisted Billing Method from the summary card.
+   * Returns the trimmed text — empty string if no method is set
+   * (dummy firms come with no billing method).
+   */
+  async getDisplayedBillingMethod(): Promise<string> {
+    return (await this.displayedBillingMethod.innerText()).trim();
   }
 
   /**
