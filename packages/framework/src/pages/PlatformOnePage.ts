@@ -342,8 +342,8 @@ export class PlatformOnePage {
           `ready signal (${requestedHash}). Current URL: ${url}. The route ` +
           `guard passed (we are on Platform One) but the section's landmark ` +
           `element never appeared — likely a backend 5xx, a slow XHR, or a ` +
-          `missing permission inside the section itself. Original error: ` +
-          `${(e as Error).message}`
+          `missing permission inside the section itself.`,
+        { cause: e }
       );
     }
   }
