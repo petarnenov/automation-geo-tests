@@ -32,7 +32,7 @@ test('@regression @billing-servicing C26077 Auto-link - new GW Admin user with m
   const userMgmt = new UserManagementPage(tim1Page);
 
   // Create user in firm 1 (GeoWealth) with email X — direct URL, no typeahead
-  await p1.goToUsers(1);
+  await p1.goToUsersForFirm(1);
   await usersPage.createUser({
     firstName: `QAF1-${stamp}`,
     username: `qa-f1-${stamp}`,
@@ -41,7 +41,7 @@ test('@regression @billing-servicing C26077 Auto-link - new GW Admin user with m
   });
 
   // Create user in the worker's dummy firm with same email X
-  await p1.goToUsers(workerFirm.firmCd);
+  await p1.goToUsersForFirm(workerFirm.firmCd);
   await usersPage.createUser({
     firstName: `QAFX-${stamp}`,
     username: `qa-fx-${stamp}`,
