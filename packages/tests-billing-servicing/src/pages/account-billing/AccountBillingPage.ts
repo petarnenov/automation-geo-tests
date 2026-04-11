@@ -260,7 +260,7 @@ export class AccountBillingPage {
     this.advisorSplitActiveDate = new ReactDatePicker(page, '#billingAdvisorSplitActiveDate');
     this.advisorSplitInactiveDate = new ReactDatePicker(page, '#billingAdvisorSplitInactiveDate');
     this.adviserDiscountType = new ComboBox(page, 'adviserBillingDiscountType');
-    this.adviserDiscountAmount = new NumericInput(page, 'adviserBillingDiscountAmountField');
+    this.adviserDiscountAmount = new NumericInput(page, 'adviserBillingDiscountAmount');
     this.adviserDiscountExpiration = new ReactDatePicker(page, '#adviserBillingDiscountDate');
     this.addAdjustmentLink = page.locator('a', { hasText: 'Add An Adjustment' }).first();
   }
