@@ -4,6 +4,7 @@
     "rootDir": ".",
     "outDir": "dist",
     "noEmit": true,
+    "types": ["node"],
     "paths": {
       "@geowealth/e2e-framework": ["./src/index.ts"],
       "@geowealth/e2e-framework/*": ["./src/*"]
