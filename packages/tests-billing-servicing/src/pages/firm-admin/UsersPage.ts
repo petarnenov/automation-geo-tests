@@ -79,67 +79,133 @@ export class UsersPage {
    * response to `createUpdateUser.do` so callers know the user
    * was actually persisted, not just that the modal happened to
    * close.
+   *
+   * `defaultRole` defaults to `'Admins'` because the form's
+   * Default Role combo is required and has no auto-selected
+   * value on Create — the caller must explicitly pick one.
    */
   async createUser(fields: CreateUserFields): Promise<void> {
     await this.openCreateUserModal();
+    await this.applyUserFormFields({
+      ...fields,
+      defaultRole: fields.defaultRole ?? 'Admins',
+    });
+    await this.submitUserForm('Create');
+  }
 
-    // Wait for the first form field to mount so we know the modal
-    // content is rendered — `modal.waitForOpen` only guarantees the
-    // container is visible, not that the form body is hydrated.
+  /**
+   * Open the Edit User modal for the user matching `username` and
+   * apply the given field updates. Every field in `updates` is
+   * optional — omitted fields keep their current value. Submits
+   * via the "Save" button and waits for the
+   * `createUpdateUser.do` response so the caller knows the
+   * backend committed the edit.
+   *
+   * The grid is ag-grid virtualised, so we filter by the Username
+   * column first to make sure the target row is actually rendered
+   * before trying to click its Edit button.
+   */
+  async editUser(username: string, updates: Partial<CreateUserFields>): Promise<void> {
+    await this.filterGridByUsername(username);
+
+    const row = this.userRow(username);
+    await row.waitFor({ state: 'visible', timeout: DEFAULT_WAIT });
+
+    const editBtn = row.getByRole('button', { name: 'Edit', exact: true });
+    await editBtn.waitFor({ state: 'visible', timeout: DEFAULT_WAIT });
+    await editBtn.click();
+
+    await this.modal.waitForOpen();
     await this.firstNameField().waitFor({ state: 'visible', timeout: DEFAULT_WAIT });
 
-    // Text fields — go through React's native value setter.
-    const firstName = new TextInput(this.page, 'firstName');
-    const lastName = new TextInput(this.page, 'lastName');
-    const username = new TextInput(this.page, 'username');
-    const emailAddress = new TextInput(this.page, 'emailAddress');
+    await this.applyUserFormFields(updates);
+    await this.submitUserForm('Save');
+  }
 
-    await firstName.setValue(fields.firstName);
-    if (fields.lastName) {
-      await lastName.setValue(fields.lastName);
+  // ────────────────────────────────────────────────────────────────
+  // Private — form helpers shared by createUser / editUser
+  // ────────────────────────────────────────────────────────────────
+
+  /**
+   * Apply the non-empty fields from a `CreateUserFields`-shaped
+   * object to the currently-open Create/Edit User modal. Skips
+   * undefined fields so `editUser` can update just the ones the
+   * caller cares about. Every text field goes through the
+   * `TextInput` POM (React native value setter), the GW Admin
+   * checkbox through `Checkbox.setChecked`, and the Default Role
+   * combo through the `ComboBox` POM.
+   */
+  private async applyUserFormFields(fields: Partial<CreateUserFields>): Promise<void> {
+    if (fields.firstName !== undefined) {
+      await new TextInput(this.page, 'firstName').setValue(fields.firstName);
     }
-    await username.setValue(fields.username);
-    await emailAddress.setValue(fields.email);
-
-    if (fields.gwAdmin) {
-      const gwAdminFlag = new Checkbox(this.page, 'gwAdminFlag');
-      await gwAdminFlag.check();
+    if (fields.lastName !== undefined) {
+      await new TextInput(this.page, 'lastName').setValue(fields.lastName);
     }
+    if (fields.username !== undefined) {
+      await new TextInput(this.page, 'username').setValue(fields.username);
+    }
+    if (fields.email !== undefined) {
+      await new TextInput(this.page, 'emailAddress').setValue(fields.email);
+    }
+    if (fields.gwAdmin !== undefined) {
+      await new Checkbox(this.page, 'gwAdminFlag').setChecked(fields.gwAdmin);
+    }
+    if (fields.defaultRole !== undefined) {
+      await new ComboBox(this.page, 'defaultRoleCd').setValue(fields.defaultRole);
+    }
+  }
 
-    const defaultRole = new ComboBox(this.page, 'defaultRoleCd');
-    await defaultRole.setValue(fields.defaultRole ?? 'Admins');
-
-    // FormBuilder runs a real setTimeout-based debounce on its
-    // form validation state (~300 ms) after every field change;
-    // the Create button is DOM-enabled before that debounce
-    // settles, so clicking too early submits the form with
-    // stale internal state and the backend never sees the
-    // request. No DOM signal tracks the debounce, so a small
-    // wait is the only correct option here.
-    //
+  /**
+   * Click the submit button (`'Create'` for new users, `'Save'`
+   * for edits), wait for the `createUpdateUser.do` backend
+   * response, then wait for the modal to close.
+   *
+   * FormBuilder runs a real setTimeout-based (~300 ms) debounce
+   * on its form validation state after every field change. The
+   * submit button has **no** `disabled` DOM attribute
+   * (`disabledStyleOnly={!isFormValid}` — see
+   * `~/geowealth/WebContent/react/app/src/modules/FormBuilder/Core/SubmitButton.js`),
+   * so Playwright's built-in `toBeEnabled` is useless and the
+   * CSS-module `disabled` class we could read is hashed AND
+   * absent during the initial render window. No DOM sentinel
+   * reliably tracks the debounce — a bounded wait is the only
+   * correct option here, and ESLint's `no-wait-for-timeout`
+   * rule has to make way for this legitimate case.
+   */
+  private async submitUserForm(buttonName: 'Create' | 'Save'): Promise<void> {
     // eslint-disable-next-line playwright/no-wait-for-timeout
     await this.page.waitForTimeout(500);
 
-    // Pair the click with the create-user backend response so a
-    // failed submit surfaces as a network timeout (with our error
-    // context) instead of an opaque modal-still-open timeout. If
-    // React form validation blocks the click, no request fires
-    // and the waitForResponse times out — we can see that
-    // distinctly from a late response.
+    // Pair the click with the backend response. A failed submit
+    // surfaces as a clean network timeout, distinct from the
+    // opaque "modal never closed" waitForClose failure.
     await Promise.all([
       this.page.waitForResponse(
         (resp) => CREATE_UPDATE_USER_ENDPOINT.test(resp.url()) && resp.status() === 200,
         { timeout: CREATE_USER_TIMEOUT }
       ),
-      this.modal.clickButton('Create'),
+      this.modal.clickButton(buttonName),
     ]);
     await this.modal.waitForClose({ timeout: CREATE_USER_TIMEOUT });
 
-    // Wait for the Users grid to be ready for the next interaction.
+    // Users grid ready for the next interaction.
     await this.createNewUserButton().waitFor({
       state: 'visible',
       timeout: CREATE_USER_TIMEOUT,
     });
+  }
+
+  /**
+   * Type the given username into the Users grid's Username column
+   * header filter so the target row is rendered inside the
+   * ag-grid virtualisation window. Used before clicking the row's
+   * Edit button in `editUser`.
+   */
+  private async filterGridByUsername(username: string): Promise<void> {
+    const filter = this.page.getByRole('textbox', { name: 'Username Filter Input' });
+    await filter.waitFor({ state: 'visible', timeout: DEFAULT_WAIT });
+    await filter.fill(username);
   }
 
   // ────────────────────────────────────────────────────────────────
