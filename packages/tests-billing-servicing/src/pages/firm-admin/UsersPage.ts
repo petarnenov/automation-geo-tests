@@ -55,8 +55,15 @@ export interface CreateUserFields {
   firstName: string;
   /** Required — username, stored as-is after trim. */
   username: string;
-  /** Required — email address; must be valid per FormBuilder's `isValidEmail`. */
-  email: string;
+  /**
+   * Optional — email address. When provided must be valid per
+   * FormBuilder's `isValidEmail` or the form submit stays
+   * disabled. Omitted → the field is left untouched, which the
+   * form accepts because Email Address is not marked `required`
+   * in the AddEditUserForm field config (see
+   * `~/geowealth/.../AddEditUserForm.js`).
+   */
+  email?: string;
   /** Optional — last name. Omitted → field left empty. */
   lastName?: string;
   /** Optional — mark the user as GW Admin. Default: false. */
@@ -271,6 +278,23 @@ export class UsersPage {
   /** Locator for a Users grid data row containing `username`. */
   userRow(username: string) {
     return this.page.locator('.ag-row').filter({ hasText: username }).first();
+  }
+
+  /**
+   * Filter the Users grid by the given username via the column
+   * header filter input so the target row is inside ag-grid's
+   * virtualisation window, then return a Locator for the row.
+   *
+   * Without the filter, large firms (firm 1 especially) can have
+   * thousands of users and the freshly-created row is far outside
+   * the rendered window — `userRow(username)` would never resolve
+   * even though the backend committed the insert. Use this when
+   * you need to assert `await expect(...).toBeVisible()` on a
+   * just-created user.
+   */
+  async findUserRow(username: string) {
+    await this.filterGridByUsername(username);
+    return this.userRow(username);
   }
 
   // ────────────────────────────────────────────────────────────────

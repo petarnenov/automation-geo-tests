@@ -32,7 +32,6 @@ test('@regression @billing-servicing C26079 Auto-link - non-GW Admin user cannot
   tim1Page,
   workerFirm,
 }) => {
-  test.setTimeout(300_000);
   test.slow();
 
   const stamp = Date.now();
@@ -68,5 +67,5 @@ test('@regression @billing-servicing C26079 Auto-link - non-GW Admin user cannot
   // unlinked despite the matching email.
   await p1.goToUserManagement();
   await userMgmt.searchByEmail(1, email);
-  await expect(userMgmt.linkAction()).toBeVisible();
+  await expect(userMgmt.linkAction()).toBeVisible({ timeout: 15_000 });
 });

@@ -21,7 +21,6 @@ test('@regression @billing-servicing C26077 Auto-link - new GW Admin user with m
   tim1Page,
   workerFirm,
 }) => {
-  test.setTimeout(300_000);
   test.slow();
 
   const stamp = Date.now();
@@ -57,5 +56,5 @@ test('@regression @billing-servicing C26077 Auto-link - new GW Admin user with m
   // when both users are linked — so we assert it's visible.
   await p1.goToUserManagement();
   await userMgmt.searchByEmail(1, email);
-  await expect(userMgmt.delinkAction()).toBeVisible();
+  await expect(userMgmt.delinkAction()).toBeVisible({ timeout: 15_000 });
 });

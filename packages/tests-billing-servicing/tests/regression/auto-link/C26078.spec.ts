@@ -35,7 +35,6 @@ test('@regression @billing-servicing C26078 Auto-link - after admin email update
   tim1Page,
   workerFirm,
 }) => {
-  test.setTimeout(300_000);
   test.slow();
 
   const stamp = Date.now();
@@ -75,5 +74,5 @@ test('@regression @billing-servicing C26078 Auto-link - after admin email update
   // (both users are now linked).
   await p1.goToUserManagement();
   await userMgmt.searchByEmail(1, targetEmail);
-  await expect(userMgmt.delinkAction()).toBeVisible();
+  await expect(userMgmt.delinkAction()).toBeVisible({ timeout: 15_000 });
 });

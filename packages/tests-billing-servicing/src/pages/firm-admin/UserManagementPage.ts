@@ -207,20 +207,16 @@ export class UserManagementPage {
    * collapsed. No-op when the row is already expanded (or when
    * the grid is flat and the row has no expand icon).
    *
-   * Waits on TWO independent signals before returning:
-   *
-   *   1. The parent row's `.ag-icon-tree-closed` flips to
-   *      `.ag-icon-tree-open` — ag-grid's synchronous visual
-   *      confirmation that the expand click was registered.
-   *
-   *   2. At least one Link/Delink action cell is visible
-   *      anywhere in the grid body — proof that ag-grid has
-   *      actually materialised the child rows into the DOM,
-   *      not just flipped the icon. Without this, downstream
-   *      callers asserting `delinkAction().toBeVisible()`
-   *      hit a 5s timeout when the virtualisation render
-   *      cycle lags behind the icon flip (observed as an
-   *      intermittent C26077 flake on cold-start runs).
+   * Waits for `.ag-icon-tree-closed` to flip to
+   * `.ag-icon-tree-open` — ag-grid's synchronous visual
+   * confirmation that the expand click was registered. We do
+   * not try to wait for child rows here because the two tree
+   * shapes we see in practice — "multi-child auto-linked group"
+   * and "solo firm-1 user with no cross-firm match" — have
+   * opposite child signals (new row vs. no new row). Callers
+   * that need to assert on a child cell (e.g. Delink visible)
+   * should pass an explicit `{ timeout }` to their web-first
+   * assertion to absorb cold-start render lag.
    */
   private async expandGroupForEmail(email: string): Promise<void> {
     const row = this.groupRowForEmail(email);
@@ -230,27 +226,10 @@ export class UserManagementPage {
     if (!(await expandIcon.count())) return;
     if (!(await expandIcon.isVisible().catch(() => false))) return;
 
-    // Snapshot row count before expanding so we can wait for
-    // it to actually grow once ag-grid materialises the tree
-    // children. Relying on the `.ag-icon-tree-open` flip alone
-    // is not enough — the icon swaps synchronously with the
-    // click, but the child rows mount one virtualisation tick
-    // later, and downstream Link/Delink assertions can race
-    // the render on cold-start runs.
-    const allRows = this.page.locator('.ag-row');
-    const beforeCount = await allRows.count();
-
     await expandIcon.click();
-
     await row
       .locator('.ag-icon-tree-open')
       .waitFor({ state: 'visible', timeout: DEFAULT_ACTION_TIMEOUT });
-
-    await this.page.waitForFunction(
-      (prev) => document.querySelectorAll('.ag-row').length > prev,
-      beforeCount,
-      { timeout: DEFAULT_ACTION_TIMEOUT }
-    );
   }
 
   /**
