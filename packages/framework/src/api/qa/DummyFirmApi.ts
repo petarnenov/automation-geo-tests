@@ -1,28 +1,44 @@
 /**
- * `DummyFirmApi` — typed wrapper around `/qa/createDummyFirm.do`.
+ * `DummyFirmApi` — typed wrapper around `/qa/createDummyFirmExtended.do`.
  *
  * Phase 2 step 1.1 (D-37, Section 6.4.1). Foundation of per-worker
- * test isolation per Section 4.5 — every worker calls this once at
- * startup to provision its own firm + admin + 3 advisors + accounts.
+ * test isolation per Section 4.5 — globalSetup calls this 4× at
+ * startup to provision a fixed pool of firms, each with a full role
+ * matrix (admin + tim + gwAdmin + nonGwAdmin + 3 advisors).
  *
- * Verified live against qa2 on 2026-04-09 (firmCd=326, took ~5.5s).
- * Recorded fixture at
- * `packages/framework/tests/api/qa/__fixtures__/createDummyFirm.qa2.2026-04-09.json`
- * is the input to the unit tests in `packages/tooling/tests/`.
+ * Two recorded fixtures live in
+ * `packages/framework/tests/api/qa/__fixtures__/`:
  *
- * Endpoint contract (recorded by hand from a real qa2 response;
- * source-of-truth references in the legacy POC's worker-firm.js
- * (lines 60-126) and the project_apple_global_instrument /
- * reference_create_dummy_firm memories):
+ *   - `createDummyFirm.qa2.2026-04-09.json` — regular endpoint, kept
+ *     as a regression corpus because it contains an orphan-account
+ *     advisor (advisor 2) that the flatten() filtering rules must
+ *     continue to skip.
+ *   - `createDummyFirmExtended.qa4.2026-04-11.json` — extended
+ *     endpoint, used to validate the 7-login classification.
  *
- *   - URL:     `/qa/createDummyFirm.do`
- *   - Method:  POST or GET (both work; body is ignored)
+ * Endpoint contract (captured live from qa4 on 2026-04-11):
+ *
+ *   - URL:     `/qa/createDummyFirmExtended.do`
+ *   - Method:  POST (body is ignored)
  *   - Auth:    Platform One admin session (tim1 storage state)
- *   - Latency: ~6 seconds typical (up to 30+ under parallel load)
+ *   - Latency: ~5 seconds typical; 4× parallel may push higher
  *   - Body:    Content-Type: text/plain;charset=UTF-8, body is JSON
  *              (parsed by ApiClient as text→JSON.parse, NOT
  *              response.json(), so the content-type mismatch does
  *              not break parsing)
+ *
+ * Role matrix (extended endpoint only; regular endpoint ships just
+ * the admin + 3 advisors):
+ *
+ *   - `admin_<firmCd>`         → firm admin (top-level `adminUser`)
+ *   - `tim<firmCd>`            → per-firm tim variant
+ *   - `u<firmCd>_gwadmin`      → GW Admin scoped to this firm
+ *   - `u<firmCd>_nongwadmin`   → non-GW-Admin scoped to this firm
+ *   - `adv_<firmCd>_{1,2,3}`   → 3 advisors with household/client/accounts
+ *
+ * `classifyLogins()` bins users[] by loginName regex. When the regular
+ * endpoint is fed in, the non-advisor bins are simply `null` — the
+ * classification degrades gracefully.
  *
  * Production safety (D-09): the underlying `ApiClient` refuses every
  * `/qa/*` call when `environment === 'production'`. This class
@@ -83,7 +99,14 @@ const clientNodeSchema: z.ZodType<ClientNode> = z.lazy(() =>
   })
 );
 
-const advisorSchema = z.object({
+/**
+ * Schema for an entry in `users[]`. The extended endpoint ships a
+ * mixed array: actual advisors (with populated `clients[]` households)
+ * and role-only users like `tim<firmCd>`, `u<firmCd>_gwadmin`,
+ * `u<firmCd>_nongwadmin` that have `clients: []` and `adviserId: null`.
+ * A single schema validates both shapes.
+ */
+const userEntrySchema = z.object({
   loginName: z.string(),
   name: z.string(),
   adviserId: z.string().nullable(),
@@ -94,7 +117,9 @@ const advisorSchema = z.object({
  * Top-level schema for the createDummyFirm response. Uses `passthrough`
  * to ignore the noise fields (metaData, conversationUUID, portalAlert,
  * portalLockout, rows, totalCount, objectType, nomenclatureSerial)
- * without rejecting future additions.
+ * without rejecting future additions. `firm.firmUrl` is optional
+ * because the regular `createDummyFirm.do` endpoint does not set it
+ * while the extended endpoint does.
  */
 export const createDummyFirmResponseSchema = z
   .object({
@@ -102,12 +127,13 @@ export const createDummyFirmResponseSchema = z
     firm: z.object({
       firmCd: z.number(),
       firmName: z.string(),
+      firmUrl: z.string().optional(),
     }),
     adminUser: z.object({
       loginName: z.string(),
       entityId: z.string(),
     }),
-    users: z.array(advisorSchema),
+    users: z.array(userEntrySchema),
   })
   .passthrough();
 
@@ -130,20 +156,98 @@ export interface DummyFirmTuple {
 }
 
 /**
+ * The full login roster extracted from a createDummyFirmExtended
+ * response. Non-advisor bins (`tim`, `gwAdmin`, `nonGwAdmin`) are
+ * `null` when the underlying response does not contain them — the
+ * regular `createDummyFirm.do` endpoint only ships admin + advisors,
+ * so those bins are null for that mode. The `admin` and `advisors`
+ * fields are always populated (the schema guarantees `adminUser` and
+ * at least a possibly-empty `users[]`).
+ */
+export interface DummyFirmLogins {
+  readonly admin: { readonly loginName: string; readonly entityId: string };
+  readonly tim: { readonly loginName: string; readonly name: string } | null;
+  readonly gwAdmin: { readonly loginName: string; readonly name: string } | null;
+  readonly nonGwAdmin: { readonly loginName: string; readonly name: string } | null;
+  readonly advisors: ReadonlyArray<{
+    readonly loginName: string;
+    readonly name: string;
+  }>;
+}
+
+/**
  * The fully-flattened firm view returned by `DummyFirmApi.create()`.
  * The first usable tuple is hoisted to the top level for ergonomics;
- * the full list is available via `tuples`.
+ * the full list is available via `tuples`. The `logins` field groups
+ * every login in the response by role — used by globalSetup to
+ * capture per-role storage states.
  */
 export interface DummyFirm {
   readonly firmCd: number;
   readonly firmName: string;
+  readonly firmUrl: string | null;
   readonly admin: { readonly loginName: string; readonly entityId: string };
   readonly advisor: DummyFirmTuple['advisor'];
   readonly household: DummyFirmTuple['household'];
   readonly client: DummyFirmTuple['client'];
   readonly accounts: DummyFirmTuple['accounts'];
   readonly tuples: ReadonlyArray<DummyFirmTuple>;
+  readonly logins: DummyFirmLogins;
   readonly raw: CreateDummyFirmResponse;
+}
+
+/**
+ * Bin `users[]` by loginName regex into the `DummyFirmLogins` shape.
+ *
+ * The regular endpoint ships only advisors (`adv_<firmCd>_<n>`), so
+ * the non-advisor bins are `null` in that mode. The extended endpoint
+ * ships the full matrix; every bin is populated.
+ *
+ * Multiple matches (shouldn't happen in practice) keep the first one
+ * and log a warning — the assumption is that qa endpoints return at
+ * most one per role slot.
+ *
+ * Exported for unit testing.
+ */
+export function classifyLogins(raw: CreateDummyFirmResponse): DummyFirmLogins {
+  const fc = raw.firm.firmCd;
+  const timRe = new RegExp(`^tim${fc}$`);
+  const gwRe = new RegExp(`^u${fc}_gwadmin$`, 'i');
+  const nonGwRe = new RegExp(`^u${fc}_nongwadmin$`, 'i');
+  const advRe = new RegExp(`^adv_${fc}_\\d+$`);
+
+  let tim: DummyFirmLogins['tim'] = null;
+  let gwAdmin: DummyFirmLogins['gwAdmin'] = null;
+  let nonGwAdmin: DummyFirmLogins['nonGwAdmin'] = null;
+  const advisors: Array<{ loginName: string; name: string }> = [];
+
+  for (const u of raw.users) {
+    const pair = { loginName: u.loginName, name: u.name };
+    if (timRe.test(u.loginName)) {
+      tim ??= pair;
+    } else if (gwRe.test(u.loginName)) {
+      gwAdmin ??= pair;
+    } else if (nonGwRe.test(u.loginName)) {
+      nonGwAdmin ??= pair;
+    } else if (advRe.test(u.loginName)) {
+      advisors.push(pair);
+    }
+  }
+
+  // Sort advisors by numeric suffix so `adv_1011_1` precedes `adv_1011_2`.
+  advisors.sort((a, b) => {
+    const na = Number(a.loginName.split('_').pop() ?? 0);
+    const nb = Number(b.loginName.split('_').pop() ?? 0);
+    return na - nb;
+  });
+
+  return {
+    admin: { loginName: raw.adminUser.loginName, entityId: raw.adminUser.entityId },
+    tim,
+    gwAdmin,
+    nonGwAdmin,
+    advisors,
+  };
 }
 
 /**
@@ -204,11 +308,13 @@ export function flattenFirm(raw: CreateDummyFirmResponse): DummyFirmTuple[] {
  *   await page.goto(`#/client/1/${firm.client.uuid}/accounts/${firm.accounts[0].uuid}/billing`);
  */
 export class DummyFirmApi {
-  private static readonly ENDPOINT = '/qa/createDummyFirm.do';
+  private static readonly ENDPOINT = '/qa/createDummyFirmExtended.do';
 
-  // The extended endpoint provisions a firm with Platform One access.
-  // Can take 60+ seconds under load or on local servers.
-  private static readonly TIMEOUT_MS = 120_000;
+  // The extended endpoint provisions a firm with Platform One access
+  // plus the full role matrix (admin + tim + gwAdmin + nonGwAdmin
+  // + 3 advisors). Can take 60+ seconds under load or on local
+  // servers; 4× parallel from globalSetup may push higher.
+  private static readonly TIMEOUT_MS = 180_000;
 
   constructor(private readonly client: ApiClient) {}
 
@@ -251,18 +357,18 @@ export class DummyFirmApi {
       );
     }
     const primary = tuples[0];
+    const logins = classifyLogins(raw);
     return {
       firmCd: raw.firm.firmCd,
       firmName: raw.firm.firmName,
-      admin: {
-        loginName: raw.adminUser.loginName,
-        entityId: raw.adminUser.entityId,
-      },
+      firmUrl: raw.firm.firmUrl ?? null,
+      admin: logins.admin,
       advisor: primary.advisor,
       household: primary.household,
       client: primary.client,
       accounts: primary.accounts,
       tuples,
+      logins,
       raw,
     };
   }

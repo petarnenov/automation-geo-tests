@@ -1,0 +1,571 @@
+{
+  "firm": {
+    "firmUrl": "f1011qa.geowealth.com",
+    "firmCd": 1011,
+    "firmName": "Firm-20260411142037"
+  },
+  "metaData": null,
+  "conversationUUID": null,
+  "adminUser": {
+    "loginName": "admin_1011",
+    "entityId": "019D7C45BB7E728CA6DDDC3B9D084473"
+  },
+  "portalAlert": null,
+  "success": true,
+  "portalLockout": null,
+  "rows": [],
+  "totalCount": null,
+  "users": [
+    {
+      "clients": [],
+      "adviserId": null,
+      "loginName": "tim1011",
+      "name": "sn-tim1011, gn-tim1011"
+    },
+    {
+      "clients": [],
+      "adviserId": null,
+      "loginName": "u1011_gwadmin",
+      "name": "sn-u1011_gwAdmin, gn-u1011_gwAdmin"
+    },
+    {
+      "clients": [
+        {
+          "clients": [
+            {
+              "clients": [],
+              "adviserID": "019D7C45BE847D72A74952AF211948B2",
+              "name": "clSR-20260411142037-1, clGn-20260411142037-1",
+              "adviserName": "sn-advisor-20260411142037-1, gn-advisor-20260411142037-1",
+              "accounts": [
+                {
+                  "hh": "019D7C45C09A73EC8A01E549EF41FE78",
+                  "accountID": "019D7C45BFF779E683D29BE60648890C",
+                  "accountNum": "accnum-20260411142037-1-2",
+                  "accountTitle": "accnum-20260411142037-1-2",
+                  "client": "019D7C45BF1571D6A8FB7AFB94E715F3"
+                },
+                {
+                  "hh": "019D7C45C09A73EC8A01E549EF41FE78",
+                  "accountID": "019D7C45C03E7938BB2E935828CB225B",
+                  "accountNum": "accnum-20260411142037-1-3",
+                  "accountTitle": "accnum-20260411142037-1-3",
+                  "client": "019D7C45BF1571D6A8FB7AFB94E715F3"
+                },
+                {
+                  "hh": "019D7C45C09A73EC8A01E549EF41FE78",
+                  "accountID": "019D7C45BF577609ADFAD12DF4786A05",
+                  "accountNum": "accnum-20260411142037-1-1",
+                  "accountTitle": "accnum-20260411142037-1-1",
+                  "client": "019D7C45BF1571D6A8FB7AFB94E715F3"
+                }
+              ],
+              "entityTypeCd": 1,
+              "userId": "019D7C45BF1571D6A8FB7AFB94E715F3"
+            }
+          ],
+          "adviserID": "019D7C45BE847D72A74952AF211948B2",
+          "name": "hh-20260411142037-1",
+          "adviserName": "sn-advisor-20260411142037-1, gn-advisor-20260411142037-1",
+          "accounts": [],
+          "entityTypeCd": 5,
+          "userId": "019D7C45C09A73EC8A01E549EF41FE78"
+        },
+        {
+          "clients": [
+            {
+              "clients": [],
+              "adviserID": "019D7C45C2B97B338211628940D08755",
+              "name": "clSR-20260411142037-3, clGn-20260411142037-3",
+              "adviserName": "sn-advisor-20260411142037-3, gn-advisor-20260411142037-3",
+              "accounts": [
+                {
+                  "hh": "019D7C45C45F7284B9687FB4D7853791",
+                  "accountID": "019D7C45C3DA7952B5044E5BC94308FD",
+                  "accountNum": "accnum-20260411142037-3-2",
+                  "accountTitle": "accnum-20260411142037-3-2",
+                  "client": "019D7C45C34671D191EF40DC885B8712"
+                },
+                {
+                  "hh": "019D7C45C45F7284B9687FB4D7853791",
+                  "accountID": "019D7C45C3807BFD88936B9B39EDD976",
+                  "accountNum": "accnum-20260411142037-3-1",
+                  "accountTitle": "accnum-20260411142037-3-1",
+                  "client": "019D7C45C34671D191EF40DC885B8712"
+                },
+                {
+                  "hh": "019D7C45C45F7284B9687FB4D7853791",
+                  "accountID": "019D7C45C4217B2B9F825D07DC515738",
+                  "accountNum": "accnum-20260411142037-3-3",
+                  "accountTitle": "accnum-20260411142037-3-3",
+                  "client": "019D7C45C34671D191EF40DC885B8712"
+                }
+              ],
+              "entityTypeCd": 1,
+              "userId": "019D7C45C34671D191EF40DC885B8712"
+            }
+          ],
+          "adviserID": "019D7C45C2B97B338211628940D08755",
+          "name": "hh-20260411142037-3",
+          "adviserName": "sn-advisor-20260411142037-3, gn-advisor-20260411142037-3",
+          "accounts": [],
+          "entityTypeCd": 5,
+          "userId": "019D7C45C45F7284B9687FB4D7853791"
+        },
+        {
+          "clients": [],
+          "adviserID": "019D7C45BE847D72A74952AF211948B2",
+          "name": "cg-all-1011",
+          "adviserName": "sn-advisor-20260411142037-1, gn-advisor-20260411142037-1",
+          "accounts": [],
+          "entityTypeCd": 7,
+          "userId": "019D7C45C97075ECB1E1627A34849CDE"
+        },
+        {
+          "clients": [],
+          "adviserID": "019D7C45C0C87B37BF35653D72F3A94A",
+          "name": "clSR-20260411142037-2, clGn-20260411142037-2",
+          "adviserName": "sn-advisor-20260411142037-2, gn-advisor-20260411142037-2",
+          "accounts": [
+            {
+              "hh": null,
+              "accountID": "019D7C45C1C97EE098BB39FB19553A27",
+              "accountNum": "accnum-20260411142037-2-1",
+              "accountTitle": "accnum-20260411142037-2-1",
+              "client": "019D7C45C1997FECAE21C0748BF94F17"
+            },
+            {
+              "hh": null,
+              "accountID": "019D7C45C2727412B3740B9F3A353B3D",
+              "accountNum": "accnum-20260411142037-2-3",
+              "accountTitle": "accnum-20260411142037-2-3",
+              "client": "019D7C45C1997FECAE21C0748BF94F17"
+            },
+            {
+              "hh": null,
+              "accountID": "019D7C45C2297799843299433407F7F2",
+              "accountNum": "accnum-20260411142037-2-2",
+              "accountTitle": "accnum-20260411142037-2-2",
+              "client": "019D7C45C1997FECAE21C0748BF94F17"
+            }
+          ],
+          "entityTypeCd": 1,
+          "userId": "019D7C45C1997FECAE21C0748BF94F17"
+        },
+        {
+          "clients": [],
+          "adviserID": "019D7C45C0C87B37BF35653D72F3A94A",
+          "name": "prospectSR-20260411142037-2, prospectGN-20260411142037-2",
+          "adviserName": "sn-advisor-20260411142037-2, gn-advisor-20260411142037-2",
+          "accounts": [
+            {
+              "hh": null,
+              "accountID": "019D7C45C91872F98EC25C0B9876087F",
+              "accountNum": "accnum-20260411142037-102-2",
+              "accountTitle": "accnum-20260411142037-102-2",
+              "client": "019D7C45C8AD7BC0820E00849F039D2A"
+            },
+            {
+              "hh": null,
+              "accountID": "019D7C45C8CC7527862AD22CDE17074D",
+              "accountNum": "accnum-20260411142037-102-1",
+              "accountTitle": "accnum-20260411142037-102-1",
+              "client": "019D7C45C8AD7BC0820E00849F039D2A"
+            }
+          ],
+          "entityTypeCd": 1,
+          "userId": "019D7C45C8AD7BC0820E00849F039D2A"
+        },
+        {
+          "clients": [],
+          "adviserID": "019D7C45C0C87B37BF35653D72F3A94A",
+          "name": "prospectSR-20260411142037-1, prospectGN-20260411142037-1",
+          "adviserName": "sn-advisor-20260411142037-2, gn-advisor-20260411142037-2",
+          "accounts": [
+            {
+              "hh": null,
+              "accountID": "019D7C45C8697F3FB7443A20C2900760",
+              "accountNum": "accnum-20260411142037-101-2",
+              "accountTitle": "accnum-20260411142037-101-2",
+              "client": "019D7C45C809756A9DF262E87017BCAE"
+            },
+            {
+              "hh": null,
+              "accountID": "019D7C45C8257B6AAB467DF7F51B48D5",
+              "accountNum": "accnum-20260411142037-101-1",
+              "accountTitle": "accnum-20260411142037-101-1",
+              "client": "019D7C45C809756A9DF262E87017BCAE"
+            }
+          ],
+          "entityTypeCd": 1,
+          "userId": "019D7C45C809756A9DF262E87017BCAE"
+        }
+      ],
+      "adviserId": null,
+      "loginName": "adv_1011_3",
+      "name": "sn-advisor-20260411142037-3, gn-advisor-20260411142037-3"
+    },
+    {
+      "clients": [
+        {
+          "clients": [
+            {
+              "clients": [],
+              "adviserID": "019D7C45BE847D72A74952AF211948B2",
+              "name": "clSR-20260411142037-1, clGn-20260411142037-1",
+              "adviserName": "sn-advisor-20260411142037-1, gn-advisor-20260411142037-1",
+              "accounts": [
+                {
+                  "hh": "019D7C45C09A73EC8A01E549EF41FE78",
+                  "accountID": "019D7C45BFF779E683D29BE60648890C",
+                  "accountNum": "accnum-20260411142037-1-2",
+                  "accountTitle": "accnum-20260411142037-1-2",
+                  "client": "019D7C45BF1571D6A8FB7AFB94E715F3"
+                },
+                {
+                  "hh": "019D7C45C09A73EC8A01E549EF41FE78",
+                  "accountID": "019D7C45C03E7938BB2E935828CB225B",
+                  "accountNum": "accnum-20260411142037-1-3",
+                  "accountTitle": "accnum-20260411142037-1-3",
+                  "client": "019D7C45BF1571D6A8FB7AFB94E715F3"
+                },
+                {
+                  "hh": "019D7C45C09A73EC8A01E549EF41FE78",
+                  "accountID": "019D7C45BF577609ADFAD12DF4786A05",
+                  "accountNum": "accnum-20260411142037-1-1",
+                  "accountTitle": "accnum-20260411142037-1-1",
+                  "client": "019D7C45BF1571D6A8FB7AFB94E715F3"
+                }
+              ],
+              "entityTypeCd": 1,
+              "userId": "019D7C45BF1571D6A8FB7AFB94E715F3"
+            }
+          ],
+          "adviserID": "019D7C45BE847D72A74952AF211948B2",
+          "name": "hh-20260411142037-1",
+          "adviserName": "sn-advisor-20260411142037-1, gn-advisor-20260411142037-1",
+          "accounts": [],
+          "entityTypeCd": 5,
+          "userId": "019D7C45C09A73EC8A01E549EF41FE78"
+        },
+        {
+          "clients": [
+            {
+              "clients": [],
+              "adviserID": "019D7C45C2B97B338211628940D08755",
+              "name": "clSR-20260411142037-3, clGn-20260411142037-3",
+              "adviserName": "sn-advisor-20260411142037-3, gn-advisor-20260411142037-3",
+              "accounts": [
+                {
+                  "hh": "019D7C45C45F7284B9687FB4D7853791",
+                  "accountID": "019D7C45C3DA7952B5044E5BC94308FD",
+                  "accountNum": "accnum-20260411142037-3-2",
+                  "accountTitle": "accnum-20260411142037-3-2",
+                  "client": "019D7C45C34671D191EF40DC885B8712"
+                },
+                {
+                  "hh": "019D7C45C45F7284B9687FB4D7853791",
+                  "accountID": "019D7C45C3807BFD88936B9B39EDD976",
+                  "accountNum": "accnum-20260411142037-3-1",
+                  "accountTitle": "accnum-20260411142037-3-1",
+                  "client": "019D7C45C34671D191EF40DC885B8712"
+                },
+                {
+                  "hh": "019D7C45C45F7284B9687FB4D7853791",
+                  "accountID": "019D7C45C4217B2B9F825D07DC515738",
+                  "accountNum": "accnum-20260411142037-3-3",
+                  "accountTitle": "accnum-20260411142037-3-3",
+                  "client": "019D7C45C34671D191EF40DC885B8712"
+                }
+              ],
+              "entityTypeCd": 1,
+              "userId": "019D7C45C34671D191EF40DC885B8712"
+            }
+          ],
+          "adviserID": "019D7C45C2B97B338211628940D08755",
+          "name": "hh-20260411142037-3",
+          "adviserName": "sn-advisor-20260411142037-3, gn-advisor-20260411142037-3",
+          "accounts": [],
+          "entityTypeCd": 5,
+          "userId": "019D7C45C45F7284B9687FB4D7853791"
+        },
+        {
+          "clients": [],
+          "adviserID": "019D7C45BE847D72A74952AF211948B2",
+          "name": "cg-all-1011",
+          "adviserName": "sn-advisor-20260411142037-1, gn-advisor-20260411142037-1",
+          "accounts": [],
+          "entityTypeCd": 7,
+          "userId": "019D7C45C97075ECB1E1627A34849CDE"
+        },
+        {
+          "clients": [],
+          "adviserID": "019D7C45C0C87B37BF35653D72F3A94A",
+          "name": "clSR-20260411142037-2, clGn-20260411142037-2",
+          "adviserName": "sn-advisor-20260411142037-2, gn-advisor-20260411142037-2",
+          "accounts": [
+            {
+              "hh": null,
+              "accountID": "019D7C45C1C97EE098BB39FB19553A27",
+              "accountNum": "accnum-20260411142037-2-1",
+              "accountTitle": "accnum-20260411142037-2-1",
+              "client": "019D7C45C1997FECAE21C0748BF94F17"
+            },
+            {
+              "hh": null,
+              "accountID": "019D7C45C2727412B3740B9F3A353B3D",
+              "accountNum": "accnum-20260411142037-2-3",
+              "accountTitle": "accnum-20260411142037-2-3",
+              "client": "019D7C45C1997FECAE21C0748BF94F17"
+            },
+            {
+              "hh": null,
+              "accountID": "019D7C45C2297799843299433407F7F2",
+              "accountNum": "accnum-20260411142037-2-2",
+              "accountTitle": "accnum-20260411142037-2-2",
+              "client": "019D7C45C1997FECAE21C0748BF94F17"
+            }
+          ],
+          "entityTypeCd": 1,
+          "userId": "019D7C45C1997FECAE21C0748BF94F17"
+        },
+        {
+          "clients": [],
+          "adviserID": "019D7C45C0C87B37BF35653D72F3A94A",
+          "name": "prospectSR-20260411142037-2, prospectGN-20260411142037-2",
+          "adviserName": "sn-advisor-20260411142037-2, gn-advisor-20260411142037-2",
+          "accounts": [
+            {
+              "hh": null,
+              "accountID": "019D7C45C91872F98EC25C0B9876087F",
+              "accountNum": "accnum-20260411142037-102-2",
+              "accountTitle": "accnum-20260411142037-102-2",
+              "client": "019D7C45C8AD7BC0820E00849F039D2A"
+            },
+            {
+              "hh": null,
+              "accountID": "019D7C45C8CC7527862AD22CDE17074D",
+              "accountNum": "accnum-20260411142037-102-1",
+              "accountTitle": "accnum-20260411142037-102-1",
+              "client": "019D7C45C8AD7BC0820E00849F039D2A"
+            }
+          ],
+          "entityTypeCd": 1,
+          "userId": "019D7C45C8AD7BC0820E00849F039D2A"
+        },
+        {
+          "clients": [],
+          "adviserID": "019D7C45C0C87B37BF35653D72F3A94A",
+          "name": "prospectSR-20260411142037-1, prospectGN-20260411142037-1",
+          "adviserName": "sn-advisor-20260411142037-2, gn-advisor-20260411142037-2",
+          "accounts": [
+            {
+              "hh": null,
+              "accountID": "019D7C45C8697F3FB7443A20C2900760",
+              "accountNum": "accnum-20260411142037-101-2",
+              "accountTitle": "accnum-20260411142037-101-2",
+              "client": "019D7C45C809756A9DF262E87017BCAE"
+            },
+            {
+              "hh": null,
+              "accountID": "019D7C45C8257B6AAB467DF7F51B48D5",
+              "accountNum": "accnum-20260411142037-101-1",
+              "accountTitle": "accnum-20260411142037-101-1",
+              "client": "019D7C45C809756A9DF262E87017BCAE"
+            }
+          ],
+          "entityTypeCd": 1,
+          "userId": "019D7C45C809756A9DF262E87017BCAE"
+        }
+      ],
+      "adviserId": null,
+      "loginName": "adv_1011_2",
+      "name": "sn-advisor-20260411142037-2, gn-advisor-20260411142037-2"
+    },
+    {
+      "clients": [
+        {
+          "clients": [
+            {
+              "clients": [],
+              "adviserID": "019D7C45BE847D72A74952AF211948B2",
+              "name": "clSR-20260411142037-1, clGn-20260411142037-1",
+              "adviserName": "sn-advisor-20260411142037-1, gn-advisor-20260411142037-1",
+              "accounts": [
+                {
+                  "hh": "019D7C45C09A73EC8A01E549EF41FE78",
+                  "accountID": "019D7C45BFF779E683D29BE60648890C",
+                  "accountNum": "accnum-20260411142037-1-2",
+                  "accountTitle": "accnum-20260411142037-1-2",
+                  "client": "019D7C45BF1571D6A8FB7AFB94E715F3"
+                },
+                {
+                  "hh": "019D7C45C09A73EC8A01E549EF41FE78",
+                  "accountID": "019D7C45C03E7938BB2E935828CB225B",
+                  "accountNum": "accnum-20260411142037-1-3",
+                  "accountTitle": "accnum-20260411142037-1-3",
+                  "client": "019D7C45BF1571D6A8FB7AFB94E715F3"
+                },
+                {
+                  "hh": "019D7C45C09A73EC8A01E549EF41FE78",
+                  "accountID": "019D7C45BF577609ADFAD12DF4786A05",
+                  "accountNum": "accnum-20260411142037-1-1",
+                  "accountTitle": "accnum-20260411142037-1-1",
+                  "client": "019D7C45BF1571D6A8FB7AFB94E715F3"
+                }
+              ],
+              "entityTypeCd": 1,
+              "userId": "019D7C45BF1571D6A8FB7AFB94E715F3"
+            }
+          ],
+          "adviserID": "019D7C45BE847D72A74952AF211948B2",
+          "name": "hh-20260411142037-1",
+          "adviserName": "sn-advisor-20260411142037-1, gn-advisor-20260411142037-1",
+          "accounts": [],
+          "entityTypeCd": 5,
+          "userId": "019D7C45C09A73EC8A01E549EF41FE78"
+        },
+        {
+          "clients": [
+            {
+              "clients": [],
+              "adviserID": "019D7C45C2B97B338211628940D08755",
+              "name": "clSR-20260411142037-3, clGn-20260411142037-3",
+              "adviserName": "sn-advisor-20260411142037-3, gn-advisor-20260411142037-3",
+              "accounts": [
+                {
+                  "hh": "019D7C45C45F7284B9687FB4D7853791",
+                  "accountID": "019D7C45C3DA7952B5044E5BC94308FD",
+                  "accountNum": "accnum-20260411142037-3-2",
+                  "accountTitle": "accnum-20260411142037-3-2",
+                  "client": "019D7C45C34671D191EF40DC885B8712"
+                },
+                {
+                  "hh": "019D7C45C45F7284B9687FB4D7853791",
+                  "accountID": "019D7C45C3807BFD88936B9B39EDD976",
+                  "accountNum": "accnum-20260411142037-3-1",
+                  "accountTitle": "accnum-20260411142037-3-1",
+                  "client": "019D7C45C34671D191EF40DC885B8712"
+                },
+                {
+                  "hh": "019D7C45C45F7284B9687FB4D7853791",
+                  "accountID": "019D7C45C4217B2B9F825D07DC515738",
+                  "accountNum": "accnum-20260411142037-3-3",
+                  "accountTitle": "accnum-20260411142037-3-3",
+                  "client": "019D7C45C34671D191EF40DC885B8712"
+                }
+              ],
+              "entityTypeCd": 1,
+              "userId": "019D7C45C34671D191EF40DC885B8712"
+            }
+          ],
+          "adviserID": "019D7C45C2B97B338211628940D08755",
+          "name": "hh-20260411142037-3",
+          "adviserName": "sn-advisor-20260411142037-3, gn-advisor-20260411142037-3",
+          "accounts": [],
+          "entityTypeCd": 5,
+          "userId": "019D7C45C45F7284B9687FB4D7853791"
+        },
+        {
+          "clients": [],
+          "adviserID": "019D7C45BE847D72A74952AF211948B2",
+          "name": "cg-all-1011",
+          "adviserName": "sn-advisor-20260411142037-1, gn-advisor-20260411142037-1",
+          "accounts": [],
+          "entityTypeCd": 7,
+          "userId": "019D7C45C97075ECB1E1627A34849CDE"
+        },
+        {
+          "clients": [],
+          "adviserID": "019D7C45C0C87B37BF35653D72F3A94A",
+          "name": "clSR-20260411142037-2, clGn-20260411142037-2",
+          "adviserName": "sn-advisor-20260411142037-2, gn-advisor-20260411142037-2",
+          "accounts": [
+            {
+              "hh": null,
+              "accountID": "019D7C45C1C97EE098BB39FB19553A27",
+              "accountNum": "accnum-20260411142037-2-1",
+              "accountTitle": "accnum-20260411142037-2-1",
+              "client": "019D7C45C1997FECAE21C0748BF94F17"
+            },
+            {
+              "hh": null,
+              "accountID": "019D7C45C2727412B3740B9F3A353B3D",
+              "accountNum": "accnum-20260411142037-2-3",
+              "accountTitle": "accnum-20260411142037-2-3",
+              "client": "019D7C45C1997FECAE21C0748BF94F17"
+            },
+            {
+              "hh": null,
+              "accountID": "019D7C45C2297799843299433407F7F2",
+              "accountNum": "accnum-20260411142037-2-2",
+              "accountTitle": "accnum-20260411142037-2-2",
+              "client": "019D7C45C1997FECAE21C0748BF94F17"
+            }
+          ],
+          "entityTypeCd": 1,
+          "userId": "019D7C45C1997FECAE21C0748BF94F17"
+        },
+        {
+          "clients": [],
+          "adviserID": "019D7C45C0C87B37BF35653D72F3A94A",
+          "name": "prospectSR-20260411142037-2, prospectGN-20260411142037-2",
+          "adviserName": "sn-advisor-20260411142037-2, gn-advisor-20260411142037-2",
+          "accounts": [
+            {
+              "hh": null,
+              "accountID": "019D7C45C91872F98EC25C0B9876087F",
+              "accountNum": "accnum-20260411142037-102-2",
+              "accountTitle": "accnum-20260411142037-102-2",
+              "client": "019D7C45C8AD7BC0820E00849F039D2A"
+            },
+            {
+              "hh": null,
+              "accountID": "019D7C45C8CC7527862AD22CDE17074D",
+              "accountNum": "accnum-20260411142037-102-1",
+              "accountTitle": "accnum-20260411142037-102-1",
+              "client": "019D7C45C8AD7BC0820E00849F039D2A"
+            }
+          ],
+          "entityTypeCd": 1,
+          "userId": "019D7C45C8AD7BC0820E00849F039D2A"
+        },
+        {
+          "clients": [],
+          "adviserID": "019D7C45C0C87B37BF35653D72F3A94A",
+          "name": "prospectSR-20260411142037-1, prospectGN-20260411142037-1",
+          "adviserName": "sn-advisor-20260411142037-2, gn-advisor-20260411142037-2",
+          "accounts": [
+            {
+              "hh": null,
+              "accountID": "019D7C45C8697F3FB7443A20C2900760",
+              "accountNum": "accnum-20260411142037-101-2",
+              "accountTitle": "accnum-20260411142037-101-2",
+              "client": "019D7C45C809756A9DF262E87017BCAE"
+            },
+            {
+              "hh": null,
+              "accountID": "019D7C45C8257B6AAB467DF7F51B48D5",
+              "accountNum": "accnum-20260411142037-101-1",
+              "accountTitle": "accnum-20260411142037-101-1",
+              "client": "019D7C45C809756A9DF262E87017BCAE"
+            }
+          ],
+          "entityTypeCd": 1,
+          "userId": "019D7C45C809756A9DF262E87017BCAE"
+        }
+      ],
+      "adviserId": null,
+      "loginName": "adv_1011_1",
+      "name": "sn-advisor-20260411142037-1, gn-advisor-20260411142037-1"
+    },
+    {
+      "clients": [],
+      "adviserId": null,
+      "loginName": "u1011_nongwadmin",
+      "name": "sn-u1011_nonGwAdmin, gn-u1011_nonGwAdmin"
+    }
+  ],
+  "objectType": null,
+  "nomenclatureSerial": 0
+}

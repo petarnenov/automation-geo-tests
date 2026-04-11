@@ -15,8 +15,10 @@ export { ApiClient, ApiClientGuardError, type ApiClientOptions, type ApiResponse
 export {
   DummyFirmApi,
   flattenFirm,
+  classifyLogins,
   createDummyFirmResponseSchema,
   type CreateDummyFirmResponse,
   type DummyFirm,
+  type DummyFirmLogins,
   type DummyFirmTuple,
 } from './qa/DummyFirmApi';

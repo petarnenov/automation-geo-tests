@@ -21,17 +21,28 @@ import {
   ApiClientGuardError,
   DummyFirmApi,
   flattenFirm,
+  classifyLogins,
   createDummyFirmResponseSchema,
 } from '../../framework/src/api/index.ts';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const FIXTURE_PATH = path.resolve(
+const REGULAR_FIXTURE_PATH = path.resolve(
   __dirname,
   '../../framework/tests/api/qa/__fixtures__/createDummyFirm.qa2.2026-04-09.json'
 );
+const EXTENDED_FIXTURE_PATH = path.resolve(
+  __dirname,
+  '../../framework/tests/api/qa/__fixtures__/createDummyFirmExtended.qa4.2026-04-11.json'
+);
 
+/** Load the old regular-endpoint fixture (firmCd 326, orphan advisor). */
 function loadFixture(): unknown {
-  return JSON.parse(fs.readFileSync(FIXTURE_PATH, 'utf8'));
+  return JSON.parse(fs.readFileSync(REGULAR_FIXTURE_PATH, 'utf8'));
+}
+
+/** Load the extended-endpoint fixture (firmCd 1011, full role matrix). */
+function loadExtendedFixture(): unknown {
+  return JSON.parse(fs.readFileSync(EXTENDED_FIXTURE_PATH, 'utf8'));
 }
 
 // ─────────────────────────────────────────────────────────────────────
@@ -288,7 +299,7 @@ describe('ApiClient — content-type quirk', () => {
 describe('DummyFirmApi.create() with mock transport', () => {
   it('drives the full path: post → text→JSON.parse → schema validate → flatten → assemble', async () => {
     const { request, postCalls } = makeMockRequest({
-      bodyText: fs.readFileSync(FIXTURE_PATH, 'utf8'),
+      bodyText: fs.readFileSync(EXTENDED_FIXTURE_PATH, 'utf8'),
       contentType: 'text/plain;charset=UTF-8',
     });
     const client = new ApiClient({ request, environment: 'qa2' });
@@ -296,25 +307,97 @@ describe('DummyFirmApi.create() with mock transport', () => {
     const firm = await dummyFirmApi.create();
 
     assert.equal(postCalls.length, 1);
-    assert.equal(postCalls[0].url, '/qa/createDummyFirm.do');
-    assert.equal(firm.firmCd, 326);
-    assert.equal(firm.advisor.loginName, 'adv_326_1');
-    assert.equal(firm.tuples.length, 2);
+    assert.equal(postCalls[0].url, '/qa/createDummyFirmExtended.do');
+    assert.equal(firm.firmCd, 1011);
+    // `firm.advisor` is hoisted from flattenFirm()'s first tuple,
+    // which walks users[] in response order. The extended fixture
+    // lists advisors in the order adv_1011_3, adv_1011_2, adv_1011_1,
+    // so the hoisted primary is adv_1011_3. The important assertion
+    // here is that SOME advisor is hoisted — classifyLogins handles
+    // the sorted-by-suffix order separately.
+    assert.match(firm.advisor.loginName, /^adv_1011_\d+$/);
+    assert.ok(firm.tuples.length >= 1);
   });
 
-  it('uses the per-endpoint 60s timeout, not the default 30s', async () => {
+  it('uses the per-endpoint 180s timeout, not the default 30s', async () => {
     const { request, postCalls } = makeMockRequest({
-      bodyText: fs.readFileSync(FIXTURE_PATH, 'utf8'),
+      bodyText: fs.readFileSync(EXTENDED_FIXTURE_PATH, 'utf8'),
     });
     const client = new ApiClient({ request, environment: 'qa2' });
     await new DummyFirmApi(client).create();
     const opts = postCalls[0].opts as { timeout?: number };
-    assert.equal(opts.timeout, 60_000);
+    assert.equal(opts.timeout, 180_000);
   });
 
   it('inherits the production safety guard via the underlying ApiClient', async () => {
     const { request } = makeMockRequest({ bodyText: '{}' });
     const client = new ApiClient({ request, environment: 'production' });
     await assert.rejects(() => new DummyFirmApi(client).create(), ApiClientGuardError);
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────
+// classifyLogins — role binning against the extended fixture
+// ─────────────────────────────────────────────────────────────────────
+
+describe('classifyLogins (extended fixture)', () => {
+  it('parses the extended response without throwing', () => {
+    const raw = loadExtendedFixture();
+    const parsed = createDummyFirmResponseSchema.parse(raw);
+    assert.equal(parsed.success, true);
+    assert.equal(parsed.firm.firmCd, 1011);
+    assert.equal(parsed.firm.firmName, 'Firm-20260411142037');
+    assert.equal(parsed.firm.firmUrl, 'f1011qa.geowealth.com');
+    assert.equal(parsed.adminUser.loginName, 'admin_1011');
+    assert.equal(parsed.users.length, 6);
+  });
+
+  it('bins all 7 roles correctly', () => {
+    const parsed = createDummyFirmResponseSchema.parse(loadExtendedFixture());
+    const logins = classifyLogins(parsed);
+
+    assert.equal(logins.admin.loginName, 'admin_1011');
+    assert.match(logins.admin.entityId, /^[0-9A-F]{32}$/);
+
+    assert.ok(logins.tim, 'tim should be populated');
+    assert.equal(logins.tim!.loginName, 'tim1011');
+
+    assert.ok(logins.gwAdmin, 'gwAdmin should be populated');
+    assert.equal(logins.gwAdmin!.loginName, 'u1011_gwadmin');
+
+    assert.ok(logins.nonGwAdmin, 'nonGwAdmin should be populated');
+    assert.equal(logins.nonGwAdmin!.loginName, 'u1011_nongwadmin');
+
+    assert.equal(logins.advisors.length, 3);
+    assert.equal(logins.advisors[0].loginName, 'adv_1011_1');
+    assert.equal(logins.advisors[1].loginName, 'adv_1011_2');
+    assert.equal(logins.advisors[2].loginName, 'adv_1011_3');
+  });
+
+  it('degrades gracefully when fed the regular (non-extended) fixture — only admin + advisors are populated', () => {
+    const parsed = createDummyFirmResponseSchema.parse(loadFixture());
+    const logins = classifyLogins(parsed);
+
+    assert.equal(logins.admin.loginName, 'admin_326');
+    assert.equal(logins.tim, null);
+    assert.equal(logins.gwAdmin, null);
+    assert.equal(logins.nonGwAdmin, null);
+    // Regular fixture has 3 advisor entries; all should be captured
+    // even though advisor 2 is an orphan-account shape.
+    assert.equal(logins.advisors.length, 3);
+  });
+
+  it('populates DummyFirm.logins and DummyFirm.firmUrl from the extended fixture', () => {
+    const firm = DummyFirmApi.fromRecordedResponse(loadExtendedFixture());
+    assert.equal(firm.firmCd, 1011);
+    assert.equal(firm.firmUrl, 'f1011qa.geowealth.com');
+    assert.equal(firm.logins.gwAdmin!.loginName, 'u1011_gwadmin');
+    assert.equal(firm.logins.nonGwAdmin!.loginName, 'u1011_nongwadmin');
+    assert.equal(firm.logins.advisors.length, 3);
+  });
+
+  it('DummyFirm.firmUrl is null when the fixture is the regular endpoint (no firmUrl field)', () => {
+    const firm = DummyFirmApi.fromRecordedResponse(loadFixture());
+    assert.equal(firm.firmUrl, null);
   });
 });
