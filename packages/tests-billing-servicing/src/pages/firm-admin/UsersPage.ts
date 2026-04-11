@@ -40,6 +40,7 @@
 import type { Page } from '@playwright/test';
 import { Checkbox } from '@geowealth/e2e-framework/components/Checkbox';
 import { ComboBox } from '@geowealth/e2e-framework/components/ComboBox';
+import { FormBuilder } from '@geowealth/e2e-framework/components/FormBuilder';
 import { Modal } from '@geowealth/e2e-framework/components/Modal';
 import { TextInput } from '@geowealth/e2e-framework/components/TextInput';
 
@@ -161,21 +162,15 @@ export class UsersPage {
    * for edits), wait for the `createUpdateUser.do` backend
    * response, then wait for the modal to close.
    *
-   * FormBuilder runs a real setTimeout-based (~300 ms) debounce
-   * on its form validation state after every field change. The
-   * submit button has **no** `disabled` DOM attribute
-   * (`disabledStyleOnly={!isFormValid}` — see
-   * `~/geowealth/WebContent/react/app/src/modules/FormBuilder/Core/SubmitButton.js`),
-   * so Playwright's built-in `toBeEnabled` is useless and the
-   * CSS-module `disabled` class we could read is hashed AND
-   * absent during the initial render window. No DOM sentinel
-   * reliably tracks the debounce — a bounded wait is the only
-   * correct option here, and ESLint's `no-wait-for-timeout`
-   * rule has to make way for this legitimate case.
+   * Calls `FormBuilder.awaitValidationDebounce` first — the
+   * submit button has no DOM sentinel that tracks FormBuilder's
+   * validation debounce, so clicking straight after the last
+   * setValue triggers the form's onSubmit handler against a
+   * stale `isFormValid` state. See `FormBuilder.ts` for the
+   * full rationale; this POM just delegates to the framework.
    */
   private async submitUserForm(buttonName: 'Create' | 'Save'): Promise<void> {
-    // eslint-disable-next-line playwright/no-wait-for-timeout
-    await this.page.waitForTimeout(500);
+    await FormBuilder.awaitValidationDebounce(this.page);
 
     // Pair the click with the backend response. A failed submit
     // surfaces as a clean network timeout, distinct from the

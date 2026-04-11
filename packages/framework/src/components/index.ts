@@ -15,9 +15,10 @@
  *   Checkbox            — FormBuilder Checkbox + standalone Ui/Checkbox via native click()
  *   Checkboxes          — FormBuilder Checkboxes group + optional Select All sibling
  *   RadioButtons        — FormBuilder RadioButtons group, addressed by value
+ *   FormBuilder         — cross-cutting form helpers (validation debounce wait)
  *   AgGrid              — single-click edit, rich-select, virtualization
- *   TypeAhead       — server-paginated firm picker with confirm modes
- *   Modal           — React portal under `#modal`, layer-scoped actions
+ *   TypeAhead           — server-paginated firm picker with confirm modes
+ *   Modal               — React portal under `#modal`, layer-scoped actions
  *
  * Every component POM accepts a field-id string (FormBuilder form)
  * OR a scoped Locator (standalone / arbitrary root), and the
@@ -35,6 +36,7 @@ export { TextInput } from './TextInput';
 export { Checkbox } from './Checkbox';
 export { Checkboxes } from './Checkboxes';
 export { RadioButtons } from './RadioButtons';
+export { FormBuilder } from './FormBuilder';
 export { AgGrid } from './AgGrid';
 export { TypeAhead, type FirmTypeAheadTarget, type TypeAheadConfirmationMode } from './TypeAhead';
 export { Modal } from './Modal';
