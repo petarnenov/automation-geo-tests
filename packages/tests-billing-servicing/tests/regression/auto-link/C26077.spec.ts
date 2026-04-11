@@ -40,7 +40,10 @@ test('@regression @billing-servicing C26077 Auto-link - new GW Admin user with m
     gwAdmin: true,
   });
 
-  // Create user in the worker's dummy firm with same email X
+  // Create user in the worker's dummy firm with same email X.
+  // Triggers the auto-link: the new dummy-firm user's email
+  // matches the firm-1 user created above, so the backend links
+  // them automatically.
   await p1.goToUsersForFirm(workerFirm.firmCd);
   await usersPage.createUser({
     firstName: `QAFX-${stamp}`,
@@ -49,7 +52,9 @@ test('@regression @billing-servicing C26077 Auto-link - new GW Admin user with m
     gwAdmin: true,
   });
 
-  // User Management: search and verify auto-link happened
+  // User Management: search and verify auto-link happened.
+  // expectLinked() asserts "Delink" action is present on the
+  // expanded email group, which means both users are linked.
   await p1.goToUserManagement();
   await userMgmt.searchByEmail(1, email);
   await userMgmt.expectLinked();
