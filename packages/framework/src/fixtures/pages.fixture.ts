@@ -51,19 +51,17 @@ import { authFixtures } from './auth.fixture';
 import { apiFixtures } from './api.fixture';
 import {
   workerFirmFixtures,
-  firmRoleCheckout,
   stampPageFirm,
   type WorkerFirm,
 } from './workerFirm.fixture';
-import type { FirmRole, FirmManifestLogin } from './firmManifest';
+import type { FirmManifestLogin } from './firmManifest';
 import { STORAGE_STATE_PATH } from './globalSetup';
 import { loginViaForm } from './loginViaForm';
 
 // Compose upstream fixtures so this file can consume `firmPool`
-// (worker-scoped) without re-declaring it. Per-role page fixtures
-// check out their own (firm, role) slot — there is no shared
-// `testFirm` anymore; two role fixtures in the same test may resolve
-// to different firms if `firmPool.length > 1`.
+// (worker-scoped) without re-declaring it. Per-worker firm pinning
+// means `firmPool` is a single-element array — every per-role page
+// fixture resolves to the same firm, guaranteeing co-location.
 // the top-level base.ts merge composes the final shape that specs see.
 const baseWithPool = mergeTests(base, authFixtures, apiFixtures, workerFirmFixtures);
 
@@ -214,96 +212,64 @@ async function loadRolePageFromStorage(
 }
 
 /**
- * Per-role fixture body shared by all 7 role fixtures. Leases a
- * `(firm, role)` slot from `firmRoleCheckout`, loads the matching
- * stored state, stamps the chosen firm onto the page via the
- * side-channel map, yields the page, and releases the slot on
- * teardown.
+ * Per-role fixture body shared by all 7 role fixtures. Picks the
+ * worker's pinned firm from `firmPool[0]`, loads the matching stored
+ * state, stamps the firm onto the page via the side-channel map, and
+ * yields the page. No checkout/release — co-location and isolation
+ * are guaranteed by per-worker firm pinning in `firmPool`.
  */
 async function providePoolRolePage(
   browser: Browser,
   firmPool: WorkerFirm[],
-  role: FirmRole,
   pickLogin: (firm: WorkerFirm) => FirmManifestLogin,
   use: (page: Page) => Promise<void>
 ): Promise<void> {
   const env = selectEnvironment();
-  const { firm, key } = firmRoleCheckout.checkout(firmPool, role);
+  const firm = firmPool[0];
+  const login = pickLogin(firm);
+  const { page, context } = await loadRolePageFromStorage(browser, env, login.storageState);
+  stampPageFirm(page, firm);
   try {
-    const login = pickLogin(firm);
-    const { page, context } = await loadRolePageFromStorage(
-      browser,
-      env,
-      login.storageState
-    );
-    stampPageFirm(page, firm);
-    try {
-      await use(page);
-    } finally {
-      await context.close();
-    }
+    await use(page);
   } finally {
-    firmRoleCheckout.release(key);
+    await context.close();
   }
 }
 
 export const pageFixtures = baseWithPool.extend<PageFixtures>({
   // ──────────────────────────────────────────────────────────────────
   // Pool-based per-role fixtures (no form login in test path).
-  // Each fixture leases a (firm, role) slot via firmRoleCheckout and
-  // yields a Page with the firm stamped via `stampPageFirm` — consumers
-  // that need the firm call `getFirmForPage(page)`.
+  // Per-worker firm pinning means every one of these resolves to the
+  // worker's single firm — tests get automatic co-location across
+  // role fixtures. Consumers that need the firm call
+  // `getFirmForPage(page)`.
   // ──────────────────────────────────────────────────────────────────
   firmAdminPage: async ({ browser, firmPool }, use) => {
-    await providePoolRolePage(browser, firmPool, 'admin', (f) => f.logins.admin, use);
+    await providePoolRolePage(browser, firmPool, (f) => f.logins.admin, use);
   },
 
   firmTimPage: async ({ browser, firmPool }, use) => {
-    await providePoolRolePage(browser, firmPool, 'tim', (f) => f.logins.tim, use);
+    await providePoolRolePage(browser, firmPool, (f) => f.logins.tim, use);
   },
 
   firmGwAdminPage: async ({ browser, firmPool }, use) => {
-    await providePoolRolePage(browser, firmPool, 'gwAdmin', (f) => f.logins.gwAdmin, use);
+    await providePoolRolePage(browser, firmPool, (f) => f.logins.gwAdmin, use);
   },
 
   firmNonGwAdminPage: async ({ browser, firmPool }, use) => {
-    await providePoolRolePage(
-      browser,
-      firmPool,
-      'nonGwAdmin',
-      (f) => f.logins.nonGwAdmin,
-      use
-    );
+    await providePoolRolePage(browser, firmPool, (f) => f.logins.nonGwAdmin, use);
   },
 
   firmAdvisorPage1: async ({ browser, firmPool }, use) => {
-    await providePoolRolePage(
-      browser,
-      firmPool,
-      'advisor-1',
-      (f) => f.logins.advisors[0],
-      use
-    );
+    await providePoolRolePage(browser, firmPool, (f) => f.logins.advisors[0], use);
   },
 
   firmAdvisorPage2: async ({ browser, firmPool }, use) => {
-    await providePoolRolePage(
-      browser,
-      firmPool,
-      'advisor-2',
-      (f) => f.logins.advisors[1],
-      use
-    );
+    await providePoolRolePage(browser, firmPool, (f) => f.logins.advisors[1], use);
   },
 
   firmAdvisorPage3: async ({ browser, firmPool }, use) => {
-    await providePoolRolePage(
-      browser,
-      firmPool,
-      'advisor-3',
-      (f) => f.logins.advisors[2],
-      use
-    );
+    await providePoolRolePage(browser, firmPool, (f) => f.logins.advisors[2], use);
   },
 
   // ──────────────────────────────────────────────────────────────────

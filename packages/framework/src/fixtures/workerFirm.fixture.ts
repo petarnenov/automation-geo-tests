@@ -1,24 +1,23 @@
 /**
  * `workerFirm` / `firmPool` — firm pool fixtures.
  *
- * Unlike Phase 2's lazy-per-worker provisioning, these fixtures read
- * from the manifest that `globalSetup` writes at the start of a run.
- * There is **zero** API traffic in the fixture path — every firm in
- * the pool exists before the first spec begins, and every per-role
+ * Reads from the manifest that `globalSetup` writes at the start of
+ * a run. There is zero API traffic in the fixture path — every firm
+ * in the pool exists before the first spec begins, and every per-role
  * storage state is already on disk.
  *
- * The per-role page fixtures (`firmAdminPage`, `firmGwAdminPage`, ...)
- * share `firmRoleCheckout` — a module-level pool that leases a
- * `(firmCd, role)` slot per fixture setup, not a whole firm per test.
- * Two tests in the same worker can therefore simultaneously use
- * **the same firm on different roles** without colliding, while still
- * being prevented from racing on the same `(firm, role)` pair.
+ * Per-worker firm pinning: `firmPool` returns a single-element array
+ * containing `manifest.firms[workerInfo.parallelIndex]`. Two Playwright
+ * workers therefore never see the same firm, so cross-worker session
+ * collisions are structurally impossible. Within one worker, all
+ * pool-backed per-role page fixtures (`firmAdminPage`, ...) resolve to
+ * the same firm, giving automatic co-location for tests that mix roles.
  */
 
 import { test as base, mergeTests, type Page } from '@playwright/test';
 import { authFixtures } from './auth.fixture';
 import { apiFixtures } from './api.fixture';
-import { loadManifest, type FirmManifestEntry, type FirmRole } from './firmManifest';
+import { loadManifest, type FirmManifestEntry } from './firmManifest';
 
 // Merge upstream fixtures so this file can compose the auth freshness
 // check + apiClient without re-declaring them. `apiClient` is still
@@ -133,55 +132,19 @@ export const workerFirmFixtures = baseWithApi.extend<object, WorkerFirmFixtures>
 });
 
 /**
- * Per-(firm, role) checkout pool. A test that needs to drive
- * `firmGwAdminPage` leases the `(firmCd, 'gwAdmin')` slot on the first
- * free firm; a sibling test can concurrently lease
- * `(sameFirmCd, 'nonGwAdmin')` on that same firm without colliding.
- *
- * One instance per worker process — workers don't share memory, so
- * a module-level singleton is sufficient for intra-worker isolation.
- * Inter-worker isolation is guaranteed by globalSetup creating
- * FIRM_POOL_SIZE firms and Playwright assigning distinct workers to
- * distinct slots via the firmPool fixture's `firmPool.length` cap.
- *
- * Granularity change (from commit 3e20832's whole-firm FirmCheckout):
- * per-role locking lets multiple tests share a firm provided they
- * each touch a different role. The lock key is `${firmCd}::${role}`.
- */
-class FirmRoleCheckout {
-  private readonly inUse = new Set<string>();
-
-  checkout(pool: WorkerFirm[], role: FirmRole): { firm: WorkerFirm; key: string } {
-    for (const firm of pool) {
-      const key = `${firm.firmCd}::${role}`;
-      if (!this.inUse.has(key)) {
-        this.inUse.add(key);
-        return { firm, key };
-      }
-    }
-    throw new Error(
-      `FirmRoleCheckout: role "${role}" is already leased on every firm in the ` +
-        `pool (${pool.length} firms). Increase FIRM_POOL_SIZE, reduce parallelism, ` +
-        `or avoid multiple tests consuming the same role in a single worker.`
-    );
-  }
-
-  release(key: string): void {
-    this.inUse.delete(key);
-  }
-}
-
-/** Module-level singleton — one `FirmRoleCheckout` per worker. */
-export const firmRoleCheckout = new FirmRoleCheckout();
-
-/**
  * Side-channel map from a per-role Page to the firm that backs it.
- * Populated by the per-role page fixtures in `pages.fixture.ts`. Tests
- * that need to assert on the firm identity behind a pool-backed page
- * go through `getFirmForPage(page)` below.
+ * Populated by per-role page fixtures in `pages.fixture.ts`. Tests
+ * call `getFirmForPage(page)` to recover the firm identity behind
+ * a pool-backed page.
  *
- * A WeakMap so closed pages are GC'd with their firm reference — we
+ * WeakMap so closed Pages are GC'd with their firm reference — we
  * do not want a closed Page to keep a WorkerFirm alive.
+ *
+ * With per-worker pinning the pool has exactly one firm per worker,
+ * so in practice every pool-backed page in a single worker resolves
+ * to the same WorkerFirm. The map is kept because it lets
+ * `getFirmForPage(page)` throw cleanly when called on a non-pool
+ * Page (e.g. one from a legacy form-login fixture).
  */
 const pageToFirm = new WeakMap<Page, WorkerFirm>();
 

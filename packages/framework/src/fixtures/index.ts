@@ -7,7 +7,6 @@ export { authFixtures, attachStorageState, type AuthFixtures } from './auth.fixt
 export { apiFixtures, type ApiFixtures } from './api.fixture';
 export {
   workerFirmFixtures,
-  firmRoleCheckout,
   getFirmForPage,
   type WorkerFirm,
   type WorkerFirmFixtures,
