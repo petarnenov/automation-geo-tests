@@ -55,6 +55,8 @@
 
 import { expect, type Page } from '@playwright/test';
 
+const FILTER_DEBOUNCE_MS = 500;
+
 export type TypeAheadConfirmationMode = 'typeAheadValue' | 'bulkUploadButton' | 'none';
 
 export interface FirmTypeAheadTarget {
@@ -110,6 +112,7 @@ export class TypeAhead {
     // verbatim from the legacy.
     for (let i = 0; i < 80; i++) await ta.press('Backspace');
     await ta.pressSequentially(target.firmName);
+    await this.page.waitForTimeout(FILTER_DEBOUNCE_MS);
     const option = this.page
       .locator('[role="combo-box-list-item"]')
       .filter({ hasText: new RegExp(`\\(${target.firmCd}\\)`) })

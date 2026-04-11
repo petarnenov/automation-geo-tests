@@ -68,6 +68,7 @@ const SEL = {
 
 const DEFAULT_WAIT = 5_000;
 const BACKSPACE_CLEAR_COUNT = 80;
+const FILTER_DEBOUNCE_MS = 500;
 
 export interface ComboBoxConfig {
   /**
@@ -272,6 +273,7 @@ export class ComboBox {
     }
     const filter = optionText.split(/\s/)[0] || optionText.slice(0, 3);
     await input.pressSequentially(filter);
+    await this.page.waitForTimeout(FILTER_DEBOUNCE_MS);
   }
 
   /**
