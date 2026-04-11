@@ -204,7 +204,7 @@ export function flattenFirm(raw: CreateDummyFirmResponse): DummyFirmTuple[] {
  *   await page.goto(`#/client/1/${firm.client.uuid}/accounts/${firm.accounts[0].uuid}/billing`);
  */
 export class DummyFirmApi {
-  private static readonly ENDPOINT = '/qa/createDummyFirmExtended.do';
+  private static readonly ENDPOINT = '/qa/createDummyFirm.do';
 
   // The extended endpoint provisions a firm with Platform One access.
   // Can take 60+ seconds under load or on local servers.

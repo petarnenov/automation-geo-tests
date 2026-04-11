@@ -23,3 +23,4 @@ export { ComboBox } from './ComboBox';
 export { NumericInput } from './NumericInput';
 export { AgGrid } from './AgGrid';
 export { TypeAhead, type FirmTypeAheadTarget, type TypeAheadConfirmationMode } from './TypeAhead';
+export { Modal } from './Modal';

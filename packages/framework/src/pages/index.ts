@@ -5,4 +5,4 @@
  * Objects (Login, Navigation, FirmAdmin, ...) per Section 4.2.2.
  */
 
-export {};
+export { PlatformOnePage } from './PlatformOnePage';

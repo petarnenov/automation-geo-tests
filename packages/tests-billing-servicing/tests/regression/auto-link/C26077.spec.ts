@@ -2,47 +2,49 @@
  * TestRail C26077 — Platform One: Auto-link new GW Admin user with matching
  *   Site 1 account.
  *
- * Source: https://testrail.geowealth.com/index.php?/cases/view/26077
- *
- * UI smoke: opens Firm Admin → Users for firm 3, clicks Create New User,
- * verifies the modal mounts with GW Admin checkbox + Email field.
- * STOPS before clicking Create (no disposable email pool yet).
+ * Full flow: create user in firm 1, create user in testFirm with same email,
+ * open User Management, search by email, Link, verify Delink.
  */
 
-import { test, expect } from '@geowealth/e2e-framework/fixtures';
+import { test } from '@geowealth/e2e-framework/fixtures';
+import { PlatformOnePage } from '@geowealth/e2e-framework/pages';
+import { UsersPage } from '../../../src/pages/firm-admin/UsersPage';
+import { UserManagementPage } from '../../../src/pages/firm-admin/UserManagementPage';
 
 test('@regression @billing-servicing C26077 Auto-link - new GW Admin user with matching Site 1 account', async ({
   tim1Page,
-  workerFirm,
+  testFirm,
 }) => {
-  test.setTimeout(180_000);
+  test.setTimeout(300_000);
+  test.slow();
 
-  await test.step(`Open Firm Admin → Users for firm ${workerFirm.firmCd}`, async () => {
-    await tim1Page.goto(`/react/indexReact.do#platformOne/firmAdmin/users/${workerFirm.firmCd}`);
-    await expect(tim1Page.getByRole('button', { name: 'Create New User' })).toBeVisible({
-      timeout: 30_000,
-    });
+  const stamp = Date.now();
+  const email = `qa-al-${testFirm.firmCd}-${stamp}@geowealth.com`;
+
+  const p1 = new PlatformOnePage(tim1Page);
+  const usersPage = new UsersPage(tim1Page);
+  const userMgmt = new UserManagementPage(tim1Page);
+
+  // Create user in firm 1 (GeoWealth) with email X — direct URL, no typeahead
+  await p1.goToUsers(1);
+  await usersPage.createUser({
+    firstName: `QAF1-${stamp}`,
+    username: `qa-f1-${stamp}`,
+    email,
+    gwAdmin: true,
   });
 
-  await test.step('Open Create New User modal and verify form fields', async () => {
-    await tim1Page.getByRole('button', { name: 'Create New User' }).click();
-
-    await expect(tim1Page.getByText('Create New User', { exact: true }).first()).toBeVisible({
-      timeout: 10_000,
-    });
-
-    await expect(tim1Page.getByRole('textbox', { name: /First Name/i }).first()).toBeVisible();
-    await expect(tim1Page.getByRole('textbox', { name: /Username/i }).first()).toBeVisible();
-    await expect(tim1Page.getByRole('textbox', { name: /Email Address/i }).first()).toBeVisible();
-    await expect(tim1Page.getByText('GW Admin').first()).toBeVisible();
-    await expect(tim1Page.getByText('All Employees (Mandatory)').first()).toBeVisible();
-    await expect(tim1Page.getByRole('button', { name: 'Create', exact: true })).toBeVisible();
+  // Create user in testFirm with same email X — direct URL, no typeahead
+  await p1.goToUsers(testFirm.firmCd);
+  await usersPage.createUser({
+    firstName: `QAFX-${stamp}`,
+    username: `qa-fx-${stamp}`,
+    email,
+    gwAdmin: true,
   });
 
-  await test.step('SAFETY: close modal without creating', async () => {
-    await tim1Page.keyboard.press('Escape');
-    await expect(tim1Page.getByRole('button', { name: 'Create New User' })).toBeVisible({
-      timeout: 5000,
-    });
-  });
+  // User Management: search and verify auto-link happened
+  await p1.goToUserManagement();
+  await userMgmt.searchByEmail(1, email);
+  await userMgmt.expectLinked();
 });
