@@ -2,8 +2,14 @@
  * TestRail C26077 — Platform One: Auto-link new GW Admin user with matching
  *   Site 1 account.
  *
- * Full flow: create user in firm 1, create user in testFirm with same email,
- * open User Management, search by email, Link, verify Delink.
+ * Full flow: create user in firm 1, create user in the worker's pinned
+ * dummy firm with the same email, open User Management, search, verify Delink.
+ *
+ * Uses `tim1Page` for every Platform One action because the Platform
+ * One route is gated by `firmCd === 1` (see GeowealthP1Route); dummy
+ * firm GW Admins from the pool (`firmGwAdminPage` etc.) cannot reach
+ * this area. The spec consumes `workerFirm` only for its `firmCd` —
+ * the pool user on that firm is never logged in here.
  */
 
 import { test } from '@geowealth/e2e-framework/fixtures';
@@ -13,13 +19,13 @@ import { UserManagementPage } from '../../../src/pages/firm-admin/UserManagement
 
 test('@regression @billing-servicing C26077 Auto-link - new GW Admin user with matching Site 1 account', async ({
   tim1Page,
-  testFirm,
+  workerFirm,
 }) => {
   test.setTimeout(300_000);
   test.slow();
 
   const stamp = Date.now();
-  const email = `qa-al-${testFirm.firmCd}-${stamp}@geowealth.com`;
+  const email = `qa-al-${workerFirm.firmCd}-${stamp}@geowealth.com`;
 
   const p1 = new PlatformOnePage(tim1Page);
   const usersPage = new UsersPage(tim1Page);
@@ -34,8 +40,8 @@ test('@regression @billing-servicing C26077 Auto-link - new GW Admin user with m
     gwAdmin: true,
   });
 
-  // Create user in testFirm with same email X — direct URL, no typeahead
-  await p1.goToUsers(testFirm.firmCd);
+  // Create user in the worker's dummy firm with same email X
+  await p1.goToUsers(workerFirm.firmCd);
   await usersPage.createUser({
     firstName: `QAFX-${stamp}`,
     username: `qa-fx-${stamp}`,
