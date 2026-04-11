@@ -12,150 +12,45 @@
  */
 
 import { test, expect } from '@geowealth/e2e-framework/fixtures';
+import { readXlsxSheet } from '@geowealth/e2e-framework/helpers';
 import * as fs from 'node:fs';
 import * as os from 'node:os';
 import * as path from 'node:path';
-import * as zlib from 'node:zlib';
+import { BillingSpecificationsGridPage } from '../../../src/pages/billing-specs/BillingSpecificationsGridPage';
 
 const FIRM_CODE = 1;
-const SPECS_URL = `/react/indexReact.do#platformOne/billingCenter/specifications/${FIRM_CODE}`;
-
-/** Minimal xlsx zip reader: returns a Map of inner-file path → Buffer. */
-function readZip(buf: Buffer): Map<string, Buffer> {
-  const files = new Map<string, Buffer>();
-  let eocd = -1;
-  for (let i = buf.length - 22; i >= 0 && i >= buf.length - 65557; i--) {
-    if (buf.readUInt32LE(i) === 0x06054b50) {
-      eocd = i;
-      break;
-    }
-  }
-  if (eocd < 0) throw new Error('xlsx EOCD not found');
-  const cdEntries = buf.readUInt16LE(eocd + 10);
-  const cdOffset = buf.readUInt32LE(eocd + 16);
-  let p = cdOffset;
-  for (let i = 0; i < cdEntries; i++) {
-    const method = buf.readUInt16LE(p + 10);
-    const compSize = buf.readUInt32LE(p + 20);
-    const nameLen = buf.readUInt16LE(p + 28);
-    const extraLen = buf.readUInt16LE(p + 30);
-    const cmtLen = buf.readUInt16LE(p + 32);
-    const lhOff = buf.readUInt32LE(p + 42);
-    const name = buf.subarray(p + 46, p + 46 + nameLen).toString('utf8');
-    const lhNameLen = buf.readUInt16LE(lhOff + 26);
-    const lhExtraLen = buf.readUInt16LE(lhOff + 28);
-    const dataStart = lhOff + 30 + lhNameLen + lhExtraLen;
-    const compData = buf.subarray(dataStart, dataStart + compSize);
-    let data: Buffer;
-    if (method === 0) data = compData;
-    else if (method === 8) data = zlib.inflateRawSync(compData);
-    else throw new Error('xlsx unsupported compression method ' + method);
-    files.set(name, data);
-    p += 46 + nameLen + extraLen + cmtLen;
-  }
-  return files;
-}
-
-/** Parse exported Billing Specifications xlsx. */
-function parseBillingSpecExport(buf: Buffer): {
-  headers: string[];
-  rowsByCol: Record<string, string[]>;
-} {
-  const files = readZip(buf);
-  const ssXml = files.get('xl/sharedStrings.xml')?.toString('utf8') || '';
-  const strings = [...ssXml.matchAll(/<t[^>]*>([^<]*)<\/t>/g)].map((m) =>
-    m[1].replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>')
-  );
-  const sheetXml = files.get('xl/worksheets/sheet1.xml')?.toString('utf8') || '';
-
-  const byRow = new Map<number, Map<string, string>>();
-  const cellRx =
-    /<c\s+r="([A-Z]+)(\d+)"(?:[^>]*?\bt="(s|str|inlineStr)")?[^>]*?(?:>(?:[\s\S]*?<v>([\s\S]*?)<\/v>|[\s\S]*?<is>[\s\S]*?<t[^>]*>([\s\S]*?)<\/t>[\s\S]*?<\/is>)?[\s\S]*?<\/c>|\s*\/>)/g;
-  for (const m of sheetXml.matchAll(cellRx)) {
-    const col = m[1];
-    const rowNum = parseInt(m[2], 10);
-    const type = m[3];
-    const v = m[4];
-    const inline = m[5];
-    let value: string;
-    if (type === 's' && v != null) value = strings[parseInt(v, 10)];
-    else if (inline != null) value = inline;
-    else value = v ?? '';
-    if (!byRow.has(rowNum)) byRow.set(rowNum, new Map());
-    byRow.get(rowNum)!.set(col, value);
-  }
-
-  const headerRow = byRow.get(1) || new Map<string, string>();
-  const colsInOrder = [...headerRow.keys()].sort((a, b) => {
-    if (a.length !== b.length) return a.length - b.length;
-    return a < b ? -1 : a > b ? 1 : 0;
-  });
-  const headers = colsInOrder.map((c) => headerRow.get(c)!);
-
-  const rowsByCol: Record<string, string[]> = {};
-  for (const col of colsInOrder) {
-    rowsByCol[headerRow.get(col)!] = [];
-  }
-  const dataRowNums = [...byRow.keys()].filter((n) => n > 1).sort((a, b) => a - b);
-  for (const rn of dataRowNums) {
-    const r = byRow.get(rn)!;
-    for (const col of colsInOrder) {
-      rowsByCol[headerRow.get(col)!].push(r.get(col) ?? '');
-    }
-  }
-  return { headers, rowsByCol };
-}
+const ACCOUNT_MIN_FIELD = 'applyMinFeesOnAccountLevelFlag';
+const ACCOUNT_MAX_FIELD = 'applyMaxFeesOnAccountLevelFlag';
 
 test('@regression @billing-servicing C25085 Billing Spec Upload/Download Includes Account Min/Max', async ({
   page,
 }) => {
   test.slow();
 
-  await test.step('Navigate to Billing Specifications grid for firm 1', async () => {
-    await page.goto(SPECS_URL);
-    await expect(page.getByText('Billing Specifications', { exact: true }).first()).toBeVisible({
-      timeout: 30_000,
-    });
-    await expect(page.locator('.ag-row').first()).toBeVisible({ timeout: 60_000 });
+  const gridPage = new BillingSpecificationsGridPage(page);
+
+  await test.step('Open Billing Specifications grid for firm 1', async () => {
+    await gridPage.open(FIRM_CODE);
   });
 
   await test.step('Ensure Account Min and Account Max columns are enabled', async () => {
-    await page.locator('span#customizeColumns').click();
-    const overlay = page.locator('[class*="showGridOverlay"]').first();
-    await expect(page.getByText('Customize Columns', { exact: true }).first()).toBeVisible({
-      timeout: 5_000,
-    });
-
-    const minCb = overlay.locator('input#applyMinFeesOnAccountLevelFlagField');
-    const maxCb = overlay.locator('input#applyMaxFeesOnAccountLevelFlagField');
-    if (!(await minCb.isChecked())) {
-      await overlay.locator('label[for="applyMinFeesOnAccountLevelFlagField"]').click();
-    }
-    if (!(await maxCb.isChecked())) {
-      await overlay.locator('label[for="applyMaxFeesOnAccountLevelFlagField"]').click();
-    }
-    await expect(minCb).toBeChecked();
-    await expect(maxCb).toBeChecked();
-    await overlay.getByRole('button', { name: 'Confirm & Reload' }).click();
-    await expect(page.getByRole('columnheader', { name: 'Account Min' }).first()).toBeVisible({
-      timeout: 10_000,
-    });
+    await gridPage.grid.openCustomizeColumns();
+    await gridPage.grid.setColumnEnabled(ACCOUNT_MIN_FIELD, true);
+    await gridPage.grid.setColumnEnabled(ACCOUNT_MAX_FIELD, true);
+    await gridPage.grid.confirmAndReload();
+    await expect(gridPage.columnHeader('Account Min').first()).toBeVisible({ timeout: 10_000 });
   });
 
   let exportPath: string;
   await test.step('Export the grid to xlsx', async () => {
-    await page.locator('span:has(svg[data-icon="export"])').first().click();
-    const downloadPromise = page.waitForEvent('download');
-    await page.getByRole('button', { name: 'Export XLS' }).click();
-    const download = await downloadPromise;
+    const download = await gridPage.grid.exportXls();
     const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'pepi-c25085-'));
     exportPath = path.join(tmpDir, download.suggestedFilename());
     await download.saveAs(exportPath);
   });
 
   await test.step('Exported xlsx contains Account Min/Max columns with Y/N values', async () => {
-    const buf = fs.readFileSync(exportPath);
-    const { headers, rowsByCol } = parseBillingSpecExport(buf);
+    const { headers, rowsByCol } = readXlsxSheet(fs.readFileSync(exportPath));
 
     expect(headers, 'export must include Account Min header').toContain('Account Min');
     expect(headers, 'export must include Account Max header').toContain('Account Max');
