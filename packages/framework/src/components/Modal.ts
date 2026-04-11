@@ -1,165 +1,217 @@
 /**
  * `Modal` Component class.
  *
- * GeoWealth modals render via React Portal into `<div id="modal">`.
- * The portal root is defined in `index.html` and sits outside the
- * main React tree. All modal types (Message, Form, Big) land here.
+ * GeoWealth modals render via `ReactDOM.createPortal` into
+ * `<div id="modal">`. Each open modal contributes a `Container`
+ * wrapper with `data-role="modalContainer"` around a
+ * `Content` wrapper with `data-role="modalContent"`. Stacked modals
+ * appear as siblings under `#modal`, newest last.
  *
- * This Component scopes every locator to `#modal`, so callers never
- * need to manually filter between portal content and the page behind
- * it.
+ * Stable selectors (verified against `~/geowealth/WebContent/react/app/src/modules/Modal/`):
+ *
+ *   - `#modal [data-role="modalContainer"]` — every mounted modal
+ *   - `[data-role="modalContent"]` — the inner scroll container
+ *     (per-modal, so footer buttons below the fold are always inside it)
+ *   - `[data-role="formSubmitButton"]` — form modal submit button
+ *
+ * This Component scopes every interaction to the **top** modal via
+ * `.last()` on the container list. Stacked-modal consumers that need
+ * to target a specific layer can pass `layerIndex` to the constructor.
  *
  * Quirks absorbed:
  *
- *   Q1 (buttons below the fold). Form modals render inside an inner
- *       scroll container whose height is capped. Footer buttons
- *       (Save, Create, Cancel) are often below the fold. The
- *       Component scrolls the inner container to the bottom before
- *       clicking any footer button.
+ *   Q1 (buttons below the fold). Form modals cap the inner content
+ *       height; footer buttons (Save, Create, Cancel) are often
+ *       below the fold. Every click-type method scrolls the per-
+ *       modal `modalContent` to the bottom before attempting the
+ *       click. Single shared helper — no inconsistency between
+ *       click variants.
  *
- *   Q2 (success overlay after Save). Saving triggers a second
- *       "success" modal (e.g. "Account Billing Successfully Updated!")
- *       that must be explicitly dismissed via Close/OK. The
- *       `saveAndDismiss()` method absorbs the full Save → success →
- *       Close sequence.
+ *   Q2 (success overlay after Save). Saving a form modal often
+ *       triggers a second "success" modal that must be explicitly
+ *       dismissed. `saveAndDismiss()` absorbs the full Save → success
+ *       → Close sequence. Callers that use raw `clickButton('Save')`
+ *       bypass this — callers that want the full flow must use
+ *       `saveAndDismiss` explicitly.
  *
- *   Q3 (backdrop is a fixed overlay). The `.Container` CSS-module
- *       class renders a fixed 100vw×100vh backdrop at
- *       `rgba(0,0,0,0.3)`. ESC and backdrop-click close the modal
- *       unless `preventModalBackdropClick` is set. The Component
- *       does NOT click the backdrop — it always uses explicit button
- *       clicks for deterministic control.
+ *   Q3 (backdrop is a fixed overlay). The Component never clicks
+ *       the backdrop — all dismissal goes through explicit button
+ *       clicks for deterministic behaviour.
  *
- *   Q4 (stacked modals). The Redux store keeps an `orderList` queue.
- *       `showModalById` can stack modals via `overShow: true`. This
- *       Component always targets `#modal` which contains ALL stacked
- *       modals — callers that need to interact with a specific layer
- *       should scope via `content()` + additional selectors.
- *
- * Usage from a Page Object:
- *
- *   class AccountBillingPage {
- *     readonly editModal: Modal;
- *     constructor(page: Page) {
- *       this.editModal = new Modal(page);
- *     }
- *     async saveEdit() {
- *       await this.editModal.saveAndDismiss();
- *     }
- *   }
+ *   Q4 (stacked modals). `#modal` contains every open layer. This
+ *       Component targets the newest (top) by default via `.last()`;
+ *       pass `layerIndex` to the constructor to bind a Component
+ *       instance to a specific layer (0 = oldest).
  */
 
-import { type Page, type Locator } from '@playwright/test';
+import { expect, type Page, type Locator } from '@playwright/test';
+
+/** Default Playwright-style waits used across the Component. */
+const DEFAULT_OPEN_TIMEOUT = 10_000;
+const DEFAULT_CLOSE_TIMEOUT = 5_000;
+const DEFAULT_CLICK_TIMEOUT = 5_000;
+const DEFAULT_SAVE_SUCCESS_TIMEOUT = 30_000;
+const CANCEL_PROBE_TIMEOUT = 1_000;
+
+/** Selectors for the GeoWealth React modal DOM, pinned to `data-role` attrs. */
+const SEL = {
+  portal: '#modal',
+  container: '[data-role="modalContainer"]',
+  content: '[data-role="modalContent"]',
+  formSubmit: '[data-role="formSubmitButton"]',
+} as const;
+
+export interface ModalOptions {
+  /**
+   * Which stacked layer this Component binds to. Omit (default) to
+   * target the **top** modal — i.e. the newest `modalContainer` in the
+   * portal, which is what single-modal flows and most stacked flows
+   * need. Pass `0` for the oldest, `1` for the next, and so on.
+   */
+  layerIndex?: number;
+}
 
 export class Modal {
   private readonly page: Page;
-  private readonly root: Locator;
+  private readonly portal: Locator;
+  private readonly layerIndex: number | 'top';
 
-  constructor(page: Page) {
+  constructor(page: Page, options: ModalOptions = {}) {
     this.page = page;
-    this.root = page.locator('#modal');
+    this.portal = page.locator(SEL.portal);
+    this.layerIndex = options.layerIndex ?? 'top';
   }
 
+  // ────────────────────────────────────────────────────────────────
+  // Public scoped locators
+  // ────────────────────────────────────────────────────────────────
+
   /**
-   * Scoped locator for the portal root. Page Objects can chain
-   * further selectors off this: `modal.container().getByText(...)`.
+   * The modal's `[data-role="modalContainer"]` element — scoped to
+   * the layer this Component was constructed with. Use this to chain
+   * further locators:
+   *
+   *     const mc = modal.container();
+   *     await mc.getByRole('textbox', { name: 'First Name' }).fill('X');
+   *
+   * The chain is scoped to the target layer, so stacked-modal state
+   * never leaks into queries.
    */
   container(): Locator {
-    return this.root;
+    const containers = this.portal.locator(SEL.container);
+    if (this.layerIndex === 'top') return containers.last();
+    return containers.nth(this.layerIndex);
   }
 
   /**
-   * Wait until the modal portal has visible content. Checks for any
-   * visible child element inside `#modal`. Use `titleText` to wait
-   * for a specific modal by its header.
-   *
-   * @param titleText  Optional regex or string to match in the modal
-   *   header. When provided, waits for that text to be visible inside
-   *   `#modal` — useful when multiple modals can appear and you need
-   *   to target a specific one.
-   * @param timeout  Defaults to 10 000 ms.
+   * The modal's inner `[data-role="modalContent"]` scroll container.
+   * Scoped to this Component's layer.
    */
-  async waitForOpen(options?: {
-    titleText?: string | RegExp;
-    timeout?: number;
-  }): Promise<void> {
-    const timeout = options?.timeout ?? 10_000;
+  content(): Locator {
+    return this.container().locator(SEL.content);
+  }
+
+  // ────────────────────────────────────────────────────────────────
+  // Open/close state
+  // ────────────────────────────────────────────────────────────────
+
+  /**
+   * Wait until the modal is mounted and its `modalContainer` is
+   * visible. Does not wait for any specific content inside — pass
+   * `titleText` to wait for a specific header if a generic check is
+   * not tight enough.
+   */
+  async waitForOpen(options?: { titleText?: string | RegExp; timeout?: number }): Promise<void> {
+    const timeout = options?.timeout ?? DEFAULT_OPEN_TIMEOUT;
     if (options?.titleText) {
-      await this.root
+      await this.container()
         .getByText(options.titleText)
         .first()
         .waitFor({ state: 'visible', timeout });
-    } else {
-      // Wait for the backdrop container to appear — it's the first
-      // direct child rendered by the Modal component.
-      await this.root.locator('> *').first().waitFor({ state: 'visible', timeout });
+      return;
     }
+    await this.container().waitFor({ state: 'visible', timeout });
   }
 
   /**
-   * Wait until the modal portal has no visible content.
-   *
-   * @param titleText  Optional — when provided, waits for that
-   *   specific text to disappear rather than the entire portal.
-   * @param timeout  Defaults to 5 000 ms.
+   * Wait until the modal (or the given title text) is no longer
+   * visible. Mirrors `waitForOpen`.
    */
-  async waitForClose(options?: {
-    titleText?: string | RegExp;
-    timeout?: number;
-  }): Promise<void> {
-    const timeout = options?.timeout ?? 5_000;
+  async waitForClose(options?: { titleText?: string | RegExp; timeout?: number }): Promise<void> {
+    const timeout = options?.timeout ?? DEFAULT_CLOSE_TIMEOUT;
     if (options?.titleText) {
-      await this.root
+      await this.container()
         .getByText(options.titleText)
         .first()
         .waitFor({ state: 'hidden', timeout });
-    } else {
-      await this.root.locator('> *').first().waitFor({ state: 'hidden', timeout });
+      return;
     }
+    await this.container().waitFor({ state: 'hidden', timeout });
   }
 
+  /** True if the target layer's `modalContainer` is currently visible. */
+  async isOpen(): Promise<boolean> {
+    return this.container()
+      .isVisible()
+      .catch(() => false);
+  }
+
+  /** Count of currently open modal layers in the portal. */
+  async openCount(): Promise<number> {
+    return this.portal.locator(SEL.container).count();
+  }
+
+  // ────────────────────────────────────────────────────────────────
+  // Click actions
+  // ────────────────────────────────────────────────────────────────
+
   /**
-   * Click a footer button by its accessible name. Scrolls the inner
-   * scroll container to the bottom first (Q1) so that buttons below
-   * the fold become clickable.
+   * Click a footer button by its accessible name. Scrolls the modal's
+   * `modalContent` to the bottom first (Q1) so footer buttons below
+   * the fold become reachable, then does a standard Locator.click —
+   * no `evaluate` shortcuts, so Playwright's actionability checks
+   * (stable, visible, receives events) fire normally.
    *
    * Common names: `'Save'`, `'Cancel'`, `'Close'`, `'OK'`,
    * `'Create'`, `'Yes, Reset'`, `'Confirm & Reload'`.
    */
   async clickButton(name: string, options?: { exact?: boolean; timeout?: number }): Promise<void> {
     const exact = options?.exact ?? true;
-    const timeout = options?.timeout ?? 5_000;
-
-    // Q1 — scroll the inner scroll container to the bottom so
-    // footer buttons are in view.
+    const timeout = options?.timeout ?? DEFAULT_CLICK_TIMEOUT;
     await this.scrollToBottom();
-
-    const btn = this.root.getByRole('button', { name, exact });
+    const btn = this.container().getByRole('button', { name, exact }).first();
     await btn.waitFor({ state: 'visible', timeout });
     await btn.click();
   }
 
   /**
-   * Click the Cancel button inside the modal. No-ops if Cancel is
-   * not visible (some modals don't have one, or it's already gone
-   * after a save).
+   * Click the Cancel button if it is present within a short probe
+   * window. Some modal flows don't render Cancel, or it has already
+   * disappeared after a prior action — the probe lets both cases
+   * no-op cleanly. Uses `waitFor({timeout})` rather than a
+   * point-in-time `isVisible()` so a button that is still mounting
+   * is not missed by timing.
    */
   async clickCancel(): Promise<void> {
-    const btn = this.root.getByRole('button', { name: 'Cancel', exact: true });
-    if (await btn.isVisible().catch(() => false)) {
-      await btn.click();
-    }
+    await this.scrollToBottom();
+    const btn = this.container().getByRole('button', { name: 'Cancel', exact: true }).first();
+    const mounted = await btn
+      .waitFor({ state: 'visible', timeout: CANCEL_PROBE_TIMEOUT })
+      .then(() => true)
+      .catch(() => false);
+    if (!mounted) return;
+    await btn.click();
   }
 
   /**
-   * Click an element inside the modal by its visible text label.
-   * Unlike `clickButton()` which uses `getByRole('button')`, this
-   * matches any element containing the exact text — useful for
-   * non-button clickable elements (spans, divs, labels, etc.).
+   * Click any element inside the modal by its exact visible text.
+   * Useful for clickable non-button elements (spans, divs, labels).
+   * Scrolls to bottom first (Q1) for consistency with `clickButton`.
    */
   async clickButtonByLabel(text: string, options?: { timeout?: number }): Promise<void> {
-    const timeout = options?.timeout ?? 5_000;
-    const el = this.root.getByText(text, { exact: true }).first();
+    const timeout = options?.timeout ?? DEFAULT_CLICK_TIMEOUT;
+    await this.scrollToBottom();
+    const el = this.container().getByText(text, { exact: true }).first();
     await el.waitFor({ state: 'visible', timeout });
     await el.click();
   }
@@ -167,116 +219,107 @@ export class Modal {
   /**
    * Click a link inside the modal by its accessible name. Used for
    * confirmation prompts that render actions as `<a>` tags
-   * (e.g. "No, keep them").
+   * (e.g. "No, keep them"). Scrolls to bottom first (Q1).
    */
-  async clickLink(name: string, options?: { exact?: boolean }): Promise<void> {
+  async clickLink(name: string, options?: { exact?: boolean; timeout?: number }): Promise<void> {
     const exact = options?.exact ?? true;
-    await this.root.getByRole('link', { name, exact }).click();
+    const timeout = options?.timeout ?? DEFAULT_CLICK_TIMEOUT;
+    await this.scrollToBottom();
+    const link = this.container().getByRole('link', { name, exact }).first();
+    await link.waitFor({ state: 'visible', timeout });
+    await link.click();
   }
 
   /**
    * Click the `[data-role="formSubmitButton"]` inside the modal.
-   * Some form modals use this data-role instead of a named button.
-   * Scrolls to bottom first (Q1).
+   * Some form modals wire submission through this data-role instead
+   * of a named button. Uses a real Locator.click (not an in-page
+   * `evaluate`) so covered/obscured buttons fail loudly instead of
+   * being silently swallowed by a synthetic DOM click.
    */
-  async clickSubmit(): Promise<void> {
-    const clicked = await this.page.evaluate(() => {
-      const modal = document.querySelector('#modal');
-      if (!modal) return false;
-      const scrollable = Array.from(modal.querySelectorAll('*')).find(
-        (el) => el.scrollHeight > el.clientHeight && el.clientHeight > 0
-      );
-      if (scrollable) scrollable.scrollTop = scrollable.scrollHeight;
-      const btn = modal.querySelector('[data-role="formSubmitButton"]');
-      if (!btn) return false;
-      (btn as HTMLElement).click();
-      return true;
-    });
-    if (!clicked) {
-      throw new Error('Modal.clickSubmit: [data-role="formSubmitButton"] not found inside #modal');
-    }
+  async clickSubmit(options?: { timeout?: number }): Promise<void> {
+    const timeout = options?.timeout ?? DEFAULT_CLICK_TIMEOUT;
+    await this.scrollToBottom();
+    const btn = this.container().locator(SEL.formSubmit).first();
+    await btn.waitFor({ state: 'visible', timeout });
+    await btn.click();
   }
+
+  // ────────────────────────────────────────────────────────────────
+  // Composite flows
+  // ────────────────────────────────────────────────────────────────
 
   /**
    * Full Save → success-modal → Close sequence (Q2).
    *
-   * 1. Click Save.
-   * 2. Wait for the success confirmation text to appear.
-   * 3. Click Close (or OK) to dismiss the success modal.
-   * 4. Wait for the success text to disappear.
+   *   1. Click Save (or the named primary button).
+   *   2. Wait for the success confirmation text to appear.
+   *   3. Click the dismiss button on the success modal.
+   *   4. Wait for the success text to disappear.
    *
-   * @param successText  Regex matching the success message. Defaults
-   *   to a broad `/successfully/i` pattern. Override for modals with
-   *   non-standard success text.
-   * @param dismissButton  The button that dismisses the success
-   *   modal. Defaults to `'Close'`.
+   * The caller must be explicit about `successText` and `dismissButton`
+   * — the defaults are intentionally narrow to avoid silent
+   * false-positive matches on unrelated text. A default
+   * `/successfully/i` pattern previously caused modals that say
+   * "Update successful" or "Processed" to miss; spelling out the
+   * exact text per flow is safer.
    */
-  async saveAndDismiss(options?: {
-    successText?: RegExp;
-    dismissButton?: string;
+  async saveAndDismiss(options: {
+    /** Primary button name on the form modal. Default `'Save'`. */
+    primaryButton?: string;
+    /** Regex matching the success confirmation text. Required. */
+    successText: RegExp;
+    /** Button name on the success modal. Required (varies per flow). */
+    dismissButton: string;
+    /** Timeout for the whole sequence. */
     timeout?: number;
   }): Promise<void> {
-    const successText = options?.successText ?? /successfully/i;
-    const dismissButton = options?.dismissButton ?? 'Close';
-    const timeout = options?.timeout ?? 30_000;
+    const primary = options.primaryButton ?? 'Save';
+    const timeout = options.timeout ?? DEFAULT_SAVE_SUCCESS_TIMEOUT;
 
-    await this.clickButton('Save');
+    await this.clickButton(primary);
 
-    const successLocator = this.root.getByText(successText).first();
+    const successLocator = this.portal.getByText(options.successText).first();
     await successLocator.waitFor({ state: 'visible', timeout });
 
-    await this.clickButton(dismissButton);
-    await successLocator.waitFor({ state: 'hidden', timeout: 5_000 });
+    await this.clickButton(options.dismissButton);
+    await successLocator.waitFor({ state: 'hidden', timeout: DEFAULT_CLOSE_TIMEOUT });
   }
 
+  // ────────────────────────────────────────────────────────────────
+  // Scroll helpers
+  // ────────────────────────────────────────────────────────────────
+
   /**
-   * Scroll the modal's inner scroll container until the given text
-   * is visible. Uses `scrollIntoView` on the matched element.
+   * Scroll the modal's `modalContent` so that an element matching
+   * `text` is in view. Uses the browser's native `scrollIntoView`
+   * with `block: 'nearest'`, which handles nested offset parents
+   * correctly — the previous `offsetTop` arithmetic was fragile
+   * against layers with `position: relative` inside the scroll
+   * ancestor.
    */
   async scrollToText(text: string, options?: { timeout?: number }): Promise<void> {
-    const timeout = options?.timeout ?? 5_000;
-    const el = this.root.getByText(text, { exact: true }).first();
+    const timeout = options?.timeout ?? DEFAULT_CLICK_TIMEOUT;
+    const el = this.container().getByText(text, { exact: true }).first();
     await el.waitFor({ state: 'attached', timeout });
-    // Playwright's scrollIntoViewIfNeeded scrolls the parent page
-    // instead of the portal's inner container. Use evaluate to
-    // scroll the element into view within its own scroll ancestor.
-    await el.evaluate((node: HTMLElement) => {
-      let parent = node.parentElement;
-      while (parent) {
-        if (parent.scrollHeight > parent.clientHeight && parent.clientHeight > 0) {
-          parent.scrollTop = node.offsetTop - parent.offsetTop;
-          break;
-        }
-        parent = parent.parentElement;
-      }
+    await el.evaluate((node: Element) => {
+      node.scrollIntoView({ block: 'nearest', inline: 'nearest' });
     });
     await el.waitFor({ state: 'visible', timeout });
   }
 
   /**
-   * Scroll the modal's inner scroll container to the bottom (Q1).
-   * Form modals have a capped-height inner container; footer buttons
-   * sit below the fold. This finds the first scrollable descendant
-   * of `#modal` and scrolls it to its full scrollHeight.
-   *
-   * No-ops silently if no scrollable container exists (Message
-   * modals are short enough to fit without scroll).
+   * Scroll the modal's `[data-role="modalContent"]` to the bottom.
+   * Per-layer scoped via `container()`, so the right scroll container
+   * is targeted even when stacked modals are open. No-op when
+   * `modalContent` is not attached (Message modals sometimes render
+   * without an inner scroll area).
    */
   async scrollToBottom(): Promise<void> {
-    await this.page.evaluate(() => {
-      const modal = document.querySelector('#modal');
-      if (!modal) return;
-      const scrollable = Array.from(modal.querySelectorAll('*')).find(
-        (el) => el.scrollHeight > el.clientHeight && el.clientHeight > 0
-      );
-      if (scrollable) scrollable.scrollTop = scrollable.scrollHeight;
+    const scrollable = this.content();
+    if (!(await scrollable.count())) return;
+    await scrollable.first().evaluate((node: Element) => {
+      node.scrollTop = node.scrollHeight;
     });
-  }
-
-  /**
-   * Check whether the modal portal currently has any visible content.
-   */
-  async isOpen(): Promise<boolean> {
-    return await this.root.locator('> *').first().isVisible().catch(() => false);
   }
 }
