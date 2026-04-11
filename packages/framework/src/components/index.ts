@@ -40,3 +40,4 @@ export { FormBuilder } from './FormBuilder';
 export { AgGrid } from './AgGrid';
 export { TypeAhead, type FirmTypeAheadTarget, type TypeAheadConfirmationMode } from './TypeAhead';
 export { Modal } from './Modal';
+export { GwGridPersist } from './GwGridPersist';

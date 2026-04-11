@@ -6,4 +6,9 @@
  * single helper).
  */
 
-export {};
+export { readXlsxSheet, type XlsxSheet } from './xlsx';
+export {
+  buildBucketXlsx,
+  type BucketExclusionsRow,
+  type BuildBucketXlsxOptions,
+} from './buildBucketXlsx';

@@ -167,6 +167,89 @@ export class ComboBox {
   }
 
   /**
+   * Pick a virtualised-list option by its `data-value` id, scrolling
+   * the list until the option row is materialised in the DOM.
+   *
+   * Some combos back large datasets (the Firm picker, for example,
+   * holds thousands of rows) and render through `LazyList`, which
+   * keeps only a window of ~20 rows in the DOM at a time. Naive
+   * `setValueById` fails for any option below the initial window
+   * because the target element is never attached. This method
+   * scrolls the list container to the bottom in small steps, waits
+   * for the next batch to render, and retries — stopping as soon as
+   * the target option appears OR the visible rows stop growing
+   * (stagnation = list exhausted).
+   *
+   * Falls back cleanly to `setValueById` semantics if the combo is
+   * not virtualised (the first render already includes the target).
+   *
+   * @param id The option's `data-value` attribute.
+   * @param options.maxScrollSteps Maximum scroll iterations before
+   *   declaring the option not found. Default: 80 (~10s total).
+   * @param options.stagnationLimit Consecutive scroll steps with
+   *   zero new items after which we give up. Default: 4.
+   */
+  async setValueByIdVirtualised(
+    id: string | number,
+    options: { maxScrollSteps?: number; stagnationLimit?: number } = {}
+  ): Promise<void> {
+    const maxScrollSteps = options.maxScrollSteps ?? 80;
+    const stagnationLimit = options.stagnationLimit ?? 4;
+
+    await this.open();
+
+    const list = this.list();
+    const found = await list.evaluate(
+      async (listRoot: Element, args: { dataValue: string; max: number; stagnant: number }) => {
+        const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+        const optSel = `[role="combo-box-list-item"][data-value="${args.dataValue}"]`;
+        const itemSel = '[role="combo-box-list-item"]';
+        // For the FormBuilder variant the list root is `#${fieldId}_Dropdown`
+        // which wraps the actual scrolling container
+        // `[role="combo-box-list"]`. For the standalone variant the root IS
+        // the combo-box-list. Use the nearest matching descendant, falling
+        // back to the root itself.
+        const scroller =
+          (listRoot.querySelector('[role="combo-box-list"]') as Element | null) ?? listRoot;
+        if (scroller.querySelector(optSel)) return { status: 'already-rendered' as const };
+
+        let lastCount = scroller.querySelectorAll(itemSel).length;
+        let stagnant = 0;
+        for (let step = 0; step < args.max; step++) {
+          scroller.scrollTop = scroller.scrollHeight;
+          await sleep(120);
+          if (scroller.querySelector(optSel)) {
+            return { status: 'scrolled-into-view' as const, step };
+          }
+          const currentCount = scroller.querySelectorAll(itemSel).length;
+          if (currentCount === lastCount) {
+            stagnant++;
+            if (stagnant >= args.stagnant) return { status: 'stagnated' as const, step };
+          } else {
+            stagnant = 0;
+            lastCount = currentCount;
+          }
+        }
+        return { status: 'not-found' as const };
+      },
+      { dataValue: String(id), max: maxScrollSteps, stagnant: stagnationLimit }
+    );
+
+    if (found.status === 'not-found' || found.status === 'stagnated') {
+      throw new Error(
+        `ComboBox.setValueByIdVirtualised: option with data-value="${id}" did not appear ` +
+          `after scrolling the list (status=${found.status}). The value may not exist, or ` +
+          `the virtualised list exhausted before reaching it.`
+      );
+    }
+
+    const option = list.locator(`${SEL.listItem}[data-value="${id}"]`);
+    await expect(option).toBeVisible({ timeout: DEFAULT_WAIT });
+    await option.first().click();
+    await this.list().waitFor({ state: 'hidden', timeout: DEFAULT_WAIT });
+  }
+
+  /**
    * Open the combo (no-op if already open). Waits for the dropdown
    * list to become visible before returning so callers can interact
    * with options immediately after.

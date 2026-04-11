@@ -72,7 +72,7 @@ export type PlatformOneSection =
   | { name: 'tradingCenter' }
   | { name: 'backOffice' }
   | { name: 'billingCenter' }
-  | { name: 'billingBucketExclusions' }
+  | { name: 'billingBucketExclusions'; firmCd?: number }
   | { name: 'unmanagedAssetsExclusions' }
   | { name: 'reportingCenterHome' }
   | { name: 'businessIntelligence' }
@@ -199,7 +199,15 @@ export class PlatformOnePage {
       case 'billingCenter':
         return 'platformOne/operations/billingCenter';
       case 'billingBucketExclusions':
-        return 'platformOne/operations/billingBucketExclusions';
+        // Correct route lives under Upload Tools, not Operations. The
+        // firm-scoped form mounts at
+        // `platformOne/uploadTools/bulkExclusions/billingBucketExclusions/{firmCd}`
+        // (see `~/geowealth/.../BillingBucketExclusions.js` PATH const).
+        // The pickerless root URL (no firmCd) lands on the P1 firm
+        // dropdown and waits for the user to pick a firm.
+        return section.firmCd !== undefined
+          ? `platformOne/uploadTools/bulkExclusions/billingBucketExclusions/${section.firmCd}`
+          : 'platformOne/uploadTools/bulkExclusions/billingBucketExclusions';
       case 'unmanagedAssetsExclusions':
         return 'platformOne/operations/unmanagedAssetsExclusions';
       case 'reportingCenterHome':
@@ -243,7 +251,14 @@ export class PlatformOnePage {
       case 'billingCenter':
         return this.page.getByRole('heading', { name: /billing center/i });
       case 'billingBucketExclusions':
-        return this.page.getByRole('heading', { name: /bucket exclusions/i });
+        // `useSetPageTitle('Billing Bucket Exclusions')` is set via the
+        // SPA page-title hook, not a DOM heading. The `innerDivID` on
+        // ContainerWrapper is a stable anchor for the form page; the
+        // firm picker (no firmCd) exposes its typeahead textbox as the
+        // readiness signal.
+        return section.firmCd !== undefined
+          ? this.page.locator('#billingBucketExclusions')
+          : this.page.getByRole('textbox').first();
       case 'unmanagedAssetsExclusions':
         return this.page.getByRole('heading', { name: /unmanaged assets/i });
       case 'reportingCenterHome':
