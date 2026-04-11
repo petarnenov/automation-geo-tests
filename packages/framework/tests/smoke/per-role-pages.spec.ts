@@ -61,14 +61,14 @@ test('@smoke @framework firmAdminPage loads storage state from the pool (no form
   expect(firm.logins.admin.loginName).toBe(`admin_${firm.firmCd}`);
 });
 
-test('@smoke @framework firmGwAdminPage and firmNonGwAdminPage load distinct (firm, role) slots', async ({
+test('@smoke @framework firmGwAdminPage and firmNonGwAdminPage co-locate on the worker firm', async ({
   firmGwAdminPage,
   firmNonGwAdminPage,
 }) => {
-  // Per-role checkout: each fixture leases its own (firm, role) slot.
-  // With FIRM_POOL_SIZE >= 2, the two fixtures may resolve to different
-  // firms — that is the whole point of role-granular locking (two
-  // tests can share a firm as long as they use different roles).
+  // Per-worker firm pinning: every Playwright worker owns exactly one
+  // firm, so any two pool-based role fixtures consumed in the same
+  // test MUST land on the same firm. This is the guarantee tests
+  // that mix roles (admin creates, advisor views) rely on.
   await firmGwAdminPage.goto('/react/indexReact.do');
   await firmNonGwAdminPage.goto('/react/indexReact.do');
 
@@ -79,6 +79,7 @@ test('@smoke @framework firmGwAdminPage and firmNonGwAdminPage load distinct (fi
 
   const gwFirm = getFirmForPage(firmGwAdminPage);
   const nonFirm = getFirmForPage(firmNonGwAdminPage);
+  expect(gwFirm.firmCd).toBe(nonFirm.firmCd);
   expect(gwFirm.logins.gwAdmin.loginName).toBe(`u${gwFirm.firmCd}_gwadmin`);
   expect(nonFirm.logins.nonGwAdmin.loginName).toBe(`u${nonFirm.firmCd}_nongwadmin`);
 });

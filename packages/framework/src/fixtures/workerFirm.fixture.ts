@@ -89,15 +89,22 @@ export const workerFirmFixtures = baseWithApi.extend<object, WorkerFirmFixtures>
         throw new Error('firmPool: TIM1_PASSWORD must be set in workspace .env.local.');
       }
       const manifest = loadManifest();
-      // Hard guard against inter-worker (firm, role) collisions.
-      // `firmRoleCheckout` is a module-level singleton per worker
-      // process, so it cannot see leases held by other workers. If
-      // there are more workers than firms, two workers will pick the
-      // same firm for the same role and the second will corrupt the
-      // first's server-side session (see project_extended_firm_migration
-      // memory for the root cause). Fail loudly so the operator bumps
-      // FIRM_POOL_SIZE or caps --workers instead of chasing flaky
-      // "sign-in form appeared in a pool test" bug reports later.
+      // Per-worker firm pinning: each Playwright worker owns exactly
+      // ONE firm from the manifest, indexed by `workerInfo.parallelIndex`.
+      // Two workers therefore never see the same firm, which makes
+      // cross-worker `(firm, role)` collisions structurally impossible
+      // — there is nothing to coordinate because they cannot reach the
+      // same server-side HttpSession via a shared stored JSESSIONID.
+      //
+      // Consequences:
+      //   - Every test in a worker runs against the same firm for the
+      //     whole worker lifetime. Consecutive tests re-use its state
+      //     (dummy firms accumulate by design, no cleanup).
+      //   - Co-location across role fixtures in one test is automatic:
+      //     `firmAdminPage + firmAdvisorPage1` both resolve to the
+      //     single pool entry → same firm → same backend.
+      //   - `workers > FIRM_POOL_SIZE` is forbidden; the guard below
+      //     matches the cap in `definePlaywrightConfig`.
       if (workerInfo.parallelIndex >= manifest.firms.length) {
         throw new Error(
           `firmPool: Playwright worker parallelIndex=${workerInfo.parallelIndex} ` +
@@ -106,8 +113,8 @@ export const workerFirmFixtures = baseWithApi.extend<object, WorkerFirmFixtures>
             `and rebuild the pool with REBUILD_FIRMS=1.`
         );
       }
-      const firms = manifest.firms.map((entry) => toWorkerFirm(entry, password));
-      await use(firms);
+      const mine = manifest.firms[workerInfo.parallelIndex];
+      await use([toWorkerFirm(mine, password)]);
     },
     { scope: 'worker' },
   ],
@@ -117,9 +124,8 @@ export const workerFirmFixtures = baseWithApi.extend<object, WorkerFirmFixtures>
       if (firmPool.length === 0) {
         throw new Error('workerFirm: manifest contains zero firms — run globalSetup first.');
       }
-      // Preserve the legacy one-firm-per-worker contract by returning
-      // the first entry. Tests that need per-test isolation within a
-      // worker consume `testFirm` instead.
+      // Pool now contains exactly one firm (the worker's pinned slice)
+      // so this is equivalent to returning "the worker's firm".
       await use(firmPool[0]);
     },
     { scope: 'worker' },
