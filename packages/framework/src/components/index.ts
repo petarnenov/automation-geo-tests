@@ -7,12 +7,15 @@
  * `selectFirm`), and absorbed quirks that plain Playwright calls
  * cannot express.
  *
- *   ReactDatePicker — calendar popup with dispatch-burst open + nav
- *   ComboBox        — FormBuilder + standalone Ui variants, exact match
- *   NumericInput    — React controlled-component value setter (FormBuilder Number/Percent/Currency)
- *   TextInput       — React controlled-component value setter (FormBuilder Text + standalone)
- *   Checkbox        — FormBuilder Checkbox + standalone Ui/Checkbox via native click()
- *   AgGrid          — single-click edit, rich-select, virtualization
+ *   ReactDatePicker     — calendar popup with dispatch-burst open + nav
+ *   ComboBox            — FormBuilder + standalone Ui variants, exact match
+ *   ComboBoxMultiSelect — FormBuilder ComboBoxMultiSelect, dropdown stays open after click
+ *   NumericInput        — React controlled-component value setter (FormBuilder Number/Percent/Currency)
+ *   TextInput           — React controlled-component value setter (FormBuilder Text/TextArea/Password + standalone)
+ *   Checkbox            — FormBuilder Checkbox + standalone Ui/Checkbox via native click()
+ *   Checkboxes          — FormBuilder Checkboxes group + optional Select All sibling
+ *   RadioButtons        — FormBuilder RadioButtons group, addressed by value
+ *   AgGrid              — single-click edit, rich-select, virtualization
  *   TypeAhead       — server-paginated firm picker with confirm modes
  *   Modal           — React portal under `#modal`, layer-scoped actions
  *
@@ -26,9 +29,12 @@
 
 export { ReactDatePicker } from './ReactDatePicker';
 export { ComboBox } from './ComboBox';
+export { ComboBoxMultiSelect } from './ComboBoxMultiSelect';
 export { NumericInput } from './NumericInput';
 export { TextInput } from './TextInput';
 export { Checkbox } from './Checkbox';
+export { Checkboxes } from './Checkboxes';
+export { RadioButtons } from './RadioButtons';
 export { AgGrid } from './AgGrid';
 export { TypeAhead, type FirmTypeAheadTarget, type TypeAheadConfirmationMode } from './TypeAhead';
 export { Modal } from './Modal';

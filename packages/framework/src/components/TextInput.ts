@@ -51,15 +51,53 @@
  * `~/geowealth/WebContent/react/app/src/modules/FormBuilder/Fields/Text.js`
  * and `FormBuilder/Core/InputCore.js`.
  *
- * ## Standalone variant
+ * ## Other FormBuilder fields covered by this POM
  *
- * There is no standalone Text component in `modules/Ui/`. Pages
- * that need a non-FormBuilder text input render a plain `<input>`.
- * Most of those are NOT React controlled components and work fine
- * with `Locator.fill()`, but some custom widgets still drive value
- * through React state. This POM handles both by accepting a
- * Locator in the standalone constructor form; the native-setter
- * path is harmless against uncontrolled inputs.
+ * Three FormBuilder fields share the InputCore / native-setter shape
+ * and are addressable through the same `new TextInput(page, fieldId)`
+ * construction:
+ *
+ *   1. **`TextArea`** (`FormBuilder/Fields/TextArea.js`) — renders
+ *      `<textarea id="${fieldId}Field">` inside its own FieldSet.
+ *      The native-setter branch of `setValue` already special-cases
+ *      `TEXTAREA` and picks `HTMLTextAreaElement.prototype`, so the
+ *      mechanical write path is identical. Two non-obvious quirks
+ *      relative to Text:
+ *
+ *        - **Debounced form state.** `TextArea.defaultProps` sets
+ *          `withDebounce: true` and `debounceTimeout: 300`. After
+ *          `setValue()` returns, the textarea's React state is up to
+ *          date but the parent form's state lags ~300ms. A `Save`
+ *          click immediately after will submit the previous value.
+ *          Either pause `await page.waitForTimeout(350)` before
+ *          submitting, or call the field with `withDebounce={false}`
+ *          in the form definition for tests where this matters.
+ *
+ *        - **No keystroke trim.** Unlike Text, TextArea's onChange
+ *          does not trim — leading/trailing whitespace round-trips
+ *          to form state verbatim. Pass already-trimmed strings to
+ *          `setValue` when the assertion compares against a trimmed
+ *          form value.
+ *
+ *   2. **`Password`** (`FormBuilder/Fields/Password.js`) — also
+ *      renders through `InputCore` with `dataModule="password"` and
+ *      a toggleable `type` (text/password). The input id is
+ *      `#${fieldId}Field` like every other InputCore field. Note
+ *      that Password renders an extra `<input name="user" type="text">`
+ *      autofill-hack sibling BEFORE the InputCore section — it's
+ *      outside the FieldSet so the `#${fieldId}Field` selector is
+ *      still unique. The visibility-toggle icon is not exposed by
+ *      this POM; tests that need to assert it should locate the
+ *      icon directly.
+ *
+ *   3. **Standalone non-FormBuilder inputs.** No standalone Text /
+ *      TextArea component exists in `modules/Ui/`. Pages that need a
+ *      non-FormBuilder text input render a plain `<input>` or
+ *      `<textarea>`. Most are not React controlled components and
+ *      would also work with `Locator.fill()`, but some custom
+ *      widgets still drive value through React state. The
+ *      Locator-form constructor handles both — the native-setter
+ *      path is harmless against uncontrolled inputs.
  *
  * ## Two construction forms
  *
