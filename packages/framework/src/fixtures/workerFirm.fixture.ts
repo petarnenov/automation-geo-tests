@@ -1,152 +1,178 @@
 /**
- * `workerFirm` worker-scoped fixture — provisions a fresh dummy firm
- * once per Playwright worker via `/qa/createDummyFirm.do` and yields
- * the flat `WorkerFirm` view to every spec in that worker.
+ * `workerFirm` / `firmPool` — firm pool fixtures.
  *
- * Phase 2 step 3 (D-37). Mirror of the legacy POC's
- * `packages/legacy-poc/tests/_helpers/worker-firm.js` (the program's
- * single most valuable asset per the C25193 entry spike). Critical
- * differences from the legacy version:
+ * Unlike Phase 2's lazy-per-worker provisioning, these fixtures read
+ * from the manifest that `globalSetup` writes at the start of a run.
+ * There is **zero** API traffic in the fixture path — every firm in
+ * the pool exists before the first spec begins, and every per-role
+ * storage state is already on disk.
  *
- *   - Typed via `DummyFirmApi` + Zod schema instead of hand-rolled
- *     `JSON.parse` + flatten().
- *   - Uses Playwright's `APIRequestContext` (D-42) via the `apiClient`
- *     fixture instead of Node `fetch` + manually-stitched Cookie
- *     header. The legacy fetch path was a workaround for the trace
- *     cleanup race documented in the spike's OQ-1; the framework
- *     starts with the typed path and falls back only if the race
- *     reproduces against current Playwright (1.59.x).
- *   - No teardown — feedback_dummy_firm_cleanup is settled. Dummy
- *     firms accumulate by design per Section 5.8.
- *
- * Per Section 4.5 the fixture is **worker-scoped**: every worker pays
- * the ~6s creation cost once at first use, then every spec in the
- * worker reuses the same firm. Specs that need a *fresh per-test*
- * firm consume the (future) `freshFirm` test-scoped fixture instead.
- *
- * The fixture extends the bare `DummyFirm` shape (which is just the
- * API response) with a `password` field set to `process.env
- * .TIM1_PASSWORD`. All dummy firm users — admin and advisors — share
- * the standard tim1 password by qa convention; the password is
- * needed by every login helper (see legacy
- * `loginAsWorkerFirmAdmin`).
+ * The per-role page fixtures (`firmAdminPage`, `firmGwAdminPage`, ...)
+ * share `firmRoleCheckout` — a module-level pool that leases a
+ * `(firmCd, role)` slot per fixture setup, not a whole firm per test.
+ * Two tests in the same worker can therefore simultaneously use
+ * **the same firm on different roles** without colliding, while still
+ * being prevented from racing on the same `(firm, role)` pair.
  */
 
-import { test as base, mergeTests } from '@playwright/test';
-import { DummyFirmApi, type DummyFirm } from '../api/qa/DummyFirmApi';
+import { test as base, mergeTests, type Page } from '@playwright/test';
 import { authFixtures } from './auth.fixture';
 import { apiFixtures } from './api.fixture';
+import { loadManifest, type FirmManifestEntry, type FirmRole } from './firmManifest';
 
-// Merge upstream fixtures so this file can consume `apiClient`
-// without re-declaring it. See the same pattern in api.fixture.ts.
+// Merge upstream fixtures so this file can compose the auth freshness
+// check + apiClient without re-declaring them. `apiClient` is still
+// exposed here for specs that need direct API access (e.g. a spec
+// that seeds extra state via the QA endpoints) even though
+// createDummyFirmExtended itself no longer runs from a fixture.
 const baseWithApi = mergeTests(base, authFixtures, apiFixtures);
 
 /**
- * Test-facing shape: a provisioned dummy firm plus the shared
- * password every dummy firm user accepts. The bare `DummyFirm` from
- * the API client does not include the password (the response never
- * carries it); the fixture layers it on at construction time.
+ * Test-facing shape: one manifest entry plus the shared password
+ * every dummy firm user accepts. All qa users — admin, tim, gwAdmin,
+ * nonGwAdmin, and advisors — share `process.env.TIM1_PASSWORD` by qa
+ * convention.
+ *
+ * `WorkerFirm extends FirmManifestEntry` so top-level accessors
+ * (`firmCd`, `advisor`, `household`, `client`, `accounts`, `logins`,
+ * `firmName`, `firmUrl`) are all present without re-listing them here.
  */
-export interface WorkerFirm extends DummyFirm {
-  /**
-   * The shared password every dummy firm user accepts. Always equal
-   * to `process.env.TIM1_PASSWORD` — qa convention is that admin,
-   * advisors, and tim<N> all use the same password.
-   */
+export interface WorkerFirm extends FirmManifestEntry {
+  /** Top-level admin accessor — hoisted from `logins.admin` so
+   *  existing specs that read `firm.admin.loginName` /
+   *  `firm.admin.entityId` keep working. */
+  readonly admin: { readonly loginName: string; readonly entityId: string };
+  /** Shared qa password (tim1/admin/advisors/tyler/etc. all use it). */
   readonly password: string;
 }
 
 export type WorkerFirmFixtures = {
+  /** A single firm from the pool — preserved for backwards compat
+   *  with worker-scoped consumers (the framework smoke spec, etc.). */
   workerFirm: WorkerFirm;
-  /** Pool of N dummy firms created once per worker. Test-scoped
-   *  `testFirm` picks a unique firm by test index. */
+  /** Full pool of FIRM_POOL_SIZE firms read from the manifest. */
   firmPool: WorkerFirm[];
 };
 
-export type TestFirmFixtures = {
-  /** A unique firm from the worker's pool, assigned by test parallel index.
-   *  Use this when multiple tests in the same worker must not share a firm. */
-  testFirm: WorkerFirm;
-};
 
-/** Create a single dummy firm via API client. */
-async function createOneFirm(apiClient: import('../api/client').ApiClient): Promise<DummyFirm> {
-  return new DummyFirmApi(apiClient).create();
+/** Hoist the top-level `admin` accessor from `logins.admin` so legacy
+ *  consumers of `firm.admin.entityId` keep working. Throws if the
+ *  manifest entry's admin login lacks an entityId (which would mean
+ *  globalSetup wrote a malformed manifest — fail loudly). */
+function hoistAdmin(
+  entry: FirmManifestEntry
+): { loginName: string; entityId: string } {
+  const login = entry.logins.admin;
+  if (login.entityId === null) {
+    throw new Error(
+      `workerFirm: manifest entry for firm ${entry.firmCd} has logins.admin.entityId === null ` +
+        `— regenerate with REBUILD_FIRMS=1 (Commit 2 added the field).`
+    );
+  }
+  return { loginName: login.loginName, entityId: login.entityId };
+}
+
+/** Materialize a `WorkerFirm` from a manifest entry + shared password. */
+function toWorkerFirm(entry: FirmManifestEntry, password: string): WorkerFirm {
+  return {
+    ...entry,
+    admin: hoistAdmin(entry),
+    password,
+  };
 }
 
 export const workerFirmFixtures = baseWithApi.extend<object, WorkerFirmFixtures>({
-  workerFirm: [
-    async ({ apiClient }, use) => {
+  firmPool: [
+    async ({}, use) => {
       const password = process.env.TIM1_PASSWORD;
       if (!password) {
-        throw new Error(
-          'workerFirm: TIM1_PASSWORD must be set in the workspace .env.local.'
-        );
+        throw new Error('firmPool: TIM1_PASSWORD must be set in workspace .env.local.');
       }
-      const dummyFirm = await createOneFirm(apiClient);
-      await use({ ...dummyFirm, password });
+      const manifest = loadManifest();
+      const firms = manifest.firms.map((entry) => toWorkerFirm(entry, password));
+      await use(firms);
     },
     { scope: 'worker' },
   ],
 
-  firmPool: [
-    async ({ apiClient }, use) => {
-      const password = process.env.TIM1_PASSWORD;
-      if (!password) {
-        throw new Error('firmPool: TIM1_PASSWORD must be set.');
+  workerFirm: [
+    async ({ firmPool }, use) => {
+      if (firmPool.length === 0) {
+        throw new Error('workerFirm: manifest contains zero firms — run globalSetup first.');
       }
-
-      const poolSize = Number(process.env.FIRM_POOL_SIZE ?? '8');
-      const firms: WorkerFirm[] = [];
-
-      for (let i = 0; i < poolSize; i++) {
-        const dummyFirm = await createOneFirm(apiClient);
-        firms.push({ ...dummyFirm, password });
-      }
-
-      await use(firms);
+      // Preserve the legacy one-firm-per-worker contract by returning
+      // the first entry. Tests that need per-test isolation within a
+      // worker consume `testFirm` instead.
+      await use(firmPool[0]);
     },
     { scope: 'worker' },
   ],
 });
 
 /**
- * Simple checkout/return pool that guarantees no two concurrent
- * tests within the same worker get the same firm.
+ * Per-(firm, role) checkout pool. A test that needs to drive
+ * `firmGwAdminPage` leases the `(firmCd, 'gwAdmin')` slot on the first
+ * free firm; a sibling test can concurrently lease
+ * `(sameFirmCd, 'nonGwAdmin')` on that same firm without colliding.
+ *
+ * One instance per worker process — workers don't share memory, so
+ * a module-level singleton is sufficient for intra-worker isolation.
+ * Inter-worker isolation is guaranteed by globalSetup creating
+ * FIRM_POOL_SIZE firms and Playwright assigning distinct workers to
+ * distinct slots via the firmPool fixture's `firmPool.length` cap.
+ *
+ * Granularity change (from commit 3e20832's whole-firm FirmCheckout):
+ * per-role locking lets multiple tests share a firm provided they
+ * each touch a different role. The lock key is `${firmCd}::${role}`.
  */
-class FirmCheckout {
-  private readonly inUse = new Set<number>();
+class FirmRoleCheckout {
+  private readonly inUse = new Set<string>();
 
-  checkout(pool: WorkerFirm[]): { firm: WorkerFirm; index: number } {
-    for (let i = 0; i < pool.length; i++) {
-      if (!this.inUse.has(i)) {
-        this.inUse.add(i);
-        return { firm: pool[i], index: i };
+  checkout(pool: WorkerFirm[], role: FirmRole): { firm: WorkerFirm; key: string } {
+    for (const firm of pool) {
+      const key = `${firm.firmCd}::${role}`;
+      if (!this.inUse.has(key)) {
+        this.inUse.add(key);
+        return { firm, key };
       }
     }
     throw new Error(
-      `FirmCheckout: all ${pool.length} firms are in use. ` +
-        `Increase FIRM_POOL_SIZE or reduce parallelism.`
+      `FirmRoleCheckout: role "${role}" is already leased on every firm in the ` +
+        `pool (${pool.length} firms). Increase FIRM_POOL_SIZE, reduce parallelism, ` +
+        `or avoid multiple tests consuming the same role in a single worker.`
     );
   }
 
-  release(index: number): void {
-    this.inUse.delete(index);
+  release(key: string): void {
+    this.inUse.delete(key);
   }
 }
 
-/** One checkout instance per worker (module-level singleton). */
-const checkout = new FirmCheckout();
+/** Module-level singleton — one `FirmRoleCheckout` per worker. */
+export const firmRoleCheckout = new FirmRoleCheckout();
 
-/** Test-scoped fixture that checks out a unique firm from the pool
- *  and returns it when the test finishes. */
-export const testFirmFixtures = workerFirmFixtures.extend<TestFirmFixtures>({
-  testFirm: async ({ firmPool }, use) => {
-    const { firm, index } = checkout.checkout(firmPool);
-    try {
-      await use(firm);
-    } finally {
-      checkout.release(index);
-    }
-  },
-});
+/**
+ * Side-channel map from a per-role Page to the firm that backs it.
+ * Populated by the per-role page fixtures in `pages.fixture.ts`. Tests
+ * that need to assert on the firm identity behind a pool-backed page
+ * go through `getFirmForPage(page)` below.
+ *
+ * A WeakMap so closed pages are GC'd with their firm reference — we
+ * do not want a closed Page to keep a WorkerFirm alive.
+ */
+const pageToFirm = new WeakMap<Page, WorkerFirm>();
+
+export function stampPageFirm(page: Page, firm: WorkerFirm): void {
+  pageToFirm.set(page, firm);
+}
+
+export function getFirmForPage(page: Page): WorkerFirm {
+  const firm = pageToFirm.get(page);
+  if (!firm) {
+    throw new Error(
+      'getFirmForPage: this Page was not created by a pool-based firm fixture. ' +
+        'Only pages yielded by firmAdminPage/firmGwAdminPage/etc. carry firm identity.'
+    );
+  }
+  return firm;
+}

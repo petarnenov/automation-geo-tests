@@ -67,12 +67,33 @@ export function firmStoragePath(firmCd: number, role: FirmRole): string {
   return path.join(FIRMS_STORAGE_DIR, String(firmCd), `${role}.json`);
 }
 
-/** One login entry in the manifest. `storageState` is an absolute path. */
+/**
+ * Post-login `sessionStorage` snapshot for a role. Playwright's
+ * `storageState()` captures cookies + localStorage but NOT
+ * sessionStorage, and empirically the qa SPA puts its post-login
+ * bootstrap keys (`gw.whitelabelStaticFolder`, etc.) in
+ * sessionStorage. We grab it manually via `page.evaluate` and replay
+ * it in consumer fixtures through `context.addInitScript`.
+ */
+export type SessionStorageSnapshot = Record<string, string>;
+
+/**
+ * One login entry in the manifest. `storageState` is an absolute path.
+ * `entityId` is populated only for the `admin` role (the top-level
+ * `adminUser.entityId` from the createDummyFirmExtended response); for
+ * all other roles it is `null`.
+ *
+ * `sessionStorage` holds the post-login `window.sessionStorage`
+ * snapshot captured alongside the cookies; see SessionStorageSnapshot
+ * for the rationale.
+ */
 export interface FirmManifestLogin {
   readonly role: FirmRole;
   readonly loginName: string;
   readonly name: string | null;
+  readonly entityId: string | null;
   readonly storageState: string;
+  readonly sessionStorage: SessionStorageSnapshot;
 }
 
 /**

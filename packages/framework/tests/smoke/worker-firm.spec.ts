@@ -83,12 +83,18 @@ test('@smoke @framework workerFirm fixture provisions a usable dummy firm', asyn
   // password layered on by the fixture from env.
   expect(workerFirm.password).toBeTruthy();
 
-  // tuples — at least one usable household/client/accounts triplet.
-  expect(workerFirm.tuples.length).toBeGreaterThanOrEqual(1);
-
-  // The hoisted top-level fields equal the first tuple.
-  expect(workerFirm.advisor).toEqual(workerFirm.tuples[0].advisor);
-  expect(workerFirm.household).toEqual(workerFirm.tuples[0].household);
-  expect(workerFirm.client).toEqual(workerFirm.tuples[0].client);
-  expect(workerFirm.accounts).toEqual(workerFirm.tuples[0].accounts);
+  // Manifest-sourced logins — the extended endpoint always ships the
+  // full 7-role matrix; assert that each slot is populated with a
+  // loginName matching the expected pattern and a storageState path
+  // that actually exists on disk.
+  expect(workerFirm.logins.admin.loginName).toBe(`admin_${workerFirm.firmCd}`);
+  expect(workerFirm.logins.tim.loginName).toBe(`tim${workerFirm.firmCd}`);
+  expect(workerFirm.logins.gwAdmin.loginName).toBe(`u${workerFirm.firmCd}_gwadmin`);
+  expect(workerFirm.logins.nonGwAdmin.loginName).toBe(`u${workerFirm.firmCd}_nongwadmin`);
+  expect(workerFirm.logins.advisors).toHaveLength(3);
+  for (let i = 0; i < 3; i++) {
+    expect(workerFirm.logins.advisors[i].loginName).toBe(
+      `adv_${workerFirm.firmCd}_${i + 1}`
+    );
+  }
 });

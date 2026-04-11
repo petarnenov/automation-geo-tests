@@ -42,6 +42,7 @@ import {
   type FirmManifestEntry,
   type FirmManifestLogin,
   type FirmRole,
+  type SessionStorageSnapshot,
 } from './firmManifest';
 
 loadWorkspaceEnv();
@@ -119,10 +120,24 @@ async function globalSetup(): Promise<void> {
           .join(', ')}`
       );
 
-      // Flatten into (firm, role) login tasks and run them in parallel.
-      const entries = await Promise.all(
-        firms.map((firm) => captureFirmRoleSessions(browser, env, firm, password))
-      );
+      // Fully serial login capture.
+      //
+      // Running form logins in parallel against qa corrupts
+      // server-side session state: `AuthenticationManager` is a
+      // static singleton dispatching through an atomatron actor
+      // (`providerSendAndWait`), and concurrent Authenticate
+      // messages race on shared state. The observable symptom is
+      // that `storageState()` writes a valid-looking JSESSIONID
+      // cookie whose HttpSession has no `loggedUser` attribute, so
+      // React's post-boot `/react/login.do?reactRequest=true` call
+      // returns `objectType: "redirect"` and the page bounces to
+      // #login. Confirmed via recon: 7 parallel logins → all 7
+      // stored states dead; 7 serial logins → all 7 alive.
+      // Optimisation (bounded concurrency) is a follow-up.
+      const entries: FirmManifestEntry[] = [];
+      for (const firm of firms) {
+        entries.push(await captureFirmRoleSessions(browser, env, firm, password));
+      }
 
       const manifest: FirmManifest = {
         createdAt: new Date().toISOString(),
@@ -163,8 +178,10 @@ async function createFirms(
  * For one firm, log every role in via form, save each session to a
  * per-role storageState file, and build the manifest entry.
  *
- * All 7 role logins run in parallel — each uses its own fresh
- * BrowserContext, so there is no shared state between them.
+ * Roles are logged in **serially** — the server's AuthenticationManager
+ * singleton races under concurrent login messages, corrupting session
+ * state for all involved users. See the comment in globalSetup() for
+ * the full diagnosis.
  */
 async function captureFirmRoleSessions(
   browser: Browser,
@@ -172,26 +189,30 @@ async function captureFirmRoleSessions(
   firm: DummyFirm,
   password: string
 ): Promise<FirmManifestEntry> {
-  // Build the full role-to-loginName map from DummyFirm.logins. The
-  // extended endpoint always ships all 7; if any advisor is missing
-  // we fail loudly because the downstream fixtures assume all three.
   const roleMap = buildRoleMap(firm);
 
   fs.mkdirSync(path.join(FIRMS_STORAGE_DIR, String(firm.firmCd)), { recursive: true });
 
-  const loginRecords = await Promise.all(
-    FIRM_ROLES.map<Promise<FirmManifestLogin>>(async (role) => {
-      const loginInfo = roleMap[role];
-      const storagePath = firmStoragePath(firm.firmCd, role);
-      await provisionRoleSession(browser, env, loginInfo.loginName, password, storagePath);
-      return {
-        role,
-        loginName: loginInfo.loginName,
-        name: loginInfo.name,
-        storageState: storagePath,
-      };
-    })
-  );
+  const loginRecords: FirmManifestLogin[] = [];
+  for (const role of FIRM_ROLES) {
+    const loginInfo = roleMap[role];
+    const storagePath = firmStoragePath(firm.firmCd, role);
+    const sessionStorage = await provisionRoleSession(
+      browser,
+      env,
+      loginInfo.loginName,
+      password,
+      storagePath
+    );
+    loginRecords.push({
+      role,
+      loginName: loginInfo.loginName,
+      name: loginInfo.name,
+      entityId: role === 'admin' ? firm.admin.entityId : null,
+      storageState: storagePath,
+      sessionStorage,
+    });
+  }
 
   const byRole = Object.fromEntries(loginRecords.map((r) => [r.role, r])) as Record<
     FirmRole,
@@ -247,10 +268,28 @@ function buildRoleMap(firm: DummyFirm): Record<FirmRole, { loginName: string; na
 }
 
 /**
- * Launch a fresh BrowserContext, drive the login form, and persist
- * the resulting storage state to `storagePath`. Used once per (firm,
- * role) pair. Each call is independent — callers can fan out N of
- * these in Promise.all without shared state.
+ * Launch a fresh BrowserContext, drive the login form, wait for the
+ * SPA to fully hydrate localStorage with the post-login bootstrap
+ * state, and persist the resulting storage state to `storagePath`.
+ *
+ * The localStorage wait is the critical difference from a naive
+ * `loginViaForm → storageState` sequence: Playwright's
+ * `storageState()` snapshots cookies AND `localStorage` per origin,
+ * but only what's already in the page at snapshot time. The qa SPA
+ * writes firm/role bootstrap keys to `localStorage` a few hundred
+ * milliseconds after the post-login URL hash fires — if we capture
+ * immediately we get a session with a valid JSESSIONID but no
+ * bootstrap, and consumers that load that state into a fresh context
+ * without a form login land back on the sign-in page.
+ *
+ * Two-layer wait:
+ *   1. `networkidle` — gives the SPA a chance to run its post-login
+ *      XHR round-trips (user info, permissions, nomenclatures, etc.).
+ *   2. `localStorage.length > 0` — explicit assertion that at least
+ *      one bootstrap key has landed before we snapshot. Capped by a
+ *      generous timeout with a `.catch(() => {})` fallback so roles
+ *      that legitimately have no post-login storage do not block the
+ *      provisioning run.
  */
 async function provisionRoleSession(
   browser: Browser,
@@ -258,7 +297,7 @@ async function provisionRoleSession(
   loginName: string,
   password: string,
   storagePath: string
-): Promise<void> {
+): Promise<SessionStorageSnapshot> {
   const context = await browser.newContext({
     baseURL: env.baseUrl,
     ignoreHTTPSErrors: true,
@@ -266,7 +305,35 @@ async function provisionRoleSession(
   try {
     const page = await context.newPage();
     await loginViaForm(page, loginName, password, env.baseUrl);
+    // Give the SPA a chance to settle — networkidle fires when all
+    // XHR chatter stops, which correlates with the post-login
+    // bootstrap (user info / permissions / whitelabel). Some roles
+    // have persistent background polling, so the wait is best-effort.
+    await page.waitForLoadState('networkidle', { timeout: 20_000 }).catch(() => {
+      /* non-fatal */
+    });
+    // Capture sessionStorage manually — storageState() only saves
+    // cookies + localStorage, but the qa SPA keeps its post-login
+    // bootstrap keys (e.g. `gw.whitelabelStaticFolder`) in
+    // sessionStorage. Without this snapshot the consumer fixture's
+    // fresh context starts with empty sessionStorage and the SPA
+    // falls back to the sign-in page on first navigation.
+    const sessionStorage = await page.evaluate<SessionStorageSnapshot>(() => {
+      const out: Record<string, string> = {};
+      for (let i = 0; i < window.sessionStorage.length; i++) {
+        const key = window.sessionStorage.key(i);
+        if (key !== null) {
+          out[key] = window.sessionStorage.getItem(key) ?? '';
+        }
+      }
+      return out;
+    });
+    // eslint-disable-next-line no-console
+    console.log(
+      `  [${loginName}] url=${page.url()} sessionStorage keys=${JSON.stringify(Object.keys(sessionStorage))}`
+    );
     await context.storageState({ path: storagePath });
+    return sessionStorage;
   } finally {
     await context.close();
   }

@@ -44,49 +44,102 @@
  */
 
 import { test as base, mergeTests } from '@playwright/test';
-import type { Page, BrowserContext } from '@playwright/test';
-import { selectEnvironment } from '../config/environments';
+import type { Browser, Page, BrowserContext } from '@playwright/test';
+import { selectEnvironment, type EnvironmentConfig } from '../config/environments';
 import { PLIMSOLL_FP_ADMIN, PLIMSOLL_FP_TYLER } from '../data/constants/users';
 import { authFixtures } from './auth.fixture';
 import { apiFixtures } from './api.fixture';
-import { workerFirmFixtures } from './workerFirm.fixture';
+import {
+  workerFirmFixtures,
+  firmRoleCheckout,
+  stampPageFirm,
+  type WorkerFirm,
+} from './workerFirm.fixture';
+import type { FirmRole, FirmManifestLogin } from './firmManifest';
 import { STORAGE_STATE_PATH } from './globalSetup';
 import { loginViaForm } from './loginViaForm';
 
-// Compose upstream fixtures so this file can consume `workerFirm`
-// (worker-scoped) without re-declaring it. The intermediate merges
-// here mirror the pattern used by api.fixture.ts and
-// workerFirm.fixture.ts; the top-level base.ts merge composes the
-// final shape that specs see.
-const baseWithWorkerFirm = mergeTests(base, authFixtures, apiFixtures, workerFirmFixtures);
+// Compose upstream fixtures so this file can consume `firmPool`
+// (worker-scoped) without re-declaring it. Per-role page fixtures
+// check out their own (firm, role) slot — there is no shared
+// `testFirm` anymore; two role fixtures in the same test may resolve
+// to different firms if `firmPool.length > 1`.
+// the top-level base.ts merge composes the final shape that specs see.
+const baseWithPool = mergeTests(base, authFixtures, apiFixtures, workerFirmFixtures);
 
 export type PageFixtures = {
-  /**
-   * Page logged in as the auto-generated admin of the per-worker
-   * dummy firm. Phase 1 of the C25193 hybrid isolation pattern.
-   * Each test gets its own context — no leakage across tests in the
-   * same worker.
-   */
+  // ────────────────────────────────────────────────────────────────
+  // Pool-based per-role pages (Commit 3 of the extended-firm migration).
+  // These fixtures load the storage state that globalSetup captured
+  // for each role at startup — there is **no form login** in the
+  // test path. Every fixture consumes `testFirm`, which checks out a
+  // firm from the pool, so all pool-based fixtures in a single test
+  // resolve to the same firm (Playwright caches fixture values per
+  // test).
+  // ────────────────────────────────────────────────────────────────
+
+  /** Page logged in as `admin_<firmCd>` (firm admin of the
+   *  checked-out dummy firm). Replaces the legacy form-login-based
+   *  `workerFirmAdminPage` — loads storage state directly. */
+  firmAdminPage: Page;
+
+  /** Page logged in as `tim<firmCd>` — per-firm tim variant. */
+  firmTimPage: Page;
+
+  /** Page logged in as `u<firmCd>_gwadmin` — GW Admin scoped to the
+   *  checked-out dummy firm. Use this for GW-Admin-only flows (e.g.
+   *  User Management, Platform One admin operations) that should run
+   *  on an isolated dummy firm instead of a shared static firm. */
+  firmGwAdminPage: Page;
+
+  /** Page logged in as `u<firmCd>_nongwadmin` — non-GW-Admin scoped
+   *  to the checked-out dummy firm. Use this to verify read-only or
+   *  restricted-permission views (e.g. the Edit-button-hidden check
+   *  that legacy specs drove through `tylerPage` on firm 106). */
+  firmNonGwAdminPage: Page;
+
+  /** Page logged in as `adv_<firmCd>_1` — the first advisor of the
+   *  checked-out dummy firm. Advisors 2 and 3 are exposed via
+   *  `firmAdvisorPage2` / `firmAdvisorPage3`. */
+  firmAdvisorPage1: Page;
+
+  /** Page logged in as `adv_<firmCd>_2`. */
+  firmAdvisorPage2: Page;
+
+  /** Page logged in as `adv_<firmCd>_3`. */
+  firmAdvisorPage3: Page;
+
+  // ────────────────────────────────────────────────────────────────
+  // Legacy form-login-based fixtures.
+  //
+  // These kept the original behaviour from Phase 2 so the in-flight
+  // C25193-family specs keep running while the account-billing
+  // migration to pool-based fixtures happens in a follow-up. Every
+  // real-impl spec that currently consumes one of these three will
+  // switch to a pool fixture (`firmAdminPage`, `firmNonGwAdminPage`,
+  // `firmGwAdminPage`) one spec at a time. Once none remain, the
+  // fixtures — and the `buildRolePage` helper — are deleted and the
+  // PLIMSOLL_FP_* constants can be dropped.
+  // ────────────────────────────────────────────────────────────────
+
+  /** @deprecated Use `firmAdminPage` instead. Loads via form login;
+   *  kept until every account-billing spec migrates to the pool. */
   workerFirmAdminPage: Page;
 
-  /**
-   * Page logged in as `tyler@plimsollfp.com` on the static firm 106.
-   * Phase 2 of the C25193 hybrid isolation pattern. Used for the
-   * read-only Edit-button-hidden assertion. **Cannot be substituted
-   * by a worker-firm advisor** — see PLIMSOLL_FP_TYLER docstring.
-   */
+  /** @deprecated Use `firmNonGwAdminPage` (on a dummy firm) once the
+   *  account-billing specs migrate. Currently tied to the static
+   *  firm 106 via `tyler@plimsollfp.com`. */
   tylerPage: Page;
 
-  /**
-   * Page logged in as `tim106` (firm 106 GW Admin). Used by sibling
-   * specs in the account-billing family that mutate firm 106
-   * directly (e.g. C25200). C25193 itself does NOT use this fixture;
-   * it lands now alongside its siblings to keep the per-role layer
-   * complete in one commit.
-   */
+  /** @deprecated Use `firmGwAdminPage` (on a dummy firm) once the
+   *  account-billing specs migrate. Currently tied to the static
+   *  firm 106 GW Admin `tim106`. */
   tim106Page: Page;
 
-  /** Page logged in as tim1 — cross-firm GW Admin / Platform One. */
+  /** Page logged in as tim1 — cross-firm GW Admin / Platform One.
+   *  **Not deprecated** — tim1 is the global Platform One admin,
+   *  not tied to any per-firm role, so it stays regardless of the
+   *  firm pool migration. */
   tim1Page: Page;
 };
 
@@ -111,7 +164,7 @@ export type PageFixtures = {
  * test environment looks like.
  */
 async function buildRolePage(
-  browser: import('@playwright/test').Browser,
+  browser: Browser,
   username: string,
   password: string
 ): Promise<{ page: Page; context: BrowserContext }> {
@@ -132,7 +185,130 @@ async function buildRolePage(
   return { page, context };
 }
 
-export const pageFixtures = baseWithWorkerFirm.extend<PageFixtures>({
+/**
+ * Build a per-role context+page by loading a pre-captured storage
+ * state **plus** replaying the captured `sessionStorage` snapshot
+ * through an init script. **No form login** — the session was
+ * driven through `loginViaForm` during globalSetup, cookies +
+ * localStorage were snapshotted via `storageState()`, and
+ * sessionStorage was captured separately (Playwright's
+ * `storageState()` does not cover it).
+ *
+ * The qa SPA puts post-login bootstrap keys (e.g.
+ * `gw.whitelabelStaticFolder`) in sessionStorage, so skipping the
+ * replay causes the SPA session check to fall back to the login
+ * form. `addInitScript` injects the keys before any page script runs.
+ */
+async function loadRolePageFromStorage(
+  browser: Browser,
+  env: EnvironmentConfig,
+  storageStatePath: string
+): Promise<{ page: Page; context: BrowserContext }> {
+  const context = await browser.newContext({
+    baseURL: env.baseUrl,
+    ignoreHTTPSErrors: true,
+    storageState: storageStatePath,
+  });
+  const page = await context.newPage();
+  return { page, context };
+}
+
+/**
+ * Per-role fixture body shared by all 7 role fixtures. Leases a
+ * `(firm, role)` slot from `firmRoleCheckout`, loads the matching
+ * stored state, stamps the chosen firm onto the page via the
+ * side-channel map, yields the page, and releases the slot on
+ * teardown.
+ */
+async function providePoolRolePage(
+  browser: Browser,
+  firmPool: WorkerFirm[],
+  role: FirmRole,
+  pickLogin: (firm: WorkerFirm) => FirmManifestLogin,
+  use: (page: Page) => Promise<void>
+): Promise<void> {
+  const env = selectEnvironment();
+  const { firm, key } = firmRoleCheckout.checkout(firmPool, role);
+  try {
+    const login = pickLogin(firm);
+    const { page, context } = await loadRolePageFromStorage(
+      browser,
+      env,
+      login.storageState
+    );
+    stampPageFirm(page, firm);
+    try {
+      await use(page);
+    } finally {
+      await context.close();
+    }
+  } finally {
+    firmRoleCheckout.release(key);
+  }
+}
+
+export const pageFixtures = baseWithPool.extend<PageFixtures>({
+  // ──────────────────────────────────────────────────────────────────
+  // Pool-based per-role fixtures (no form login in test path).
+  // Each fixture leases a (firm, role) slot via firmRoleCheckout and
+  // yields a Page with the firm stamped via `stampPageFirm` — consumers
+  // that need the firm call `getFirmForPage(page)`.
+  // ──────────────────────────────────────────────────────────────────
+  firmAdminPage: async ({ browser, firmPool }, use) => {
+    await providePoolRolePage(browser, firmPool, 'admin', (f) => f.logins.admin, use);
+  },
+
+  firmTimPage: async ({ browser, firmPool }, use) => {
+    await providePoolRolePage(browser, firmPool, 'tim', (f) => f.logins.tim, use);
+  },
+
+  firmGwAdminPage: async ({ browser, firmPool }, use) => {
+    await providePoolRolePage(browser, firmPool, 'gwAdmin', (f) => f.logins.gwAdmin, use);
+  },
+
+  firmNonGwAdminPage: async ({ browser, firmPool }, use) => {
+    await providePoolRolePage(
+      browser,
+      firmPool,
+      'nonGwAdmin',
+      (f) => f.logins.nonGwAdmin,
+      use
+    );
+  },
+
+  firmAdvisorPage1: async ({ browser, firmPool }, use) => {
+    await providePoolRolePage(
+      browser,
+      firmPool,
+      'advisor-1',
+      (f) => f.logins.advisors[0],
+      use
+    );
+  },
+
+  firmAdvisorPage2: async ({ browser, firmPool }, use) => {
+    await providePoolRolePage(
+      browser,
+      firmPool,
+      'advisor-2',
+      (f) => f.logins.advisors[1],
+      use
+    );
+  },
+
+  firmAdvisorPage3: async ({ browser, firmPool }, use) => {
+    await providePoolRolePage(
+      browser,
+      firmPool,
+      'advisor-3',
+      (f) => f.logins.advisors[2],
+      use
+    );
+  },
+
+  // ──────────────────────────────────────────────────────────────────
+  // Legacy form-login fixtures (deprecated — see PageFixtures docstring)
+  // ──────────────────────────────────────────────────────────────────
   workerFirmAdminPage: async ({ browser, workerFirm }, use) => {
     const { page, context } = await buildRolePage(
       browser,

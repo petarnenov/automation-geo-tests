@@ -21,7 +21,7 @@
  * launch + cleanup automatically.
  */
 
-import { test, expect } from '@geowealth/e2e-framework/fixtures';
+import { test, expect, getFirmForPage } from '@geowealth/e2e-framework/fixtures';
 
 test('@smoke @framework workerFirmAdminPage logs in as the dummy firm admin', async ({
   workerFirmAdminPage,
@@ -43,6 +43,44 @@ test('@smoke @framework workerFirmAdminPage logs in as the dummy firm admin', as
 test('@smoke @framework tylerPage logs in as tyler@plimsollfp.com', async ({ tylerPage }) => {
   await expect(tylerPage).toHaveURL(/\/react\/indexReact\.do/);
   await expect(tylerPage.getByPlaceholder(/email|username/i)).toBeHidden();
+});
+
+test('@smoke @framework firmAdminPage loads storage state from the pool (no form login)', async ({
+  firmAdminPage,
+}) => {
+  // The pool-based fixture does zero form logins — it loads the
+  // storage state globalSetup captured. So the page should already be
+  // authenticated as `admin_<firmCd>` the first time we interact with it.
+  await firmAdminPage.goto('/react/indexReact.do');
+  await expect(firmAdminPage).toHaveURL(/\/react\/indexReact\.do/);
+  await expect(firmAdminPage.getByPlaceholder(/email|username/i)).toBeHidden();
+
+  // The firm backing this page is whichever (firm, admin) slot the
+  // checkout found free. We recover it via the side-channel map.
+  const firm = getFirmForPage(firmAdminPage);
+  expect(firm.logins.admin.loginName).toBe(`admin_${firm.firmCd}`);
+});
+
+test('@smoke @framework firmGwAdminPage and firmNonGwAdminPage load distinct (firm, role) slots', async ({
+  firmGwAdminPage,
+  firmNonGwAdminPage,
+}) => {
+  // Per-role checkout: each fixture leases its own (firm, role) slot.
+  // With FIRM_POOL_SIZE >= 2, the two fixtures may resolve to different
+  // firms — that is the whole point of role-granular locking (two
+  // tests can share a firm as long as they use different roles).
+  await firmGwAdminPage.goto('/react/indexReact.do');
+  await firmNonGwAdminPage.goto('/react/indexReact.do');
+
+  await expect(firmGwAdminPage).toHaveURL(/\/react\/indexReact\.do/);
+  await expect(firmNonGwAdminPage).toHaveURL(/\/react\/indexReact\.do/);
+  await expect(firmGwAdminPage.getByPlaceholder(/email|username/i)).toBeHidden();
+  await expect(firmNonGwAdminPage.getByPlaceholder(/email|username/i)).toBeHidden();
+
+  const gwFirm = getFirmForPage(firmGwAdminPage);
+  const nonFirm = getFirmForPage(firmNonGwAdminPage);
+  expect(gwFirm.logins.gwAdmin.loginName).toBe(`u${gwFirm.firmCd}_gwadmin`);
+  expect(nonFirm.logins.nonGwAdmin.loginName).toBe(`u${nonFirm.firmCd}_nongwadmin`);
 });
 
 test('@smoke @framework two distinct identities can coexist in one spec', async ({
