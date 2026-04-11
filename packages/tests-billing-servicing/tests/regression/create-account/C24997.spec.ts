@@ -102,7 +102,7 @@ test('@regression @billing-servicing C24997 Create new accounts using grid input
     await createAccount.openBulkUploadModal('reset');
     await createAccount.uploadXlsx(phaseBXlsx, 'PhaseB.xlsx');
     await expect(createAccount.row(0)).toBeVisible({ timeout: 30_000 });
-    await expect(createAccount.row(1)).not.toBeVisible();
+    await expect(createAccount.row(1)).toBeHidden();
     await expect(createAccount.cellWithText('accountNumber', bManual)).toHaveCount(0);
     await expect(createAccount.cellWithText('accountNumber', bUpload)).toBeVisible();
   });

@@ -186,7 +186,7 @@ test('@pepi C24997 Create new accounts using grid input and bulk upload', async 
     await expect(page.locator('.ag-row[row-index="0"]')).toBeVisible({
       timeout: 30_000,
     });
-    await expect(page.locator('.ag-row[row-index="1"]')).not.toBeVisible();
+    await expect(page.locator('.ag-row[row-index="1"]')).toBeHidden();
     // The manual row's account number must NOT be in the grid.
     await expect(
       page.locator(`.ag-row [role="gridcell"][col-id="accountNumber"]:has-text("${bManual}")`)

@@ -42,7 +42,6 @@ test('@regression @billing-servicing C26080 Auto-link - non-matching email trigg
   tim1Page,
   workerFirm,
 }) => {
-  test.setTimeout(300_000);
   test.slow();
 
   const stamp = Date.now();
@@ -81,5 +80,5 @@ test('@regression @billing-servicing C26080 Auto-link - non-matching email trigg
   // LinkDelinkActionLink cell renders null for the firm-1 row.
   await p1.goToUserManagement();
   await userMgmt.searchByEmail(1, emailFirm1);
-  await expect(userMgmt.delinkAction()).not.toBeVisible();
+  await expect(userMgmt.delinkAction()).toBeHidden();
 });
