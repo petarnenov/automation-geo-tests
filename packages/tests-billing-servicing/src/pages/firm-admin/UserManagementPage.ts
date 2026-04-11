@@ -32,26 +32,27 @@
  *     for the grid to settle, then locates the specific tree group
  *     row by exact email text and expands it so the children are
  *     visible.
- *   - `expectLinked()` / `expectNotLinked()` scope their assertions
- *     to the expanded group's children, not the whole page.
+ *   - `linkAction()` / `delinkAction()` return Locators scoped to
+ *     the expanded group's children. Tests drive assertions via
+ *     `await expect(userMgmt.delinkAction()).toBeVisible()` —
+ *     assertions live in the spec, not the POM.
  */
 
-import { expect, type Page, type Locator } from '@playwright/test';
+import type { Page, Locator } from '@playwright/test';
 import { ComboBox } from '@geowealth/e2e-framework/components/ComboBox';
 import { TextInput } from '@geowealth/e2e-framework/components/TextInput';
 
 const DEFAULT_SEARCH_TIMEOUT = 30_000;
 const DEFAULT_ACTION_TIMEOUT = 15_000;
-const ASSERTION_TIMEOUT = 10_000;
 
 export class UserManagementPage {
   private readonly firmFilter: ComboBox;
   private readonly emailInput: TextInput;
   /**
    * Tracks the email the test most recently searched for, so
-   * `expectLinked()` / `expectNotLinked()` / action methods can
-   * scope their assertions to the matching tree group's children
-   * instead of scanning the whole 3k+ row grid.
+   * `linkAction()` / `delinkAction()` / the action click methods
+   * can scope to the matching tree group's children instead of
+   * scanning the whole 3k+ row grid.
    */
   private currentEmail: string | null = null;
 
@@ -109,9 +110,9 @@ export class UserManagementPage {
     ]);
 
     // Wait for the grid root to be present.
-    await expect(this.page.locator('.ag-root-wrapper')).toBeVisible({
-      timeout: DEFAULT_SEARCH_TIMEOUT,
-    });
+    await this.page
+      .locator('.ag-root-wrapper')
+      .waitFor({ state: 'visible', timeout: DEFAULT_SEARCH_TIMEOUT });
 
     // Retry-ready polling for the target row to appear in the
     // data. Headless Chrome sometimes reports a 200 response
@@ -177,7 +178,7 @@ export class UserManagementPage {
     const filter = this.page.getByRole('textbox', {
       name: 'Primary Email Address / Name Filter Input',
     });
-    await expect(filter).toBeVisible({ timeout: DEFAULT_ACTION_TIMEOUT });
+    await filter.waitFor({ state: 'visible', timeout: DEFAULT_ACTION_TIMEOUT });
     await filter.fill(email);
     // Give ag-grid a frame or two to re-render the row window.
     await this.page.waitForTimeout(500);
@@ -208,7 +209,7 @@ export class UserManagementPage {
    */
   private async expandGroupForEmail(email: string): Promise<void> {
     const row = this.groupRowForEmail(email);
-    await expect(row).toBeVisible({ timeout: DEFAULT_ACTION_TIMEOUT });
+    await row.waitFor({ state: 'visible', timeout: DEFAULT_ACTION_TIMEOUT });
 
     const expandIcon = row.locator('.ag-icon-tree-closed');
     if (!(await expandIcon.count())) return;
@@ -266,35 +267,46 @@ export class UserManagementPage {
     return this.groupRowForEmail(this.currentEmail).locator('xpath=..');
   }
 
-  /** Click Link action on a child of the current email group and confirm. */
+  /**
+   * Locator for the Link `<a>` inside the currently expanded
+   * email group. Use this in tests to assert "this user is not
+   * linked" via `await expect(userMgmt.linkAction()).toBeVisible()`.
+   *
+   * Exposes a Locator rather than a boolean so tests keep control
+   * over retry/timeout behaviour via Playwright's web-first
+   * assertion API — no `expect(...)` calls live inside the POM.
+   */
+  linkAction(): Locator {
+    return this.expandedGroupScope().getByRole('link', { name: 'Link', exact: true }).first();
+  }
+
+  /**
+   * Locator for the Delink action inside the currently expanded
+   * email group. Use this in tests to assert "this user is
+   * linked" via `await expect(userMgmt.delinkAction()).toBeVisible()`.
+   */
+  delinkAction(): Locator {
+    return this.expandedGroupScope().getByText('Delink').first();
+  }
+
+  /**
+   * Click Link on a child of the current email group and confirm.
+   * The Submit button dismisses the confirmation modal.
+   */
   async linkUser(): Promise<void> {
-    const linkAction = this.expandedGroupScope()
-      .getByRole('link', { name: 'Link', exact: true })
-      .first();
-    await expect(linkAction).toBeVisible({ timeout: DEFAULT_ACTION_TIMEOUT });
-    await linkAction.click();
+    const action = this.linkAction();
+    await action.waitFor({ state: 'visible', timeout: DEFAULT_ACTION_TIMEOUT });
+    await action.click();
     await this.page.getByRole('button', { name: 'Submit' }).click();
   }
 
-  /** Click Delink action on a child of the current email group and confirm. */
+  /**
+   * Click Delink on a child of the current email group and confirm.
+   */
   async delinkUser(): Promise<void> {
-    const delinkAction = this.expandedGroupScope().getByText('Delink').first();
-    await expect(delinkAction).toBeVisible({ timeout: DEFAULT_ACTION_TIMEOUT });
-    await delinkAction.click();
+    const action = this.delinkAction();
+    await action.waitFor({ state: 'visible', timeout: DEFAULT_ACTION_TIMEOUT });
+    await action.click();
     await this.page.getByRole('button', { name: 'Submit' }).click();
-  }
-
-  /** Assert that Delink is visible on a child of the current email group. */
-  async expectLinked(): Promise<void> {
-    await expect(this.expandedGroupScope().getByText('Delink').first()).toBeVisible({
-      timeout: ASSERTION_TIMEOUT,
-    });
-  }
-
-  /** Assert that Link is visible on a child of the current email group. */
-  async expectNotLinked(): Promise<void> {
-    await expect(
-      this.expandedGroupScope().getByText('Link', { exact: true }).first()
-    ).toBeVisible({ timeout: ASSERTION_TIMEOUT });
   }
 }

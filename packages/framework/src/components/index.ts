@@ -11,6 +11,7 @@
  *   ComboBox        — FormBuilder + standalone Ui variants, exact match
  *   NumericInput    — React controlled-component value setter (FormBuilder Number/Percent/Currency)
  *   TextInput       — React controlled-component value setter (FormBuilder Text + standalone)
+ *   Checkbox        — FormBuilder Checkbox + standalone Ui/Checkbox via native click()
  *   AgGrid          — single-click edit, rich-select, virtualization
  *   TypeAhead       — server-paginated firm picker with confirm modes
  *   Modal           — React portal under `#modal`, layer-scoped actions
@@ -27,6 +28,7 @@ export { ReactDatePicker } from './ReactDatePicker';
 export { ComboBox } from './ComboBox';
 export { NumericInput } from './NumericInput';
 export { TextInput } from './TextInput';
+export { Checkbox } from './Checkbox';
 export { AgGrid } from './AgGrid';
 export { TypeAhead, type FirmTypeAheadTarget, type TypeAheadConfirmationMode } from './TypeAhead';
 export { Modal } from './Modal';

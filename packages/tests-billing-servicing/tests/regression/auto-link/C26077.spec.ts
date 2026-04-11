@@ -12,7 +12,7 @@
  * the pool user on that firm is never logged in here.
  */
 
-import { test } from '@geowealth/e2e-framework/fixtures';
+import { test, expect } from '@geowealth/e2e-framework/fixtures';
 import { PlatformOnePage } from '@geowealth/e2e-framework/pages';
 import { UsersPage } from '../../../src/pages/firm-admin/UsersPage';
 import { UserManagementPage } from '../../../src/pages/firm-admin/UserManagementPage';
@@ -53,9 +53,9 @@ test('@regression @billing-servicing C26077 Auto-link - new GW Admin user with m
   });
 
   // User Management: search and verify auto-link happened.
-  // expectLinked() asserts "Delink" action is present on the
-  // expanded email group, which means both users are linked.
+  // The Delink action is present on the expanded email group
+  // when both users are linked — so we assert it's visible.
   await p1.goToUserManagement();
   await userMgmt.searchByEmail(1, email);
-  await userMgmt.expectLinked();
+  await expect(userMgmt.delinkAction()).toBeVisible();
 });
