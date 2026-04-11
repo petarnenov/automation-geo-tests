@@ -83,12 +83,29 @@ function toWorkerFirm(entry: FirmManifestEntry, password: string): WorkerFirm {
 
 export const workerFirmFixtures = baseWithApi.extend<object, WorkerFirmFixtures>({
   firmPool: [
-    async ({}, use) => {
+    async ({}, use, workerInfo) => {
       const password = process.env.TIM1_PASSWORD;
       if (!password) {
         throw new Error('firmPool: TIM1_PASSWORD must be set in workspace .env.local.');
       }
       const manifest = loadManifest();
+      // Hard guard against inter-worker (firm, role) collisions.
+      // `firmRoleCheckout` is a module-level singleton per worker
+      // process, so it cannot see leases held by other workers. If
+      // there are more workers than firms, two workers will pick the
+      // same firm for the same role and the second will corrupt the
+      // first's server-side session (see project_extended_firm_migration
+      // memory for the root cause). Fail loudly so the operator bumps
+      // FIRM_POOL_SIZE or caps --workers instead of chasing flaky
+      // "sign-in form appeared in a pool test" bug reports later.
+      if (workerInfo.parallelIndex >= manifest.firms.length) {
+        throw new Error(
+          `firmPool: Playwright worker parallelIndex=${workerInfo.parallelIndex} ` +
+            `exceeds manifest firm count ${manifest.firms.length}. Cap --workers to ` +
+            `<= ${manifest.firms.length} or increase FIRM_POOL_SIZE in firmManifest.ts ` +
+            `and rebuild the pool with REBUILD_FIRMS=1.`
+        );
+      }
       const firms = manifest.firms.map((entry) => toWorkerFirm(entry, password));
       await use(firms);
     },

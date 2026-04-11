@@ -16,6 +16,7 @@ import type { PlaywrightTestConfig, ReporterDescription } from '@playwright/test
 import * as path from 'node:path';
 import { loadWorkspaceEnv, WORKSPACE_ROOT } from './dotenv-loader';
 import { selectEnvironment } from './environments';
+import { FIRM_POOL_SIZE } from '../fixtures/firmManifest';
 
 loadWorkspaceEnv();
 
@@ -24,7 +25,14 @@ export interface DefinePlaywrightConfigOptions {
   projectName: string;
   /** Test directory relative to the consuming package. Default `./tests`. */
   testDir?: string;
-  /** Number of parallel workers. Default 6 (validated under qa2/qa3 load). */
+  /**
+   * Number of parallel workers. Default `FIRM_POOL_SIZE` so every
+   * worker gets a dedicated firm from the pool — pool fixtures use
+   * per-(firm, role) locking backed by a module-level singleton that
+   * is NOT shared across workers, so `workers > FIRM_POOL_SIZE` risks
+   * two workers simultaneously leasing the same `(firm, role)` slot
+   * and colliding on server-side session state.
+   */
   workers?: number;
   /**
    * Optional `use.storageState` override. Default points at the workspace-
@@ -83,7 +91,7 @@ export function definePlaywrightConfig(
     fullyParallel: false,
     forbidOnly: !!process.env.CI,
     retries: process.env.CI ? 1 : 0,
-    workers: opts.workers ?? 6,
+    workers: Math.min(opts.workers ?? FIRM_POOL_SIZE, FIRM_POOL_SIZE),
     timeout: 60_000,
     expect: { timeout: 10_000 },
     reporter,
