@@ -33,6 +33,7 @@ export { ComboBox } from './ComboBox';
 export { ComboBoxMultiSelect } from './ComboBoxMultiSelect';
 export { NumericInput } from './NumericInput';
 export { TextInput } from './TextInput';
+export { Password } from './Password';
 export { Checkbox } from './Checkbox';
 export { Checkboxes } from './Checkboxes';
 export { RadioButtons } from './RadioButtons';

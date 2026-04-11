@@ -39,9 +39,11 @@
 
 import type { Page } from '@playwright/test';
 import { Checkbox } from '@geowealth/e2e-framework/components/Checkbox';
+import { Checkboxes } from '@geowealth/e2e-framework/components/Checkboxes';
 import { ComboBox } from '@geowealth/e2e-framework/components/ComboBox';
 import { FormBuilder } from '@geowealth/e2e-framework/components/FormBuilder';
 import { Modal } from '@geowealth/e2e-framework/components/Modal';
+import { Password } from '@geowealth/e2e-framework/components/Password';
 import { TextInput } from '@geowealth/e2e-framework/components/TextInput';
 
 const CREATE_USER_TIMEOUT = 30_000;
@@ -61,7 +63,24 @@ export interface CreateUserFields {
   gwAdmin?: boolean;
   /** Optional — role name to pick in the Default Role combo. Default: 'Admins'. */
   defaultRole?: string;
+  /**
+   * Optional — password for non-GW-Admin users. The Password /
+   * Confirm Password fields are DISABLED when `gwAdmin: true`
+   * and REQUIRED when `gwAdmin: false`. Must satisfy the form's
+   * validation regex: at least 8 chars with uppercase, lowercase,
+   * digit, and special character. If omitted while creating a
+   * non-GW-Admin user, `createUser` falls back to
+   * `DEFAULT_NON_GW_ADMIN_PASSWORD`.
+   */
+  password?: string;
 }
+
+/**
+ * Strong-enough password used as the `createUser` fallback for
+ * non-GW-Admin users. Satisfies the FormBuilder regex
+ * `^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$`.
+ */
+const DEFAULT_NON_GW_ADMIN_PASSWORD = 'TestPass123!';
 
 export class UsersPage {
   private readonly modal: Modal;
@@ -81,15 +100,25 @@ export class UsersPage {
    * was actually persisted, not just that the modal happened to
    * close.
    *
-   * `defaultRole` defaults to `'Admins'` because the form's
-   * Default Role combo is required and has no auto-selected
-   * value on Create — the caller must explicitly pick one.
+   * Defaults applied here:
+   *
+   *   - `defaultRole` defaults to `'Admins'` — the Default Role
+   *     combo is required on Create.
+   *   - `password` defaults to `DEFAULT_NON_GW_ADMIN_PASSWORD`
+   *     **only when `gwAdmin` is explicitly `false`**. GW Admin
+   *     users have the password fields disabled by React, so
+   *     passing a password to them would no-op; non-GW-Admin
+   *     users require a strong password to submit.
    */
   async createUser(fields: CreateUserFields): Promise<void> {
     await this.openCreateUserModal();
+    const passwordNeeded = fields.gwAdmin === false;
     await this.applyUserFormFields({
       ...fields,
       defaultRole: fields.defaultRole ?? 'Admins',
+      password: passwordNeeded
+        ? (fields.password ?? DEFAULT_NON_GW_ADMIN_PASSWORD)
+        : fields.password,
     });
     await this.submitUserForm('Create');
   }
@@ -149,8 +178,32 @@ export class UsersPage {
     if (fields.email !== undefined) {
       await new TextInput(this.page, 'emailAddress').setValue(fields.email);
     }
+    // GW Admin flag must be applied BEFORE password — the
+    // password / confirmPassword fields are React-disabled while
+    // `gwAdmin` is true, and flipping the flag to false is what
+    // un-disables them.
     if (fields.gwAdmin !== undefined) {
-      await new Checkbox(this.page, 'gwAdminFlag').setChecked(fields.gwAdmin);
+      const gwAdminFlag = new Checkbox(this.page, 'gwAdminFlag');
+      if (fields.gwAdmin === false) {
+        // useState default is already `false` so `setChecked(false)`
+        // would idempotently no-op, but `handleGWAdminChange` never
+        // firing leaves the form in a subtly-uninitialised state
+        // that keeps SubmitButton's isFormValid false. Force a
+        // toggle on then off so the handler executes at least once.
+        await gwAdminFlag.toggle();
+        await gwAdminFlag.toggle();
+      } else {
+        await gwAdminFlag.setChecked(fields.gwAdmin);
+      }
+    }
+    if (fields.password !== undefined) {
+      // Wait for React to re-render the password fields as
+      // enabled after the gwAdmin flip.
+      await this.page
+        .locator('#passwordField:not([disabled])')
+        .waitFor({ state: 'visible', timeout: DEFAULT_WAIT });
+      await new Password(this.page, 'password').setValue(fields.password);
+      await new Password(this.page, 'confirmPassword').setValue(fields.password);
     }
     if (fields.defaultRole !== undefined) {
       await new ComboBox(this.page, 'defaultRoleCd').setValue(fields.defaultRole);

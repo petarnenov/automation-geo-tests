@@ -206,6 +206,21 @@ export class UserManagementPage {
    * Click the tree expand icon on the target row if it is
    * collapsed. No-op when the row is already expanded (or when
    * the grid is flat and the row has no expand icon).
+   *
+   * Waits on TWO independent signals before returning:
+   *
+   *   1. The parent row's `.ag-icon-tree-closed` flips to
+   *      `.ag-icon-tree-open` — ag-grid's synchronous visual
+   *      confirmation that the expand click was registered.
+   *
+   *   2. At least one Link/Delink action cell is visible
+   *      anywhere in the grid body — proof that ag-grid has
+   *      actually materialised the child rows into the DOM,
+   *      not just flipped the icon. Without this, downstream
+   *      callers asserting `delinkAction().toBeVisible()`
+   *      hit a 5s timeout when the virtualisation render
+   *      cycle lags behind the icon flip (observed as an
+   *      intermittent C26077 flake on cold-start runs).
    */
   private async expandGroupForEmail(email: string): Promise<void> {
     const row = this.groupRowForEmail(email);
@@ -215,12 +230,27 @@ export class UserManagementPage {
     if (!(await expandIcon.count())) return;
     if (!(await expandIcon.isVisible().catch(() => false))) return;
 
+    // Snapshot row count before expanding so we can wait for
+    // it to actually grow once ag-grid materialises the tree
+    // children. Relying on the `.ag-icon-tree-open` flip alone
+    // is not enough — the icon swaps synchronously with the
+    // click, but the child rows mount one virtualisation tick
+    // later, and downstream Link/Delink assertions can race
+    // the render on cold-start runs.
+    const allRows = this.page.locator('.ag-row');
+    const beforeCount = await allRows.count();
+
     await expandIcon.click();
-    // Wait for ag-grid to render children — the closed icon flips
-    // to the open icon on this row.
+
     await row
       .locator('.ag-icon-tree-open')
       .waitFor({ state: 'visible', timeout: DEFAULT_ACTION_TIMEOUT });
+
+    await this.page.waitForFunction(
+      (prev) => document.querySelectorAll('.ag-row').length > prev,
+      beforeCount,
+      { timeout: DEFAULT_ACTION_TIMEOUT }
+    );
   }
 
   /**
@@ -268,25 +298,27 @@ export class UserManagementPage {
   }
 
   /**
-   * Locator for the Link `<a>` inside the currently expanded
+   * Locator for the Link action inside the currently expanded
    * email group. Use this in tests to assert "this user is not
    * linked" via `await expect(userMgmt.linkAction()).toBeVisible()`.
    *
-   * Exposes a Locator rather than a boolean so tests keep control
-   * over retry/timeout behaviour via Playwright's web-first
-   * assertion API — no `expect(...)` calls live inside the POM.
+   * Matches by exact visible text because the User Management
+   * grid renders the Link/Delink cell as a clickable `<div>`
+   * with no `role="link"` — `getByRole('link')` would miss it.
    */
   linkAction(): Locator {
-    return this.expandedGroupScope().getByRole('link', { name: 'Link', exact: true }).first();
+    return this.expandedGroupScope().getByText('Link', { exact: true }).first();
   }
 
   /**
    * Locator for the Delink action inside the currently expanded
    * email group. Use this in tests to assert "this user is
    * linked" via `await expect(userMgmt.delinkAction()).toBeVisible()`.
+   *
+   * Matches by exact visible text (see `linkAction` for why).
    */
   delinkAction(): Locator {
-    return this.expandedGroupScope().getByText('Delink').first();
+    return this.expandedGroupScope().getByText('Delink', { exact: true }).first();
   }
 
   /**
@@ -301,7 +333,8 @@ export class UserManagementPage {
   }
 
   /**
-   * Click Delink on a child of the current email group and confirm.
+   * Click Delink on a child of the current email group and
+   * confirm via the Submit button on the confirmation modal.
    */
   async delinkUser(): Promise<void> {
     const action = this.delinkAction();
