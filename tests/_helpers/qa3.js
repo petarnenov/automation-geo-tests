@@ -33,16 +33,21 @@ async function login(page, username, password) {
 }
 
 /**
- * Ensure the page is authenticated as the Platform One admin (tim1).
+ * Ensure the page is authenticated as a Platform One GW Admin.
  *
- * The session is preloaded by the global setup via storageState (see
- * tests/_helpers/global-setup.js + playwright.config.js), so the common case
- * is just a navigate + URL assertion. If the session expired or was cleared
- * mid-test, fall back to the full login form.
+ * The session is preloaded by the worker's storageState (per-worker GW Admin
+ * created during globalSetup), so the common case is just a navigate + URL
+ * assertion. If the session expired or was cleared mid-test, fall back to
+ * the full login form using the provided credentials (or tim1 as default).
  *
  * @param {import('@playwright/test').Page} page
+ * @param {{username: string, password: string}} [credentials]  Worker GW Admin
+ *   credentials for fallback login. Falls back to tim1 if omitted.
  */
-async function loginPlatformOneAdmin(page) {
+async function loginPlatformOneAdmin(page, credentials) {
+  const user = credentials?.username || cfg.appUnderTest.username;
+  const pass = credentials?.password || cfg.appUnderTest.password;
+
   await page.goto('/react/indexReact.do#platformOne');
   // The URL hash is #platformOne immediately after goto, but the SPA may
   // still redirect to #login on its own (the redirect happens in JS, after
@@ -58,14 +63,13 @@ async function loginPlatformOneAdmin(page) {
 
   if (await usernameInput.isVisible().catch(() => false)) {
     // Session is genuinely expired — full form login.
-    await login(page, cfg.appUnderTest.username, cfg.appUnderTest.password);
+    await login(page, user, pass);
     await page.waitForURL(/#(platformOne|dashboard)/, { timeout: 30_000 });
   }
 
   if (!page.url().includes('#platformOne')) {
-    // Session is valid but qa2 landed us on #dashboard (tim1's default landing
-    // on the new qa2 branch). tim1 still has Platform One admin permissions —
-    // force-navigate.
+    // Session is valid but landed on #dashboard. GW Admin still has
+    // Platform One permissions — force-navigate.
     await page.goto('/react/indexReact.do#platformOne');
     await expect(page).toHaveURL(/#platformOne/, { timeout: 30_000 });
   }
@@ -286,6 +290,87 @@ async function gotoAccountUnmanagedAssets(page, clientUuid, accountUuid) {
   ).toBeVisible({ timeout: 30_000 });
 }
 
+const { STORAGE_STATE_PATH } = require('./global-setup');
+
+/**
+ * Create a GW Admin employee in firm 1 via the Platform One
+ * `/platformOne/createUpdateUser.do` endpoint.
+ *
+ * Uses the saved tim1 session (must already exist from globalSetup).
+ * Returns the newly created user's entity UUID.
+ *
+ * @param {string} name  A short identifier used to derive username / first name
+ *   (e.g. "pepiBot"). The actual username is `<name>_<timestamp>` to guarantee
+ *   uniqueness.
+ * @returns {Promise<{userId: string, username: string, password: string}>}
+ */
+async function createGwAdmin(name) {
+  const storageRaw = fs.readFileSync(STORAGE_STATE_PATH, 'utf8');
+  const cookies = JSON.parse(storageRaw)
+    .cookies.map((c) => `${c.name}=${c.value}`)
+    .join('; ');
+
+  const base = cfg.appUnderTest.url.replace(/\/$/, '');
+  const username = `${name}_${Date.now()}`;
+  const password = 'C0w&ch1k3n'; // meets uppercase+lowercase+digit+special requirement
+
+  const payload = {
+    firmCd: 1,
+    firstName: name,
+    lastName: 'GWAdmin',
+    username,
+    password,
+    emailAddress: `${username}@test.geowealth.com`,
+    gwAdminFlag: true,
+    mfaEnabledFlag: false,
+    sendInviteFlag: false,
+    defaultRoleCd: 529, // "All Employees" — firm 1 default role
+    rolesCds: [529],
+  };
+
+  const res = await fetch(`${base}/platformOne/createUpdateUser.do`, {
+    method: 'POST',
+    headers: {
+      Cookie: cookies,
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    body: `q=${encodeURIComponent(JSON.stringify(payload))}`,
+  });
+
+  const text = await res.text();
+  let data;
+  try {
+    data = JSON.parse(text);
+  } catch {
+    throw new Error(
+      `createGwAdmin: endpoint did not return JSON (status=${res.status}): ${text.slice(0, 300)}`
+    );
+  }
+  if (!data.success) {
+    throw new Error(`createGwAdmin: server returned success=false: ${text.slice(0, 300)}`);
+  }
+
+  const userId = (data.messages && data.messages[0]) || null;
+
+  // The backend forces mfaRequiredFlag=true for GW Admins (GEO-3694).
+  // Disable it directly in the DB so the login flow doesn't require a
+  // passcode — test environments have no real email delivery.
+  const { execSync } = require('child_process');
+  execSync(
+    `python3 -c "
+import oracledb
+c = oracledb.connect(user='gp', password='gp123', dsn='dbhost:1521/ORCL12VM')
+cur = c.cursor()
+cur.execute('UPDATE entity_tbl SET mfa_required_flag = 0 WHERE entity_id = :1', ['${userId}'])
+c.commit()
+c.close()
+"`,
+    { timeout: 15_000 }
+  );
+
+  return { userId, username, password };
+}
+
 module.exports = {
   cfg,
   login,
@@ -300,4 +385,5 @@ module.exports = {
   gotoClientBillingSettings,
   gotoAccountUnmanagedAssets,
   resolveUploadInput,
+  createGwAdmin,
 };

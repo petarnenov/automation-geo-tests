@@ -1,18 +1,18 @@
 {
   "appUnderTest": {
-    "url": "https://qa3.geowealth.com/",
+    "url": "https://qa4.geowealth.com/",
     "username": "tim1",
     "password": "c0w&ch1k3n",
     "note": "Това е приложението, върху което се изпълняват автоматизираните тестове."
   },
   "testrail": {
     "focusedRun": {
-      "url": "https://testrail.geowealth.com/index.php?/runs/view/175&group_by=cases:section_id&group_order=asc&display=tree",
-      "runId": 175,
+      "url": "https://testrail.geowealth.com/index.php?/runs/view/189&group_by=cases:section_id&group_order=asc&display=tree",
+      "runId": 189,
       "groupBy": "cases:section_id",
       "groupOrder": "asc",
       "display": "tree",
-      "note": "Автоматизацията се фокусира само върху тази тест сюита (run 175)."
+      "note": "Автоматизацията се фокусира само върху тази тест сюита (run 189)."
     },
     "filter": {
       "label": "pepi",
