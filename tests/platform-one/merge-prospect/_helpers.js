@@ -81,7 +81,13 @@ async function runMergeProspectSmoke({ page, workerFirm, prospect }) {
     // accessible name flips to that value, breaking re-querying inside the
     // retry loop below.
     const searchBox = page.locator('input[placeholder*="Enter Client or Household"]');
-    const clientOption = page.getByText(new RegExp(`${escapedLast}.*\\(C\\)`)).first();
+    // Target the visible autocomplete row container, not the loose getByText.
+    // getByText matches the body-level wrapper (onclick fires but doesn't
+    // route to editClient cleanly); .clientAutocompleteSearchRow___dumCz is
+    // the actual clickable list item Playwright should target.
+    const clientOption = page
+      .locator('.clientAutocompleteSearchRow___dumCz', { hasText: clientLastName })
+      .first();
     // qa2's contact search indexer lags 30-150s for a freshly-created dummy
     // firm, especially under full @pepi suite load (8 workers + the
     // account-billing batch all spinning up dummy firms in parallel). A
@@ -110,7 +116,12 @@ async function runMergeProspectSmoke({ page, workerFirm, prospect }) {
     await expect(page.getByRole('heading', { name: clientHeadingPattern })).toBeVisible({
       timeout: 15_000,
     });
-    await expect(page.getByRole('button', { name: 'Merge With Prospect' })).toBeVisible();
+    // qa4 renders the action buttons (Merge With Prospect, Disable Client, …)
+    // after the heading appears — ~5-10s lag on freshly-created dummy firms.
+    // Match the heading's 15s budget instead of the default 5s.
+    await expect(page.getByRole('button', { name: 'Merge With Prospect' })).toBeVisible({
+      timeout: 15_000,
+    });
   });
 
   // Use getByPlaceholder, NOT getByRole('textbox', { name: 'Search Prospect Name' }):

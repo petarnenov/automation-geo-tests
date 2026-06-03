@@ -107,6 +107,30 @@ async function globalSetup() {
       `[global-setup] reusing ${cached.length} cached GW Admins ` +
         `(created ${mins} min ago, valid for ${Math.round((MAX_AGE_MS - age) / 60_000)} more min)`
     );
+
+    // Shim-detection: when every cached "GW Admin" entry is really tim1 in
+    // disguise (env where createGwAdmin can't run — qa7 DB mismatch, qa4
+    // Atomatron flakes, etc.), the per-worker storage-state files quickly go
+    // stale because we ONLY refresh tim1.json here. A stale gwadmin-N.json
+    // makes the worker fall back to UI form login, which lands in a session
+    // missing the MERGE_PROSPECTS permission flag (the SPA loads loggedUser
+    // permissions only from the storage-state-loaded path). Detect the shim
+    // and force-resync gwadmin-N.json from the just-saved tim1.json.
+    const shimmed = cached.every((a) => a.username === cfg.appUnderTest.username);
+    if (shimmed) {
+      const tim1Bytes = fs.readFileSync(STORAGE_STATE_PATH);
+      let refreshed = 0;
+      for (const admin of cached) {
+        if (admin.storageStatePath && admin.storageStatePath !== STORAGE_STATE_PATH) {
+          fs.writeFileSync(admin.storageStatePath, tim1Bytes);
+          refreshed++;
+        }
+      }
+      if (refreshed) {
+        console.log(`[global-setup] shim detected — refreshed ${refreshed} per-worker storage state(s) from tim1.json`);
+      }
+    }
+
     await browser.close();
     return;
   }
