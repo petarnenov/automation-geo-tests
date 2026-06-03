@@ -48,7 +48,13 @@ playwrightTest.test = baseTest.extend({
 
   workerFirm: [
     async ({}, use, workerInfo) => {
-      const firm = await setupWorkerFirm();
+      // extended:true → /qa/createDummyFirmExtended.do, which seeds 2 prospects
+      // + 3 custom groups directly via DAO. Cheap (~2s extra) and gives the
+      // merge-prospect specs a pre-seeded prospect to autocomplete against
+      // without having to drive the Create Prospect form (which on qa4 fails
+      // with stricter server-side validation; see
+      // project_qa4_prospect_validation memory).
+      const firm = await setupWorkerFirm({ extended: true });
       // eslint-disable-next-line no-console
       console.log(
         `[worker-firm] worker ${workerInfo.workerIndex}: ` +
@@ -97,7 +103,12 @@ module.exports = defineConfig({
   projects: [
     {
       name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
+      // Spread devices['Desktop Chrome'] first, then override viewport — the
+      // Manage UA dialog (and other wide multi-column forms) render their
+      // rightmost columns off-screen at Desktop Chrome's default 1280px width,
+      // which makes React-onClick option picks unreliable. A wider viewport
+      // keeps every combo + its dropdown in view for all @pepi specs.
+      use: { ...devices['Desktop Chrome'], viewport: { width: 1920, height: 1080 } },
     },
   ],
 });

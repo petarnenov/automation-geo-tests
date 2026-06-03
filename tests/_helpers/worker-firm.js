@@ -20,6 +20,7 @@
 const { expect } = require('@playwright/test');
 const fs = require('fs');
 const path = require('path');
+const { setComboBoxValue } = require('./ui');
 
 const cfg = JSON.parse(
   fs.readFileSync(path.join(__dirname, '..', '..', 'testrail.config.json'), 'utf8')
@@ -29,6 +30,17 @@ const BASE = cfg.appUnderTest.url.replace(/\/$/, '');
 const PASSWORD = cfg.appUnderTest.password;
 
 const ENDPOINT = '/qa/createDummyFirm.do';
+// Variant of /qa/createDummyFirm.do that also seeds 2 prospects + 3 custom
+// groups directly via DAO inside the firm (see CreateDummyFirmProcess.java:
+// createProspectsAndCustomGroups). Both prospects get lastName
+// `prospectSR-<NOW>-<suffix>` and firstName `prospectGN-<NOW>-<suffix>`, so a
+// search for the literal "prospectSR-" prefix matches them deterministically.
+const ENDPOINT_EXTENDED = '/qa/createDummyFirmExtended.do';
+// Static last-name prefix the BE assigns to all prospects seeded by
+// createDummyFirmExtended.do. Merge-prospect specs use this prefix to drive
+// the autocomplete on the Edit Client → Merge With Prospect modal without
+// having to walk the UI to create one.
+const SEEDED_PROSPECT_PREFIX = 'prospectSR-';
 
 /**
  * Read the saved tim1 storage state and turn its cookie list into a single
@@ -53,9 +65,10 @@ function cookieHeaderFromStorage() {
  * (silent ENOENTs on .trace and .network files that surface much later as
  * apiRequestContext._wrapApiCall errors).
  */
-async function createDummyFirm() {
+async function createDummyFirm({ extended = false } = {}) {
   const cookieHeader = cookieHeaderFromStorage();
-  const res = await fetch(BASE + ENDPOINT, {
+  const endpoint = extended ? ENDPOINT_EXTENDED : ENDPOINT;
+  const res = await fetch(BASE + endpoint, {
     method: 'POST',
     headers: { Cookie: cookieHeader },
   });
@@ -65,12 +78,12 @@ async function createDummyFirm() {
     data = JSON.parse(text);
   } catch {
     throw new Error(
-      `worker-firm: ${ENDPOINT} did not return JSON ` +
+      `worker-firm: ${endpoint} did not return JSON ` +
         `(status=${res.status}): ${text.slice(0, 300)}`
     );
   }
   if (!data.success) {
-    throw new Error(`worker-firm: ${ENDPOINT} returned success=false: ${text.slice(0, 300)}`);
+    throw new Error(`worker-firm: ${endpoint} returned success=false: ${text.slice(0, 300)}`);
   }
   return data;
 }
@@ -132,8 +145,8 @@ function flattenFirm(raw) {
  *   raw: any,
  * }>}
  */
-async function setupWorkerFirm() {
-  const raw = await createDummyFirm();
+async function setupWorkerFirm({ extended = false } = {}) {
+  const raw = await createDummyFirm({ extended });
   const tuples = flattenFirm(raw);
   if (tuples.length === 0) {
     throw new Error(
@@ -156,34 +169,43 @@ async function setupWorkerFirm() {
     accounts: primary.accounts,
     tuples,
     raw,
+    // Set only when createDummyFirmExtended.do was used — exposes the static
+    // last-name prefix that the BE DAO assigns to the 2 prospects it seeds.
+    seededProspectPrefix: extended ? SEEDED_PROSPECT_PREFIX : null,
   };
 }
 
-// Cache provisioned prospects per firmCd so the first merge-prospect spec in
-// a worker pays the ~10s setup cost and subsequent specs reuse the result.
-// Keyed by firmCd because each worker has at most one dummy firm at a time.
-const _prospectCache = new Map();
-
 /**
- * Idempotent wrapper around provisionProspectInPlace — call from inside a
- * spec. Drives the test's own page for prospect creation, so it doesn't have
- * to spin up a side-channel browser context (which conflicts with the test
- * worker's trace/page lifecycle in subtle ways).
+ * Return a `{ firstName, lastName }` for a prospect that already exists in the
+ * worker firm, suitable for autocomplete searches in the merge-prospect specs.
  *
- * Side-effect: leaves the page logged out (cookies cleared) so the spec body
- * can re-authenticate however it wants — typically via loginPlatformOneAdmin
- * inside runMergeProspectSmoke.
+ * When the worker firm was provisioned via /qa/createDummyFirmExtended.do
+ * (`workerFirm.seededProspectPrefix` is set), the BE seeded 2 prospects
+ * directly via DAO with a known static last-name prefix — we just return that
+ * prefix and skip the UI flow entirely. Otherwise we fall back to driving the
+ * Create Prospect form as the firm admin (provisionProspectInPlace), which is
+ * the legacy path retained for any caller that opted out of `extended`.
  *
  * @param {import('@playwright/test').Page} page
  * @param {import('@playwright/test').BrowserContext} context
- * @param {{ firmCd: number, admin: {loginName: string} }} workerFirm
+ * @param {{ firmCd: number, admin: {loginName: string}, seededProspectPrefix?: string|null }} workerFirm
+ * @returns {Promise<{firstName: string, lastName: string}>}
  */
 async function ensureProspect(page, context, workerFirm) {
-  if (_prospectCache.has(workerFirm.firmCd)) {
-    return _prospectCache.get(workerFirm.firmCd);
+  if (workerFirm.seededProspectPrefix) {
+    // The DAO assigns "prospectSR-<NOW>-<suffix>" to the 2 seeded prospects.
+    // The autocomplete on Edit Client → Merge With Prospect matches by
+    // last-name prefix, so the raw prefix alone is enough to hit both rows.
+    return { firstName: 'prospectGN-', lastName: workerFirm.seededProspectPrefix };
+  }
+  // Legacy path: drive the Create Prospect form in the UI. Cached per firmCd
+  // so the first merge-prospect spec pays the cost and the rest reuse it.
+  if (!ensureProspect._cache) ensureProspect._cache = new Map();
+  if (ensureProspect._cache.has(workerFirm.firmCd)) {
+    return ensureProspect._cache.get(workerFirm.firmCd);
   }
   const prospect = await provisionProspectInPlace(page, context, workerFirm);
-  _prospectCache.set(workerFirm.firmCd, prospect);
+  ensureProspect._cache.set(workerFirm.firmCd, prospect);
   return prospect;
 }
 
@@ -230,9 +252,24 @@ async function provisionProspectInPlace(page, context, workerFirm, opts = {}) {
 
   await page.goto(`${BASE}/react/indexReact.do#directories/prospects/create`);
   await page.locator('#firstNameField').waitFor({ timeout: 30_000 });
+  // The Customer Type comboBox renders "Individual" in the header as a
+  // PLACEHOLDER hint, not as a real selection — the underlying React state
+  // is empty until the user opens the dropdown and clicks "Individual"
+  // explicitly. Without that, the Create Prospect button stays gated by the
+  // `disabled___...` CSS class and the submit click silently no-ops.
+  // Native clicks on header + option commit the React state reliably; the
+  // setComboBoxValue React-props path doesn't (the option's onClick reads
+  // event metadata that the synthetic call doesn't reproduce).
+  await page.locator('#clientTypeDiv').click();
+  await page
+    .locator('#clientType_Dropdown [role="combo-box-list-item"]')
+    .filter({ hasText: /^Individual$/ })
+    .click();
   await page.locator('#firstNameField').fill(firstName);
   await page.locator('#lastNameField').fill(lastName);
-  await page.getByRole('button', { name: 'Create Prospect' }).click();
+  const submitBtn = page.getByRole('button', { name: 'Create Prospect' });
+  await expect(submitBtn).not.toHaveClass(/disabled/, { timeout: 10_000 });
+  await submitBtn.click();
   // The Create Prospect flow surfaces a "Prospect Contact Created Successfully"
   // success modal once the server confirms the create, then the SPA navigates
   // to the new prospect's overview. Wait for the modal text — it's the

@@ -5,36 +5,47 @@
  * Source: https://testrail.geowealth.com/index.php?/cases/view/25209 (Run 175, label Pepi)
  * Refs:   GEO-20808
  *
- * Phase 1 (admin / tim106):
- *   - open the Manage Unmanaged Assets dialog (AAPL row from C25208 must
- *     already exist; if not, the test creates it as a precondition)
- *   - toggle AAPL's EXCLUDE FROM PERFORMANCE checkbox to force a real diff
- *     (the multi-row bucket combo writes don't always mark the form as dirty
- *     enough for Save — see helper notes), then save twice using the perf
- *     toggle as the diff trigger
- *   - open History and assert at least one Update row exists for AAPL with
- *     SETTING="Exclude from Billing" referencing one of the 6 buckets
+ * Hybrid isolation (mirrors C25208):
  *
- * Phase 2 (non-admin / tyler@plimsollfp.com):
+ *   Phase 1 (write/read flow) → workerFirm. The shared Arnold, Delaney
+ *   account on firm 106 accumulates UA history across every test run; once
+ *   per-instrument history exceeds NUMBER_OF_ELEMENTS=25 in
+ *   BillingSettingsHistoryParser.java the parser no longer surfaces the
+ *   recent Update rows the assertion below needs. Each worker now provisions
+ *   its own dummy firm via /qa/createDummyFirm.do.
+ *
+ *   Phase 2 (non-admin tyler check) → STAYS on firm 106 + tyler. The dummy
+ *   advisor (adv_<firmCd>_1) has full firm-admin rights, not Tyler's
+ *   restricted Plimsoll-FP-specific role.
+ *
+ * Phase 1 (workerFirm admin):
+ *   - bulk-upload an APPLE INC. row onto the dummy firm's first account so
+ *     the Manage UA dialog opens with a pre-existing Apple row
+ *   - open Manage UA, normalise all 6 billing-bucket combos to "All" (the
+ *     xlsx seed sets them to mixed values from validRowFor — this Save is the
+ *     first real diff and emits per-bucket Update rows)
+ *   - toggle Exclude From Performance, Save
+ *   - re-open and toggle Exclude From Performance again, Save — the History
+ *     parser requires a 2nd save before any rows surface
+ *     (see _unmanaged-assets-helpers.js note 2)
+ *   - open History and assert at least one Apple "Create" or "Update" row
+ *     with SETTING="Exclude from Billing" for any of the 6 buckets
+ *
+ * Phase 2 (non-admin / tyler@plimsollfp.com, on firm 106):
  *   - assert that the Manage Unmanaged Assets button is NOT visible.
- *
- * NOTE: although the TestRail steps describe changing one of the 6 bucket
- * combos, the existing C25208 history (which sets all buckets to "All" then
- * toggles Advisor between All/Managed across runs) already produces Update
- * rows for the Advisor bucket of AAPL. The C25208/C25209 history is shared
- * — the assertion below picks any AAPL "Exclude from Billing" Update row
- * regardless of which test produced it.
- *
- * Phase 2 history check is intentionally NOT implemented (same permission
- * gate as C25208).
  */
 
 const { test, expect } = require('@playwright/test');
-const { loginAsAdmin, loginAsNonAdmin } = require('./_helpers');
+const { loginAsWorkerFirmAdmin, loginAsNonAdmin } = require('./_helpers');
+const {
+  loginPlatformOneAdmin,
+  uploadUnmanagedAssetsExclusions,
+  gotoAccountUnmanagedAssets,
+} = require('../_helpers/qa3');
+const { buildXlsxFor, APPLE_SYMBOL, APPLE_HOLDINGS } = require('../unmanaged-assets/_helpers');
 const {
   BUCKET_KEYS,
   openManageDialog,
-  pickInstrumentSymbol,
   setMultiGroupBucket,
   getMultiGroupBucket,
   toggleExcludeFromPerformance,
@@ -42,81 +53,88 @@ const {
   openHistoryModal,
   closeHistoryModal,
   findRowIndexBySymbol,
-  addNewRow,
+  findHistoryRow,
 } = require('./_unmanaged-assets-helpers');
 
-const CLIENT_UUID = 'A80D472B04874979AAA3D8C3FFE9BD3A';
-const ACCOUNT_UUID = '5588D454741342FBB9AABA8FF17A85EE';
-const UA_URL = `/react/indexReact.do#/client/1/${CLIENT_UUID}/accounts/${ACCOUNT_UUID}/unmanagedAssets`;
+// Phase 2 read-only check on the shared firm 106 / Arnold, Delaney account.
+const FIRM_106_CLIENT_UUID = 'A80D472B04874979AAA3D8C3FFE9BD3A';
+const FIRM_106_ACCOUNT_UUID = '5588D454741342FBB9AABA8FF17A85EE';
+const FIRM_106_UA_URL = `/react/indexReact.do#/client/1/${FIRM_106_CLIENT_UUID}/accounts/${FIRM_106_ACCOUNT_UUID}/unmanagedAssets`;
 
 test('@pepi C25209 Account Unmanaged Assets - Update Exclude from Billing', async ({
   page,
   context,
+  workerFirm,
 }) => {
   test.setTimeout(240_000);
 
-  await test.step('Phase 1.1: ensure AAPL exists and update one of its bucket values', async () => {
-    await loginAsAdmin(context, page);
-    await page.goto(UA_URL);
+  await test.step('Setup: seed Apple Inc on the dummy firm via xlsx upload', async () => {
+    await loginPlatformOneAdmin(page);
+    await uploadUnmanagedAssetsExclusions(page, workerFirm.firmCd, buildXlsxFor(workerFirm));
+  });
+
+  await test.step('Phase 1.1: workerFirm admin opens Manage UA, normalises buckets, toggles EFP, saves', async () => {
+    await loginAsWorkerFirmAdmin(context, page, workerFirm);
+    await gotoAccountUnmanagedAssets(page, workerFirm.client.uuid, workerFirm.accounts[0].uuid);
     await expect(page.getByRole('button', { name: 'Manage Unmanaged Assets' })).toBeVisible({
       timeout: 30_000,
     });
 
     await openManageDialog(page);
 
-    // Ensure AAPL row exists.
-    let aaplRow = await findRowIndexBySymbol(page, /AAPL|Apple Inc/i);
-    if (aaplRow < 0) {
-      const row0Value = await page
-        .locator('section[id="unmanagedInstrumentsJSON_0"]')
-        .locator('input[placeholder="Enter Instrument Symbol"]')
-        .inputValue();
-      if (row0Value.trim() !== '') {
-        await addNewRow(page);
-        aaplRow = (await page.locator('input[placeholder="Enter Instrument Symbol"]').count()) - 1;
-      } else {
-        aaplRow = 0;
-      }
-      await pickInstrumentSymbol(page, aaplRow, 'AAPL', 'Apple Inc Ordinary Shares');
-      for (const key of BUCKET_KEYS) {
-        if ((await getMultiGroupBucket(page, aaplRow, key)) !== 'All') {
-          await setMultiGroupBucket(page, aaplRow, key, 'All');
-        }
+    // The Manage UA dialog's symbol input renders the instrument's HOLDINGS
+    // (e.g. "APPLE INC."), not the ticker symbol. Match on holdings.
+    const appleRow = await findRowIndexBySymbol(page, new RegExp(APPLE_HOLDINGS, 'i'));
+    expect(appleRow, 'Apple row must exist after xlsx seed').toBeGreaterThanOrEqual(0);
+
+    for (const key of BUCKET_KEYS) {
+      if ((await getMultiGroupBucket(page, appleRow, key)) !== 'All') {
+        await setMultiGroupBucket(page, appleRow, key, 'All');
       }
     }
 
-    // Toggle the perf checkbox to force a real diff (bucket combo changes
-    // via React-onClick sometimes silently fail to mark the form as dirty),
-    // save, then re-open and toggle back. The 2-save trick guarantees the
-    // history grid populates and AAPL has at least one fresh Update row by
-    // the time Phase 1.2 reads it.
-    await toggleExcludeFromPerformance(page, aaplRow);
-    await saveManageDialog(page);
-    await openManageDialog(page);
-    const aaplRow2 = await findRowIndexBySymbol(page, /AAPL|Apple Inc/i);
-    await toggleExcludeFromPerformance(page, aaplRow2);
+    // Toggle the perf checkbox so each save has a guaranteed diff (the
+    // bucket combo changes via React-onClick sometimes silently fail to mark
+    // the form as dirty enough for Save). The 2-save flow below also gates
+    // the History parser (see _unmanaged-assets-helpers.js note 2).
+    await toggleExcludeFromPerformance(page, appleRow);
     await saveManageDialog(page);
   });
 
-  await test.step('Phase 1.2: open History and verify AAPL Update row for Exclude from Billing', async () => {
+  await test.step('Phase 1.2: trigger 2nd save so the History parser emits Update rows', async () => {
+    await openManageDialog(page);
+    const appleRow = await findRowIndexBySymbol(page, new RegExp(APPLE_HOLDINGS, 'i'));
+    expect(appleRow, 'Apple row must exist after Phase 1.1').toBeGreaterThanOrEqual(0);
+    await toggleExcludeFromPerformance(page, appleRow);
+    await saveManageDialog(page);
+  });
+
+  await test.step('Phase 1.3: open History and verify Apple Update row for Exclude from Billing', async () => {
     await openHistoryModal(page);
     // The qa3 history parser uses both Create and Update activity labels for
     // the same instrument depending on its iteration order — accept either.
-    // Bucket Update rows for AAPL are usually present from prior C25208 runs
-    // (every C25208 run toggles AAPL's Advisor bucket).
-    await expect(
-      page
-        .getByRole('row', {
-          name: /(Create|Update).*AAPL.*Exclude from Billing.*(Advisor|Platform|Money manager|Internal)/,
-        })
-        .first()
-    ).toBeVisible({ timeout: 10_000 });
+    // The 6 buckets all transitioned from their xlsx-seed values to "All" in
+    // Phase 1.1, so Update rows for at least one bucket are guaranteed.
+    // The modal is a React portal with a virtualised ag-grid body — scroll-search.
+    // History grid shows the instrument's ticker (US037833EN61), not the
+    // holdings text — match on APPLE_SYMBOL here even though the Manage UA
+    // dialog uses APPLE_HOLDINGS in its symbol input.
+    const row = await findHistoryRow(
+      page,
+      new RegExp(
+        `(Create|Update).*${APPLE_SYMBOL}.*Exclude from Billing.*(Advisor|Platform|Money manager|Internal)`,
+        'i'
+      ),
+      { timeout: 15_000 }
+    );
+    await expect(row).toBeVisible();
     await closeHistoryModal(page);
   });
 
-  await test.step('Phase 2: non-admin tyler does not see Manage Unmanaged Assets', async () => {
+  await test.step('Phase 2: tyler (firm 106 non-admin) cannot see Manage Unmanaged Assets', async () => {
+    // Read-only check on shared firm 106 — no race since tyler never mutates.
     await loginAsNonAdmin(context, page);
-    await page.goto(UA_URL);
+    await page.goto(FIRM_106_UA_URL);
     await expect(page.getByRole('button', { name: 'Manage Unmanaged Assets' })).toHaveCount(0);
   });
 });

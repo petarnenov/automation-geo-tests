@@ -132,35 +132,45 @@ async function setMultiGroupBucket(page, rowIndex, bucketKey, optionText) {
     .locator('[role="combo-box-list-item"]')
     .filter({ hasText: new RegExp(`^${optionText}$`) })
     .first();
-  // Retry the combo open: synthetic onClick events occasionally drop on the
-  // first attempt right after a row was added or after the parent re-rendered.
-  // expect.poll runs the open+check pair on its own interval schedule
-  // (replaces a previous waitForTimeout(200) raw sleep) and exits as soon as
-  // the option list becomes visible.
+  const headerLocator = div.locator('header');
+
+  // Both the combo OPEN and the option PICK occasionally drop their synthetic
+  // onClick — especially right after a row was added or the parent re-rendered.
+  // Wrap the whole open+pick+commit loop in a single expect.poll so any step
+  // can retry until the header reflects the chosen optionText.
   await expect
     .poll(
       async () => {
-        await div.evaluate((el) => {
-          /** @type {HTMLElement} */ (el).scrollIntoView({ block: 'center' });
-          const k = Object.keys(el).find((kk) => kk.startsWith('__reactProps'));
-          if (!k) throw new Error(`no react props on ${el.id}`);
-          /** @type {any} */ (el)[k].onClick({
-            target: el,
-            currentTarget: el,
-            preventDefault: () => {},
-            stopPropagation: () => {},
-            nativeEvent: new MouseEvent('click'),
+        const headerText = (await headerLocator.textContent().catch(() => '')) || '';
+        if (headerText.trim() === optionText) return optionText;
+
+        // Open the combo if the option list isn't already visible.
+        if (!(await option.isVisible().catch(() => false))) {
+          await div.evaluate((el) => {
+            /** @type {HTMLElement} */ (el).scrollIntoView({ block: 'center' });
+            const k = Object.keys(el).find((kk) => kk.startsWith('__reactProps'));
+            if (!k) throw new Error(`no react props on ${el.id}`);
+            /** @type {any} */ (el)[k].onClick({
+              target: el,
+              currentTarget: el,
+              preventDefault: () => {},
+              stopPropagation: () => {},
+              nativeEvent: new MouseEvent('click'),
+            });
           });
-        });
-        return await option.isVisible().catch(() => false);
+          // Give React a tick to render the option list before clicking.
+          await new Promise((r) => setTimeout(r, 50));
+        }
+
+        if (await option.isVisible().catch(() => false)) {
+          await reactClick(option).catch(() => {});
+        }
+
+        return (await headerLocator.textContent().catch(() => '') || '').trim();
       },
-      { timeout: 5000, intervals: [100, 200, 400, 800] }
+      { timeout: 10_000, intervals: [200, 400, 800, 1_500] }
     )
-    .toBe(true);
-  await reactClick(option);
-  await expect(div.locator('header')).toContainText(optionText, {
-    timeout: 5000,
-  });
+    .toBe(optionText);
 }
 
 /**
@@ -188,17 +198,25 @@ async function getMultiGroupBucket(page, rowIndex, bucketKey) {
  * @param {number} rowIndex
  */
 async function toggleExcludeFromPerformance(page, rowIndex) {
-  // Click the LABEL, not the hidden input. Clicking the input via JS does
-  // toggle the DOM checked state but doesn't always trigger the React
-  // controlled-component onChange (the FormBuilder wraps the input in a
-  // label that intercepts the click and dispatches React's change event
-  // properly).
-  await page
-    .locator('#labelexcludeFromPerformance_multiGroupField')
-    .nth(rowIndex)
-    .evaluate((el) => {
-      /** @type {HTMLElement} */ (el).click();
-    });
+  // FormBuilder's Checkbox renders three clickable areas (Checkbox.js:200-225):
+  //   1. wrapper <div data-type="fieldWrapper" onClick={onClick}>  (default no-op)
+  //   2. <label data-type="icon"><Icon onClick={updateCheckBoxState} />  ← bound to THIS row
+  //   3. <label htmlFor={checkboxId}>  ← duplicate-id collision: hits row 0
+  //
+  // Click the icon-label scoped to this row. The icon-label has no
+  // `htmlFor`, so the duplicate `excludeFromPerformance_multiGroupField` id
+  // shared across rows does NOT mis-resolve. The Icon child's React onClick
+  // is `updateCheckBoxState` bound to this row's Checkbox instance.
+  await rowLocator(page, rowIndex)
+    .locator('label[data-type="icon"]')
+    .first()
+    .click();
+  // MultiGroupGrid.updateMultiGroupGridState is debounced (MultiGroupGrid.js:219).
+  // Several setState callbacks chain (Checkbox.setCheckboxValue → updateFormState
+  // → MultiGroupGrid.updateListItemConfig → debounced updateMultiGroupGridState
+  // → calcTotalWeight → outer updateFormState). Give the chain enough time
+  // before the next save click reads form state.
+  await page.waitForTimeout(500);
 }
 
 /**
@@ -321,6 +339,102 @@ async function reactClick(loc) {
   });
 }
 
+/**
+ * Resolve a row in the Account Unmanaged Assets History grid by name regex,
+ * scrolling the ag-grid viewport until the row is rendered into the DOM.
+ *
+ * Why: the History modal is a React portal containing an ag-Grid Enterprise
+ * grid with a virtualised body — only the windowed range is in the DOM, so
+ * `getByRole('row', { name })` against rows below the fold returns nothing.
+ * Target `#accountUnmanagedAssetsHistory` (the GwGrid wrapper id from
+ * UnmanagedAssetsSettingsHistoryModal.js) and page its `.ag-body-viewport`
+ * down until the row appears (or scrolling no longer advances).
+ *
+ * @param {import('@playwright/test').Page} page
+ * @param {RegExp} nameRegex  matches the row's accessible name
+ * @param {{ timeout?: number }} [opts]
+ * @returns {Promise<import('@playwright/test').Locator>} the resolved row
+ */
+async function findHistoryRow(page, nameRegex, { timeout = 15_000 } = {}) {
+  // The History grid is ag-Grid Enterprise rendered inside a React portal
+  // modal — `<div id="accountUnmanagedAssetsHistory" role="grid">` is the
+  // wrapper, with `.ag-body-viewport` as its scrollable body. Targeting by
+  // this id avoids the underlying Manage UA grid (also ag-grid) entirely.
+  const grid = page.locator('#accountUnmanagedAssetsHistory');
+  await grid.waitFor({ state: 'attached', timeout: 5_000 });
+
+  // Wait for ag-grid to finish loading rows. Service-driven grids start with
+  // just the header rendered; running scroll logic before data lands gives a
+  // misleading "empty grid" snapshot.
+  await expect
+    .poll(async () => await grid.locator('[role="row"]').count(), {
+      timeout: 10_000,
+      intervals: [200, 500, 1_000],
+    })
+    .toBeGreaterThan(2);
+
+  const target = grid.getByRole('row', { name: nameRegex }).first();
+  if (await target.isVisible().catch(() => false)) return target;
+
+  const viewport = await grid
+    .locator('.ag-body-viewport')
+    .first()
+    .elementHandle({ timeout: 3_000 })
+    .catch(() => null);
+
+  if (!viewport) {
+    // Fall back to wheel-over-row in case ag-grid's class isn't exposed.
+    const bodyRow = grid.getByRole('row').nth(1);
+    const box = await bodyRow.boundingBox();
+    if (!box) {
+      await expect(target).toBeVisible({ timeout: 2_000 });
+      return target;
+    }
+    await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+    const deadline = Date.now() + timeout;
+    let lastFirst = '';
+    let stuck = 0;
+    while (Date.now() < deadline) {
+      if (await target.isVisible().catch(() => false)) return target;
+      await page.mouse.wheel(0, 400);
+      await page.waitForTimeout(200);
+      const cur = await bodyRow.textContent({ timeout: 1_000 }).catch(() => '');
+      if (cur && cur === lastFirst) {
+        stuck += 1;
+        if (stuck >= 2) break;
+      } else {
+        stuck = 0;
+        lastFirst = cur || '';
+      }
+    }
+    await expect(target).toBeVisible({ timeout: 2_000 });
+    return target;
+  }
+
+  const deadline = Date.now() + timeout;
+  let lastScrollTop = -1;
+  while (Date.now() < deadline) {
+    if (await target.isVisible().catch(() => false)) return target;
+    const state = await viewport.evaluate((el) => {
+      const next = Math.min(el.scrollHeight, el.scrollTop + el.clientHeight);
+      el.scrollTop = next;
+      return {
+        scrollTop: el.scrollTop,
+        atBottom: el.scrollTop + el.clientHeight >= el.scrollHeight - 1,
+      };
+    });
+    if (state.scrollTop === lastScrollTop) break;
+    lastScrollTop = state.scrollTop;
+    await page.waitForTimeout(200);
+    if (state.atBottom) {
+      if (await target.isVisible().catch(() => false)) return target;
+      break;
+    }
+  }
+  await expect(target).toBeVisible({ timeout: 2_000 });
+  return target;
+}
+
 module.exports = {
   BUCKET_KEYS,
   BUCKET_HISTORY_LABELS,
@@ -338,4 +452,5 @@ module.exports = {
   closeHistoryModal,
   findRowIndexBySymbol,
   addNewRow,
+  findHistoryRow,
 };

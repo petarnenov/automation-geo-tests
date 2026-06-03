@@ -320,7 +320,7 @@ async function createGwAdmin(name) {
     lastName: 'GWAdmin',
     username,
     password,
-    emailAddress: `${username}@test.geowealth.com`,
+    emailAddress: `${username}@geowealth.com`,
     gwAdminFlag: true,
     mfaEnabledFlag: false,
     sendInviteFlag: false,
@@ -368,7 +368,289 @@ c.close()
     { timeout: 15_000 }
   );
 
-  return { userId, username, password };
+  return {
+    userId,
+    username,
+    password,
+    emailAddress: `${username}@geowealth.com`,
+    firstName: name,
+    lastName: 'GWAdmin',
+  };
+}
+
+/**
+ * Age a user's most recent password-change record (see [[password-reset-90d]]
+ * memory). Default 91 days → forces the UpdatePasswordModal on first login;
+ * smaller values land in the ExpirationWarningModal "in N days" branch
+ * (warning shows at days_remaining ≤ 14, i.e. daysAgo ≥ 76).
+ *
+ * The `ENTITY_PSWD_CHANGE_TBL` table holds one row per password change for
+ * each entity; `NEntity.getPasswordExpirationDays()` reads the newest row's
+ * `CHANGE_DATE`. If the user has no row yet (just-created GW Admin), we
+ * INSERT one dated `daysAgo` days in the past.
+ *
+ * @param {string} entityId  the user's entity UUID (from createGwAdmin)
+ * @param {number} [daysAgo=91]  how far in the past to set `change_date`
+ */
+function expireUserPassword(entityId, daysAgo = 91) {
+  if (!Number.isInteger(daysAgo) || daysAgo < 0) {
+    throw new Error(`expireUserPassword: daysAgo must be a non-negative integer (got ${daysAgo})`);
+  }
+  const { execSync } = require('child_process');
+  execSync(
+    `python3 -c "
+import oracledb
+c = oracledb.connect(user='gp', password='gp123', dsn='dbhost:1521/ORCL12VM')
+cur = c.cursor()
+# Use MERGE so the same call works whether or not a row already exists.
+cur.execute('''
+    MERGE INTO entity_pswd_change_tbl t
+    USING (SELECT :1 AS entity_id FROM dual) s
+    ON (t.entity_id = s.entity_id)
+    WHEN MATCHED THEN
+        UPDATE SET change_date = TRUNC(SYSDATE - ${daysAgo})
+    WHEN NOT MATCHED THEN
+        INSERT (entity_id, change_date) VALUES (s.entity_id, TRUNC(SYSDATE - ${daysAgo}))
+''', ['${entityId}'])
+c.commit()
+c.close()
+"`,
+    { timeout: 15_000 }
+  );
+}
+
+/**
+ * Read the most recent password-change timestamp for a user from
+ * ENTITY_PSWD_CHANGE_TBL (see [[password-reset-90d]] memory).
+ *
+ * NEntity.getPasswordExpirationDays() reads the newest row's CHANGE_DATE;
+ * we select MAX(change_date) and return it as epoch ms (or null if the user
+ * has no row yet). Useful for asserting that a real password-change UI
+ * flow actually updated the DB timestamp.
+ *
+ * @param {string} entityId
+ * @returns {number|null}  epoch milliseconds, or null
+ */
+function getLastPasswordChangeMs(entityId) {
+  const { execSync } = require('child_process');
+  const out = execSync(
+    `python3 -c "
+import oracledb, sys
+c = oracledb.connect(user='gp', password='gp123', dsn='dbhost:1521/ORCL12VM')
+cur = c.cursor()
+cur.execute('SELECT MAX(change_date) FROM entity_pswd_change_tbl WHERE entity_id = :1', ['${entityId}'])
+row = cur.fetchone()
+c.close()
+if row and row[0] is not None:
+    print(int(row[0].timestamp() * 1000))
+else:
+    print('')
+"`,
+    { timeout: 15_000 }
+  )
+    .toString()
+    .trim();
+  return out === '' ? null : Number(out);
+}
+
+/**
+ * Link one entity to another so they share password+MFA state. The
+ * geowealth backend (`UserManagerTrait.checkAndUpdatePasswordForUser` →
+ * `NEntityDAO.getAllLinkedEntities`) propagates password changes to every
+ * NEntity whose `linkedEntity = <changer>` — keyed by the
+ * `LINKED_GW_USER` column on `entity_tbl`.
+ *
+ * Used to set up "linked accounts across systems" scenarios in the
+ * 90-day password reset suite (e.g. C24981 verifies the sync).
+ *
+ * @param {string} linkedEntityId  the user that becomes a "follower"
+ * @param {string} parentEntityId  the user whose password drives the sync
+ */
+function linkUserTo(linkedEntityId, parentEntityId) {
+  const { execSync } = require('child_process');
+  execSync(
+    `python3 -c "
+import oracledb
+c = oracledb.connect(user='gp', password='gp123', dsn='dbhost:1521/ORCL12VM')
+cur = c.cursor()
+cur.execute('UPDATE entity_tbl SET linked_gw_user = :1 WHERE entity_id = :2', ['${parentEntityId}', '${linkedEntityId}'])
+c.commit()
+c.close()
+"`,
+    { timeout: 15_000 }
+  );
+}
+
+/**
+ * Create a firm user via `/platformOne/createUpdateUser.do` (the same
+ * endpoint `createGwAdmin` uses), parameterised for either a GW Admin
+ * (gwAdminFlag=true, default firm 1) or a regular firm member
+ * (gwAdminFlag=false, any firm). Used by the User Management Edit User
+ * modal tests (C41285…C41295) which need both shapes.
+ *
+ * Side effects:
+ *   - For GW Admins, applies the same MFA-off DB patch as createGwAdmin
+ *     so the resulting user can log in without an emailed passcode.
+ *
+ * @param {object} opts
+ * @param {string} opts.name              short identifier; used as firstName + part of username
+ * @param {boolean} [opts.gwAdminFlag]    default false
+ * @param {number}  [opts.firmCd]         default 1
+ * @param {string}  [opts.emailAddress]   default `${username}@geowealth.com`
+ * @returns {Promise<{userId: string, username: string, password: string, emailAddress: string, firstName: string, lastName: string}>}
+ */
+async function createFirmUser({ name, gwAdminFlag = false, firmCd = 1, emailAddress }) {
+  const storageRaw = fs.readFileSync(STORAGE_STATE_PATH, 'utf8');
+  const cookies = JSON.parse(storageRaw)
+    .cookies.map((c) => `${c.name}=${c.value}`)
+    .join('; ');
+
+  const base = cfg.appUnderTest.url.replace(/\/$/, '');
+  const username = `${name}_${Date.now()}`;
+  const password = 'C0w&ch1k3n';
+  const email = emailAddress || `${username}@geowealth.com`;
+
+  const firstName = name;
+  const lastName = gwAdminFlag ? 'GWAdmin' : 'FirmUser';
+  const payload = {
+    firmCd,
+    firstName,
+    lastName,
+    username,
+    password,
+    emailAddress: email,
+    gwAdminFlag,
+    mfaEnabledFlag: false,
+    sendInviteFlag: false,
+    defaultRoleCd: 529,
+    rolesCds: [529],
+  };
+
+  const res = await fetch(`${base}/platformOne/createUpdateUser.do`, {
+    method: 'POST',
+    headers: {
+      Cookie: cookies,
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    body: `q=${encodeURIComponent(JSON.stringify(payload))}`,
+  });
+  const text = await res.text();
+  let data;
+  try {
+    data = JSON.parse(text);
+  } catch {
+    throw new Error(
+      `createFirmUser: endpoint did not return JSON (status=${res.status}): ${text.slice(0, 300)}`
+    );
+  }
+  if (!data.success) {
+    throw new Error(`createFirmUser: server returned success=false: ${text.slice(0, 300)}`);
+  }
+
+  const userId = (data.messages && data.messages[0]) || null;
+
+  if (gwAdminFlag) {
+    const { execSync } = require('child_process');
+    execSync(
+      `python3 -c "
+import oracledb
+c = oracledb.connect(user='gp', password='gp123', dsn='dbhost:1521/ORCL12VM')
+cur = c.cursor()
+cur.execute('UPDATE entity_tbl SET mfa_required_flag = 0 WHERE entity_id = :1', ['${userId}'])
+c.commit()
+c.close()
+"`,
+      { timeout: 15_000 }
+    );
+  }
+
+  return { userId, username, password, emailAddress: email, firstName, lastName };
+}
+
+/**
+ * Read the user's primary email straight from `ENTITY_EMAIL_TBL`.
+ * Used to verify UI-driven email updates persisted to the DB without
+ * having to re-navigate through User Management.
+ *
+ * @param {string} entityId
+ * @returns {string|null}
+ */
+function getUserPrimaryEmail(entityId) {
+  const { execSync } = require('child_process');
+  const out = execSync(
+    `python3 -c "
+import oracledb
+c = oracledb.connect(user='gp', password='gp123', dsn='dbhost:1521/ORCL12VM')
+cur = c.cursor()
+cur.execute('SELECT email FROM entity_email_tbl WHERE entity_id = :1 AND primary_email_flag = 1', ['${entityId}'])
+row = cur.fetchone()
+c.close()
+print(row[0] if row else '')
+"`,
+    { timeout: 15_000 }
+  )
+    .toString()
+    .trim();
+  return out === '' ? null : out;
+}
+
+/**
+ * Patch a user's primary email directly in `ENTITY_EMAIL_TBL`. Used to
+ * seed legacy/invalid-stored-email scenarios (C41291) without going
+ * through the createUpdateUser endpoint that would reject invalid
+ * domains for a GW Admin.
+ *
+ * @param {string} entityId
+ * @param {string} email
+ */
+function patchUserPrimaryEmail(entityId, email) {
+  if (!/^[^@\s]+@[^@\s]+$/.test(email)) {
+    throw new Error(`patchUserPrimaryEmail: invalid email '${email}'`);
+  }
+  const { execSync } = require('child_process');
+  execSync(
+    `python3 -c "
+import oracledb
+c = oracledb.connect(user='gp', password='gp123', dsn='dbhost:1521/ORCL12VM')
+cur = c.cursor()
+cur.execute('UPDATE entity_email_tbl SET email = :1 WHERE entity_id = :2 AND primary_email_flag = 1', ['${email}', '${entityId}'])
+c.commit()
+c.close()
+"`,
+    { timeout: 15_000 }
+  );
+}
+
+/**
+ * Seed a USER_LINK_TBL row for the Forgot Password reset flow, returning
+ * the generated link UUID. The real "Forgot Password" trigger
+ * (`/react/lostPassword.do`) creates the same row via
+ * `UserHibernateDAO.createUserLink` and emails the user; in tests we
+ * bypass email delivery by inserting directly.
+ *
+ * The row is the proof-of-possession token for the
+ * `<base>/changePassword.do?id=<UUID>` JSP form
+ * (`com.geowealth.web.common.action.ChangePasswordAction`).
+ *
+ * @param {string} entityId  the user's entity UUID
+ * @returns {string}  the 32-char hex link UUID (matches LINK_ID column)
+ */
+function createLostPasswordLink(entityId) {
+  const crypto = require('crypto');
+  const linkId = crypto.randomUUID().replace(/-/g, '').toUpperCase();
+  const { execSync } = require('child_process');
+  execSync(
+    `python3 -c "
+import oracledb
+c = oracledb.connect(user='gp', password='gp123', dsn='dbhost:1521/ORCL12VM')
+cur = c.cursor()
+cur.execute('INSERT INTO user_link_tbl (link_id, user_id) VALUES (:1, :2)', ['${linkId}', '${entityId}'])
+c.commit()
+c.close()
+"`,
+    { timeout: 15_000 }
+  );
+  return linkId;
 }
 
 module.exports = {
@@ -386,4 +668,11 @@ module.exports = {
   gotoAccountUnmanagedAssets,
   resolveUploadInput,
   createGwAdmin,
+  createFirmUser,
+  patchUserPrimaryEmail,
+  getUserPrimaryEmail,
+  expireUserPassword,
+  getLastPasswordChangeMs,
+  linkUserTo,
+  createLostPasswordLink,
 };
