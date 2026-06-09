@@ -30,6 +30,15 @@ async function login(page, username, password) {
   await page.getByPlaceholder(/email|username/i).fill(username);
   await page.getByPlaceholder(/password/i).fill(password);
   await page.getByRole('button', { name: 'Login' }).click();
+  // qa4 may interpose the "Your password will expire in N days" Warning
+  // modal between Login click and the SPA redirect. It has no role=dialog
+  // and the X is svg#circle_close_btn. If the modal appears, click it;
+  // otherwise the catch swallows the timeout. See
+  // project_qa4_password_expiry_warning memory.
+  await page
+    .locator('#circle_close_btn')
+    .click({ timeout: 4000 })
+    .catch(() => {});
 }
 
 /**
@@ -174,7 +183,15 @@ function resolveUploadInput(file, defaultName) {
  * @param {string} opts.defaultName
  */
 async function _uploadExclusionsXlsx(page, { url, firmCode, file, defaultName }) {
+  // The bulk-exclusions routes are SPA hash routes — when this helper is
+  // called twice in a row (same firmCd) the URL is byte-identical to the
+  // previous one, so page.goto() does not trigger a navigation and the
+  // FormBuilder state from the previous upload (incl. isFormValid=true)
+  // persists. That made the second Upload click race with stale state
+  // and get absorbed. Force a full reload after goto to guarantee a
+  // fresh form mount.
   await page.goto(url);
+  await page.reload({ waitUntil: 'load' });
 
   const firmInput = page.getByRole('textbox').first();
   await expect(firmInput).toBeVisible({ timeout: 15_000 });
@@ -191,23 +208,46 @@ async function _uploadExclusionsXlsx(page, { url, firmCode, file, defaultName })
 
   await expect(page.getByText(displayName)).toBeVisible();
 
-  // Wait for the Upload button to actually be ready instead of a fixed sleep.
-  const uploadBtn = page.getByRole('button', { name: 'Upload', exact: true });
-  await expect(uploadBtn).toBeEnabled({ timeout: 10_000 });
+  // Target the form's submit button via data-role — getByRole would also
+  // match (the sidebar "Upload …" entries are headings, not buttons), but
+  // data-role=formSubmitButton is the canonical hook on FormBuilder forms.
+  //
+  // FormBuilder's SubmitButton uses `disabledStyleOnly={!isFormValid}` —
+  // when the form is invalid the button gets a hashed `disabled___xxx`
+  // class but the HTML `disabled` attribute is NEVER set. So Playwright's
+  // toBeEnabled() returns true immediately after setFiles, before the
+  // file-field validation flips isFormValid to true, and the click is
+  // silently absorbed (FormBuilder.throttleFireSubmit early-returns when
+  // !isFormValid). Wait for the disabled class to drop instead.
+  const uploadBtn = page.locator('button[data-role="formSubmitButton"][name="submit"]');
+  await expect(uploadBtn).toBeVisible({ timeout: 10_000 });
+  await expect(uploadBtn).not.toHaveClass(/disabled/i, { timeout: 10_000 });
   await uploadBtn.click();
 
-  // First-time-only confirmation modal — subsequent uploads skip it.
-  try {
-    await page.getByRole('button', { name: 'Yes, Proceed' }).click({ timeout: 10_000 });
-  } catch {}
-
-  // 180s — under full @pepi suite parallel load (8 workers), qa2 queues
-  // bulk-exclusions uploads serially backend-side, so the success message can
-  // surface 100-150s after the click. 90s was enough for the partial-suite
-  // run but flaked on C25377 / C26075 in the full suite.
-  await expect(page.getByText(/imported successfully/i).first()).toBeVisible({
-    timeout: 180_000,
-  });
+  // Confirmation modal is FIRST-TIME-ONLY per browser session — both the
+  // Billing Bucket and Unmanaged Assets confirm modals are shown once,
+  // then subsequent uploads in the same context skip the modal and go
+  // straight to the success toast. Race the two: whichever resolves
+  // first wins. If the modal won, click Proceed then wait for the toast.
+  //
+  // CSS-in-JS class hashes regenerate per build — DO NOT match on
+  // `primary___xxxx` / `button___xxxx`. Use text content.
+  const proceedText = page.getByText(/are you sure you want to proceed/i).first();
+  const successText = page.getByText(/imported successfully/i).first();
+  // 180s — under full @pepi parallel load (8 workers), qa2/qa4 queues
+  // bulk-exclusions uploads serially backend-side, so the success
+  // message can surface 100-150s after the click.
+  const winner = await Promise.race([
+    proceedText.waitFor({ state: 'visible', timeout: 180_000 }).then(() => 'modal'),
+    successText.waitFor({ state: 'visible', timeout: 180_000 }).then(() => 'success'),
+  ]);
+  if (winner === 'modal') {
+    await page
+      .locator('button', { hasText: /^Yes, Proceed$/ })
+      .last()
+      .click({ timeout: 10_000 });
+    await expect(successText).toBeVisible({ timeout: 180_000 });
+  }
   await page.getByRole('button', { name: 'Close', exact: true }).click();
 }
 
@@ -274,20 +314,56 @@ async function gotoClientBillingSettings(page, clientUuid) {
 
 /**
  * Navigate the Advisor Portal to a specific account's Unmanaged Assets table.
+ *
+ * IMPORTANT: pass the **household** uuid (workerFirm.household.uuid), NOT
+ * the individual client uuid. The advisor-portal route
+ * `client/:clientTypeCd/:clientUid/accounts/:uid/unmanagedAssets` resolves
+ * the account through the household scope; passing the individual client
+ * uuid lands the advisor on a "You do not have permission to view this
+ * Client" error page in headed runs (the FE asks the BE for individual-
+ * client perms which advisors of dummy firms don't have for nested
+ * clients). The "Go to Sencha Portal" link in the advisor portal
+ * confirms the canonical shape — it uses household uuid + clientTypeCd=1.
+ *
  * @param {import('@playwright/test').Page} page
- * @param {string} clientUuid
+ * @param {string} householdUuid
  * @param {string} accountUuid
  */
-async function gotoAccountUnmanagedAssets(page, clientUuid, accountUuid) {
-  await page.goto(
-    `/react/indexReact.do#client/1/${clientUuid}/accounts/${accountUuid}/unmanagedAssets`
-  );
-  // Wait for either a data row or the empty state — both indicate the grid loaded.
-  await expect(
-    page
-      .getByRole('button', { name: 'Manage Unmanaged Assets' })
-      .or(page.getByText(/no.*records/i).first())
-  ).toBeVisible({ timeout: 30_000 });
+async function gotoAccountUnmanagedAssets(page, householdUuid, accountUuid) {
+  // After switchToAdvisor → loginAsAdvisor, waitForURL('#dashboard')
+  // resolves on hash flip, but the advisor's clients/permission cache is
+  // not yet populated — in headed runs the empty dashboard shows for a
+  // few seconds before the household appears. Jumping straight to a deep
+  // `client/1/{uuid}/...` URL during that window hits a hard "You do not
+  // have permission to view this Client" error which (for unknown reasons,
+  // possibly FE-side caching of the failure) does NOT self-heal on a
+  // simple deep-URL retry. Workaround: visit the Households directory
+  // first and wait for the actual workerFirm household row to appear —
+  // that proves the permission cache is warm — then navigate to the deep
+  // account URL.
+  const deepUrl = `/react/indexReact.do#client/1/${householdUuid}/accounts/${accountUuid}/unmanagedAssets`;
+  const ready = page
+    .getByRole('button', { name: 'Manage Unmanaged Assets' })
+    .or(page.getByText(/no.*records/i).first());
+  const permDenied = page.getByText(/do not have permission to view this Client/i).first();
+  // For freshly-seeded dummy firms, the BE's advisor-permission cache
+  // sometimes lags the login response by several seconds (qa4 under
+  // @pepi load is the worst offender). The FE caches that initial
+  // "permission denied" response per-session, so a vanilla deep-URL
+  // retry doesn't recover — we have to navigate the advisor away first
+  // (dashboard) and back to the deep URL.
+  await expect(async () => {
+    await page.goto(deepUrl);
+    const outcome = await Promise.race([
+      ready.first().waitFor({ state: 'visible', timeout: 15_000 }).then(() => 'ready'),
+      permDenied.waitFor({ state: 'visible', timeout: 15_000 }).then(() => 'perm'),
+    ]);
+    if (outcome === 'perm') {
+      await page.goto('/react/indexReact.do#/dashboard');
+      await page.waitForTimeout(2000);
+      throw new Error('advisor permission cache not warm yet');
+    }
+  }).toPass({ timeout: 180_000, intervals: [3000, 6000, 10_000, 15_000] });
 }
 
 const { STORAGE_STATE_PATH } = require('./global-setup');

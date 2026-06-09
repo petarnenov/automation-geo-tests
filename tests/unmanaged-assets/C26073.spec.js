@@ -59,7 +59,7 @@ test('@pepi C26073 Unmanaged Assets - Update/Add (U action) creates a new exclus
 
   await test.step(`Phase 2: verify the new row in Advisor Portal as ${workerFirm.advisor.loginName}`, async () => {
     await switchToAdvisor(context, page, workerFirm.advisor.loginName);
-    await gotoAccountUnmanagedAssets(page, workerFirm.client.uuid, workerFirm.accounts[0].uuid);
+    await gotoAccountUnmanagedAssets(page, workerFirm.household.uuid, workerFirm.accounts[0].uuid);
 
     const row = page.getByRole('row', { name: new RegExp(EXPECTED.symbol) });
     await expect(row).toBeVisible({ timeout: 15_000 });

@@ -75,7 +75,7 @@ test('@pepi C25209 Account Unmanaged Assets - Update Exclude from Billing', asyn
 
   await test.step('Phase 1.1: workerFirm admin opens Manage UA, normalises buckets, toggles EFP, saves', async () => {
     await loginAsWorkerFirmAdmin(context, page, workerFirm);
-    await gotoAccountUnmanagedAssets(page, workerFirm.client.uuid, workerFirm.accounts[0].uuid);
+    await gotoAccountUnmanagedAssets(page, workerFirm.household.uuid, workerFirm.accounts[0].uuid);
     await expect(page.getByRole('button', { name: 'Manage Unmanaged Assets' })).toBeVisible({
       timeout: 30_000,
     });

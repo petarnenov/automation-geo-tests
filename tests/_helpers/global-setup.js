@@ -74,6 +74,21 @@ function loadCachedAdmins() {
   return cached.admins;
 }
 
+// Pre-login "Your password will expire in N days" warning modal can hijack
+// the login flow on qa4 (tim1 + freshly-created GW Admins both hit it). The
+// modal has no role="dialog"; the close X is `svg#circle_close_btn`. Click
+// the X if the modal renders within the given window, otherwise no-op.
+async function dismissPasswordWarning(page, timeoutMs = 4000) {
+  const closeBtn = page.locator('#circle_close_btn');
+  try {
+    await closeBtn.waitFor({ state: 'visible', timeout: timeoutMs });
+  } catch {
+    return false;
+  }
+  await closeBtn.click();
+  return true;
+}
+
 async function globalSetup() {
   fs.mkdirSync(AUTH_DIR, { recursive: true });
 
@@ -88,7 +103,10 @@ async function globalSetup() {
     await tim1Page.getByPlaceholder(/email|username/i).fill(cfg.appUnderTest.username);
     await tim1Page.getByPlaceholder(/password/i).fill(cfg.appUnderTest.password);
     await tim1Page.getByRole('button', { name: 'Login' }).click();
-    await tim1Page.waitForURL(/#(platformOne|dashboard)/, { timeout: 30_000 });
+    if (await dismissPasswordWarning(tim1Page)) {
+      console.log('[global-setup] tim1: dismissed password-expiry warning modal');
+    }
+    await tim1Page.waitForURL(/#(platformOne|dashboard)/, { timeout: 60_000 });
     await tim1Ctx.storageState({ path: STORAGE_STATE_PATH });
     console.log(`[global-setup] tim1 storage state saved → ${STORAGE_STATE_PATH}`);
   } finally {
@@ -159,6 +177,9 @@ async function globalSetup() {
       await page.getByPlaceholder(/email|username/i).fill(admin.username);
       await page.getByPlaceholder(/password/i).fill(admin.password);
       await page.getByRole('button', { name: 'Login' }).click();
+      if (await dismissPasswordWarning(page)) {
+        console.log(`[global-setup] gwadmin-${i}: dismissed password-expiry warning modal`);
+      }
       await page.waitForURL(/#(platformOne|dashboard)/, { timeout: 60_000 });
       await ctx.storageState({ path: admin.storageStatePath });
       console.log(`[global-setup] gwadmin-${i} storage state saved`);

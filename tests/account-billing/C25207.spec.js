@@ -38,8 +38,10 @@ const {
   openHistoryModal,
   closeHistoryModal,
   findRowIndexBySymbol,
+  findHistoryRow,
   addNewRow,
 } = require('./_unmanaged-assets-helpers');
+const { APPLE_SYMBOL, APPLE_HOLDINGS } = require('../unmanaged-assets/_helpers');
 
 const CLIENT_UUID = 'A80D472B04874979AAA3D8C3FFE9BD3A';
 const ACCOUNT_UUID = '5588D454741342FBB9AABA8FF17A85EE';
@@ -62,7 +64,7 @@ test('@pepi C25207 Account Unmanaged Assets - Update Exclude from Performance', 
 
     // Ensure AAPL row exists. Normally C25208 leaves it on the account, but
     // running C25207 in isolation requires the precondition setup.
-    let aaplRow = await findRowIndexBySymbol(page, /AAPL|Apple Inc/i);
+    let aaplRow = await findRowIndexBySymbol(page, new RegExp(APPLE_HOLDINGS, 'i'));
     if (aaplRow < 0) {
       const row0Value = await page
         .locator('section[id="unmanagedInstrumentsJSON_0"]')
@@ -74,7 +76,7 @@ test('@pepi C25207 Account Unmanaged Assets - Update Exclude from Performance', 
       } else {
         aaplRow = 0;
       }
-      await pickInstrumentSymbol(page, aaplRow, 'AAPL', 'Apple Inc Ordinary Shares');
+      await pickInstrumentSymbol(page, aaplRow, 'AAPL', APPLE_HOLDINGS);
       for (const key of BUCKET_KEYS) {
         if ((await getMultiGroupBucket(page, aaplRow, key)) !== 'All') {
           await setMultiGroupBucket(page, aaplRow, key, 'All');
@@ -90,22 +92,24 @@ test('@pepi C25207 Account Unmanaged Assets - Update Exclude from Performance', 
     await toggleExcludeFromPerformance(page, aaplRow);
     await saveManageDialog(page);
     await openManageDialog(page);
-    const aaplRow2 = await findRowIndexBySymbol(page, /AAPL|Apple Inc/i);
+    const aaplRow2 = await findRowIndexBySymbol(page, new RegExp(APPLE_HOLDINGS, 'i'));
     await toggleExcludeFromPerformance(page, aaplRow2);
     await saveManageDialog(page);
   });
 
   await test.step('Phase 1.2: open History and verify AAPL Update row for Exclude from Performance', async () => {
     await openHistoryModal(page);
-    // The qa3 history parser uses both Create and Update activity labels for
-    // the same instrument depending on its iteration order — accept either.
-    await expect(
-      page
-        .getByRole('row', {
-          name: /(Create|Update).*AAPL.*Exclude from Performance/,
-        })
-        .first()
-    ).toBeVisible({ timeout: 10_000 });
+    // The History grid is a virtualised ag-grid inside a React portal — only
+    // the windowed row range is in the DOM, so we must scroll-search via
+    // findHistoryRow. The Account Unmanaged Assets History modal renders the
+    // SYMBOL column as the ticker ("AAPL"), unlike some other history surfaces
+    // (e.g. Exclude from Billing in C25209) that show the CUSIP.
+    const row = await findHistoryRow(
+      page,
+      /(Create|Update).*AAPL.*Exclude from Performance/i,
+      { timeout: 15_000 }
+    );
+    await expect(row).toBeVisible();
     await closeHistoryModal(page);
   });
 

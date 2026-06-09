@@ -46,7 +46,7 @@ test('@pepi C26074 Unmanaged Assets - Delete (D action) removes an existing excl
 
   await test.step(`Phase 2: verify the row is gone in Advisor Portal as ${workerFirm.advisor.loginName}`, async () => {
     await switchToAdvisor(context, page, workerFirm.advisor.loginName);
-    await gotoAccountUnmanagedAssets(page, workerFirm.client.uuid, workerFirm.accounts[0].uuid);
+    await gotoAccountUnmanagedAssets(page, workerFirm.household.uuid, workerFirm.accounts[0].uuid);
 
     // The row matched by the imported instrument's symbol should not exist after D action.
     await expect(page.getByRole('row', { name: new RegExp(APPLE_SYMBOL) })).toHaveCount(0, {
