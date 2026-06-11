@@ -1,455 +1,1114 @@
 {
-  "run_id": 175,
+  "run_id": 206,
   "label": "pepi",
-  "count": 64,
+  "count": 123,
   "cases": [
     {
-      "test_id": 53228,
+      "test_id": 67133,
+      "case_id": 41291,
+      "title": "Edit User modal (GW_Admin): pre-loaded invalid stored email keeps form invalid until corrected",
+      "status_id": 1,
+      "labels": [
+        "Pepi"
+      ]
+    },
+    {
+      "test_id": 66026,
+      "case_id": 26424,
+      "title": "Impersonate menu visible for site 1 firms with enabled Impersonation permission(Positive)",
+      "status_id": 1,
+      "labels": [
+        "Pepi"
+      ]
+    },
+    {
+      "test_id": 66027,
+      "case_id": 26425,
+      "title": "Impersonate menu not visible for site 1 firms with disabled Impersonation permission(Negative)",
+      "status_id": 1,
+      "labels": [
+        "Pepi"
+      ]
+    },
+    {
+      "test_id": 66028,
+      "case_id": 26426,
+      "title": "Firm dropdown shows all firms for site 1 firms with enabled Impersonation permission(Positive)",
+      "status_id": 1,
+      "labels": [
+        "Pepi"
+      ]
+    },
+    {
+      "test_id": 66029,
+      "case_id": 26427,
+      "title": "Load user list when a firm is selected for site 1 firms with enabled Impersonation permission(Positive)",
+      "status_id": 1,
+      "labels": [
+        "Pepi"
+      ]
+    },
+    {
+      "test_id": 66030,
+      "case_id": 26436,
+      "title": "Switching firms reloads corresponding user list with enabled Impersonation permission(Positive)",
+      "status_id": 1,
+      "labels": [
+        "Pepi"
+      ]
+    },
+    {
+      "test_id": 66031,
+      "case_id": 26437,
+      "title": "Grid shows correct columns and user data with enabled Impersonation permission(Positive)",
+      "status_id": 1,
+      "labels": [
+        "Pepi"
+      ]
+    },
+    {
+      "test_id": 66032,
+      "case_id": 26438,
+      "title": "Grid supports sorting by Name with enabled Impersonation permission(Positive)",
+      "status_id": 1,
+      "labels": [
+        "Pepi"
+      ]
+    },
+    {
+      "test_id": 66033,
+      "case_id": 26445,
+      "title": "Search returns matching users with enabled Impersonation permission(Positive)",
+      "status_id": 1,
+      "labels": [
+        "Pepi"
+      ]
+    },
+    {
+      "test_id": 66034,
+      "case_id": 26446,
+      "title": "Search with no results with enabled Impersonation permission (Positive / Edge)",
+      "status_id": 1,
+      "labels": [
+        "Pepi"
+      ]
+    },
+    {
+      "test_id": 66035,
+      "case_id": 26447,
+      "title": "Search returns matching users with enabled Impersonation permission(Positive)",
+      "status_id": 1,
+      "labels": [
+        "Pepi"
+      ]
+    },
+    {
+      "test_id": 66036,
+      "case_id": 26448,
+      "title": "Advisor Portal button visible for employee users with enabled Impersonation permission(Positive)",
+      "status_id": 1,
+      "labels": [
+        "Pepi"
+      ]
+    },
+    {
+      "test_id": 66037,
+      "case_id": 26449,
+      "title": "Launch Advisor Portal impersonation with enabled Impersonation permission(Positive)",
+      "status_id": 1,
+      "labels": [
+        "Pepi"
+      ]
+    },
+    {
+      "test_id": 66038,
+      "case_id": 26450,
+      "title": "Terminate impersonation returns to P1 Impersonate page with enabled Impersonation permission(Positive)",
+      "status_id": 1,
+      "labels": [
+        "Pepi"
+      ]
+    },
+    {
+      "test_id": 66039,
+      "case_id": 26451,
+      "title": "Session & audit behaviour with enabled Impersonation permission(Positive)",
+      "status_id": 1,
+      "labels": [
+        "Pepi"
+      ]
+    },
+    {
+      "test_id": 66040,
+      "case_id": 26452,
+      "title": "Failure to create impersonated session with enabled Impersonation permission(Negative)",
+      "status_id": 1,
+      "labels": [
+        "Pepi"
+      ]
+    },
+    {
+      "test_id": 66041,
+      "case_id": 26453,
+      "title": "Check for impersonated user role/s with enabled Impersonation permission(Positive)",
+      "status_id": 1,
+      "labels": [
+        "Pepi"
+      ]
+    },
+    {
+      "test_id": 66042,
+      "case_id": 26477,
+      "title": "Check for impersonated user role/s is not affecting existing logic from Back Office",
+      "status_id": 1,
+      "labels": [
+        "Pepi"
+      ]
+    },
+    {
+      "test_id": 66043,
+      "case_id": 26479,
+      "title": "Direct URL access blocked for unauthorized user (Negative)",
+      "status_id": 1,
+      "labels": [
+        "Pepi"
+      ]
+    },
+    {
+      "test_id": 66044,
+      "case_id": 26480,
+      "title": "Load performance for large firms (Positive – Non‑functional)",
+      "status_id": 1,
+      "labels": [
+        "Pepi"
+      ]
+    },
+    {
+      "test_id": 66045,
+      "case_id": 26481,
+      "title": "Search/filter performance for large firm (Positive – Non‑functional)",
+      "status_id": 1,
+      "labels": [
+        "Pepi"
+      ]
+    },
+    {
+      "test_id": 66046,
+      "case_id": 26482,
+      "title": "Impersonated user from firm74 lands on the Manager portal -> Model Center",
+      "status_id": 1,
+      "labels": [
+        "Pepi"
+      ]
+    },
+    {
+      "test_id": 66047,
+      "case_id": 26483,
+      "title": "Impersonated user from any other firm lands on the Advisor Portal -> Dashboard",
+      "status_id": 1,
+      "labels": [
+        "Pepi"
+      ]
+    },
+    {
+      "test_id": 66068,
+      "case_id": 26597,
+      "title": "Advisor Portal button visible for employee users with enabled Impersonation permission from AP (Positive)",
+      "status_id": 1,
+      "labels": [
+        "Pepi"
+      ]
+    },
+    {
+      "test_id": 66067,
+      "case_id": 26596,
+      "title": "Launch Advisor Portal impersonation with enabled Impersonation permission from AP (Positive)",
+      "status_id": 1,
+      "labels": [
+        "Pepi"
+      ]
+    },
+    {
+      "test_id": 66069,
+      "case_id": 26598,
+      "title": "Terminate impersonation returns to P1 Impersonate page with enabled Impersonation permission from AP (Positive)",
+      "status_id": 1,
+      "labels": [
+        "Pepi"
+      ]
+    },
+    {
+      "test_id": 65931,
       "case_id": 25441,
       "title": "Unmanaged Assets – the template can be downloaded added and uploaded via drag & drop",
       "status_id": 1,
-      "labels": ["Pepi"]
+      "labels": [
+        "Pepi"
+      ]
     },
     {
-      "test_id": 53230,
+      "test_id": 65933,
       "case_id": 25445,
       "title": "Unmanaged Assets – a correctly filled template can be added and uploaded using file explorer",
       "status_id": 1,
-      "labels": ["Pepi"]
+      "labels": [
+        "Pepi"
+      ]
     },
     {
-      "test_id": 53231,
+      "test_id": 65934,
       "case_id": 25446,
       "title": "Unmanaged Assets – validation is triggered when a template is incorrectly filled with invalid data",
       "status_id": 1,
-      "labels": ["Pepi"]
+      "labels": [
+        "Pepi"
+      ]
     },
     {
-      "test_id": 53232,
+      "test_id": 65935,
       "case_id": 25447,
       "title": "Unmanaged Assets – validation is triggered when a template is with wrong file format",
       "status_id": 1,
-      "labels": ["Pepi"]
+      "labels": [
+        "Pepi"
+      ]
     },
     {
-      "test_id": 53233,
+      "test_id": 65936,
       "case_id": 25448,
       "title": "Unmanaged Assets - Required Fields Validation",
       "status_id": 1,
-      "labels": ["Pepi"]
+      "labels": [
+        "Pepi"
+      ]
     },
     {
-      "test_id": 53234,
+      "test_id": 65937,
       "case_id": 25449,
       "title": "Unmanaged Assets – Validation of Ignore Firm Values",
       "status_id": 1,
-      "labels": ["Pepi"]
+      "labels": [
+        "Pepi"
+      ]
     },
     {
-      "test_id": 53235,
+      "test_id": 65938,
       "case_id": 25450,
       "title": "Unmanaged Assets – Consistency Validation for Ignore Firm per Account",
       "status_id": 1,
-      "labels": ["Pepi"]
+      "labels": [
+        "Pepi"
+      ]
     },
     {
-      "test_id": 53236,
+      "test_id": 65939,
       "case_id": 25451,
       "title": "Unmanaged Assets – Validation of Action Values",
       "status_id": 1,
-      "labels": ["Pepi"]
+      "labels": [
+        "Pepi"
+      ]
     },
     {
-      "test_id": 53279,
+      "test_id": 65975,
       "case_id": 26073,
       "title": "Unmanaged Assets [Update/Add action ]  verified that the user is able to create a new record using U action",
       "status_id": 1,
-      "labels": ["Pepi"]
+      "labels": [
+        "Pepi"
+      ]
     },
     {
-      "test_id": 53280,
+      "test_id": 65976,
       "case_id": 26074,
       "title": "Unmanaged Assets [Delete action ] verified that the user is able to delete a record using D action",
       "status_id": 1,
-      "labels": ["Pepi"]
+      "labels": [
+        "Pepi"
+      ]
     },
     {
-      "test_id": 53281,
+      "test_id": 65977,
       "case_id": 26075,
       "title": "Unmanaged Assets [Remove All action ] verified that the user is able to remove all records using RA action",
       "status_id": 1,
-      "labels": ["Pepi"]
+      "labels": [
+        "Pepi"
+      ]
     },
     {
-      "test_id": 53218,
+      "test_id": 65921,
       "case_id": 25363,
       "title": "Bucket Exclusions – a correctly filled template can be added and uploaded via drag & drop",
       "status_id": 1,
-      "labels": ["Pepi"]
+      "labels": [
+        "Pepi"
+      ]
     },
     {
-      "test_id": 53219,
+      "test_id": 65922,
       "case_id": 25364,
       "title": "Bucket Exclusions – Multiple templates can be added and uploaded via drag and drop",
       "status_id": 1,
-      "labels": ["Pepi"]
+      "labels": [
+        "Pepi"
+      ]
     },
     {
-      "test_id": 53220,
+      "test_id": 65923,
       "case_id": 25377,
       "title": "Bucket Exclusions – a correctly filled template can be added and uploaded using file explorer",
       "status_id": 1,
-      "labels": ["Pepi"]
+      "labels": [
+        "Pepi"
+      ]
     },
     {
-      "test_id": 53221,
+      "test_id": 65924,
       "case_id": 25378,
       "title": "Bucket Exclusions – validation is triggered when a template is incorrectly filled with invalid required fields",
       "status_id": 1,
-      "labels": ["Pepi"]
+      "labels": [
+        "Pepi"
+      ]
     },
     {
-      "test_id": 53222,
+      "test_id": 65925,
       "case_id": 25379,
       "title": "Bucket Exclusions – validation is triggered when a template is with wrong file format",
       "status_id": 1,
-      "labels": ["Pepi"]
+      "labels": [
+        "Pepi"
+      ]
     },
     {
-      "test_id": 53223,
+      "test_id": 65926,
       "case_id": 25380,
       "title": "Bucket Exclusions – validation is triggered when a template is with wrong Values",
       "status_id": 1,
-      "labels": ["Pepi"]
+      "labels": [
+        "Pepi"
+      ]
     },
     {
-      "test_id": 53224,
+      "test_id": 65927,
       "case_id": 25381,
       "title": "Bucket Exclusions – the user is allowed to use all billing buckets and perform Y/N/I excluded actions.",
       "status_id": 1,
-      "labels": ["Pepi"]
+      "labels": [
+        "Pepi"
+      ]
     },
     {
-      "test_id": 53269,
+      "test_id": 65966,
       "case_id": 25789,
       "title": "Bucket Exclusions - ‘Set All Accts to I = Y’ –  all accounts under hh/client inherit the setting",
       "status_id": 1,
-      "labels": ["Pepi"]
+      "labels": [
+        "Pepi"
+      ]
     },
     {
-      "test_id": 53270,
+      "test_id": 65967,
       "case_id": 25790,
       "title": "Bucket Exclusions - ‘Set All Accts to I = N’ or blank  accounts retain their current settings",
       "status_id": 1,
-      "labels": ["Pepi"]
+      "labels": [
+        "Pepi"
+      ]
     },
     {
-      "test_id": 53271,
+      "test_id": 65968,
       "case_id": 25791,
       "title": "Bucket Exclusions  - Verify that the ‘Set All Accts to I’ column is optional and defaults to N",
       "status_id": 1,
-      "labels": ["Pepi"]
+      "labels": [
+        "Pepi"
+      ]
     },
     {
-      "test_id": 53272,
+      "test_id": 65969,
       "case_id": 25792,
       "title": "Bucket Exclusions - Verify that individual account UUID records can override the setting if included after hh/client record",
       "status_id": 1,
-      "labels": ["Pepi"]
+      "labels": [
+        "Pepi"
+      ]
     },
     {
-      "test_id": 53273,
+      "test_id": 65970,
       "case_id": 25793,
       "title": "Bucket Exclusions - Verify appropriate error message for invalid combinations or missing data",
       "status_id": 1,
-      "labels": ["Pepi"]
+      "labels": [
+        "Pepi"
+      ]
     },
     {
-      "test_id": 53275,
+      "test_id": 65847,
+      "case_id": 24974,
+      "title": "TC001 - Validate 90-Day Password Expiration - 0 days left",
+      "status_id": 1,
+      "labels": [
+        "Pepi"
+      ]
+    },
+    {
+      "test_id": 66059,
+      "case_id": 26551,
+      "title": "Validate 90-Day Password Expiration -  logging in with a non-expired user after we tried logging in with an expired one",
+      "status_id": 1,
+      "labels": [
+        "Pepi"
+      ]
+    },
+    {
+      "test_id": 65848,
+      "case_id": 24975,
+      "title": "TC002 - Validate Password Expiration Notification Start (Day 76)",
+      "status_id": 1,
+      "labels": [
+        "Pepi"
+      ]
+    },
+    {
+      "test_id": 65849,
+      "case_id": 24976,
+      "title": "TC003 - Validate Notification Continues Until Expiration",
+      "status_id": 1,
+      "labels": [
+        "Pepi"
+      ]
+    },
+    {
+      "test_id": 65850,
+      "case_id": 24977,
+      "title": "TC004 - Validate Forced Password Reset on Day 90",
+      "status_id": 1,
+      "labels": [
+        "Pepi"
+      ]
+    },
+    {
+      "test_id": 65851,
+      "case_id": 24978,
+      "title": "TC005 - Validate Password Change Resets Timer",
+      "status_id": 1,
+      "labels": [
+        "Pepi"
+      ]
+    },
+    {
+      "test_id": 65852,
+      "case_id": 24979,
+      "title": "TC006 - Password Change Flow Validation",
+      "status_id": 1,
+      "labels": [
+        "Pepi"
+      ]
+    },
+    {
+      "test_id": 65853,
+      "case_id": 24980,
+      "title": "TC007 - Validate Password History Restriction",
+      "status_id": 1,
+      "labels": [
+        "Pepi"
+      ]
+    },
+    {
+      "test_id": 65854,
+      "case_id": 24981,
+      "title": "TC008 - Validate Linked Account Password Sync",
+      "status_id": 1,
+      "labels": [
+        "Pepi"
+      ]
+    },
+    {
+      "test_id": 65855,
+      "case_id": 24982,
+      "title": "TC009 - Validate Notification on Login",
+      "status_id": 1,
+      "labels": [
+        "Pepi"
+      ]
+    },
+    {
+      "test_id": 65856,
+      "case_id": 24983,
+      "title": "TC010 - Validate Notification Dismiss Option",
+      "status_id": 1,
+      "labels": [
+        "Pepi"
+      ]
+    },
+    {
+      "test_id": 65857,
+      "case_id": 24984,
+      "title": "TC011 - Validate Notification Cannot Be Ignored on Day 90",
+      "status_id": 1,
+      "labels": [
+        "Pepi"
+      ]
+    },
+    {
+      "test_id": 65858,
+      "case_id": 24985,
+      "title": "TC012 - Validate Forgot Password Resets 90-Day Timer",
+      "status_id": 1,
+      "labels": [
+        "Pepi"
+      ]
+    },
+    {
+      "test_id": 65859,
+      "case_id": 24986,
+      "title": "TC013 - Password Change - Mismatched New Passwords",
+      "status_id": 1,
+      "labels": [
+        "Pepi"
+      ]
+    },
+    {
+      "test_id": 65860,
+      "case_id": 24987,
+      "title": "TC014 - Password Change - Wrong Current Password",
+      "status_id": 1,
+      "labels": [
+        "Pepi"
+      ]
+    },
+    {
+      "test_id": 65861,
+      "case_id": 24988,
+      "title": "TC015 - Password Change - Password Meets All Rules",
+      "status_id": 1,
+      "labels": [
+        "Pepi"
+      ]
+    },
+    {
+      "test_id": 65971,
       "case_id": 26057,
       "title": "Platform One - Merge prospect with empty client from Platform One with prospect with all data (MERGE PROSPECT permissions enabled) site 61",
       "status_id": 1,
-      "labels": ["Pepi"]
+      "labels": [
+        "Pepi"
+      ]
     },
     {
-      "test_id": 53276,
+      "test_id": 65972,
       "case_id": 26058,
       "title": "Platform One - Merge prospect with client which has accounts and documents from Platform One with prospect with all data (MERGE PROSPECT permissions enabled) site 61",
       "status_id": 1,
-      "labels": ["Pepi"]
+      "labels": [
+        "Pepi"
+      ]
     },
     {
-      "test_id": 53277,
+      "test_id": 65973,
       "case_id": 26059,
       "title": "Platform One - Merge prospect with client which has document with same name with prospect document from Platform One with prospect (MERGE PROSPECT permissions enabled) site 61",
       "status_id": 1,
-      "labels": ["Pepi"]
+      "labels": [
+        "Pepi"
+      ]
     },
     {
-      "test_id": 53278,
+      "test_id": 65974,
       "case_id": 26060,
       "title": "Platform One - Merge prospect with empty client from Platform One with empty prospect (MERGE PROSPECT permissions disabled by default) site 61",
-      "status_id": 2,
-      "labels": ["Pepi"]
+      "status_id": 3,
+      "labels": [
+        "Pepi"
+      ]
     },
     {
-      "test_id": 53286,
+      "test_id": 65982,
       "case_id": 26082,
       "title": "Platform One - Merge prospect with empty client from Platform One with prospect with all data (MERGE PROSPECT permissions enabled) site 1",
       "status_id": 1,
-      "labels": ["Pepi"]
+      "labels": [
+        "Pepi"
+      ]
     },
     {
-      "test_id": 53287,
+      "test_id": 65983,
       "case_id": 26083,
       "title": "Platform One - Merge prospect with client which has accounts and documents from Platform One with prospect with all data (MERGE PROSPECT permissions enabled) site 1",
       "status_id": 1,
-      "labels": ["Pepi"]
+      "labels": [
+        "Pepi"
+      ]
     },
     {
-      "test_id": 53288,
+      "test_id": 65984,
       "case_id": 26084,
       "title": "Platform One - Merge prospect with client which has document with same name with prospect document from Platform One with prospect (MERGE PROSPECT permissions enabled) site 1",
       "status_id": 1,
-      "labels": ["Pepi"]
+      "labels": [
+        "Pepi"
+      ]
     },
     {
-      "test_id": 53289,
+      "test_id": 65985,
       "case_id": 26085,
       "title": "Platform One - Merge prospect with empty client from Platform One with empty prospect (MERGE PROSPECT permissions disabled by default) site 1",
-      "status_id": 2,
-      "labels": ["Pepi"]
+      "status_id": 3,
+      "labels": [
+        "Pepi"
+      ]
     },
     {
-      "test_id": 53282,
+      "test_id": 65978,
       "case_id": 26077,
       "title": "Platform One - Auto-link new GW Admin user with matching Site 1 account",
       "status_id": 1,
-      "labels": ["Pepi"]
+      "labels": [
+        "Pepi"
+      ]
     },
     {
-      "test_id": 53283,
+      "test_id": 65979,
       "case_id": 26078,
       "title": "Platform One - Auto-link after admin email update to match Site 1 account",
       "status_id": 1,
-      "labels": ["Pepi"]
+      "labels": [
+        "Pepi"
+      ]
     },
     {
-      "test_id": 53284,
+      "test_id": 65980,
       "case_id": 26079,
       "title": "Platform One - Auto-link not allowed for non-GW Admin user to link with Site 1 account",
       "status_id": 1,
-      "labels": ["Pepi"]
+      "labels": [
+        "Pepi"
+      ]
     },
     {
-      "test_id": 53285,
+      "test_id": 65981,
       "case_id": 26080,
       "title": "Platform One - Auto-link new GW Admin user with non matching email from Site 1 account",
       "status_id": 1,
-      "labels": ["Pepi"]
+      "labels": [
+        "Pepi"
+      ]
     },
     {
-      "test_id": 53290,
+      "test_id": 65986,
       "case_id": 26093,
       "title": "Platform One - Auto-link new GW Admin user with Site 1 account both saved without email addresses",
       "status_id": 1,
-      "labels": ["Pepi"]
+      "labels": [
+        "Pepi"
+      ]
     },
     {
-      "test_id": 53291,
+      "test_id": 65987,
       "case_id": 26094,
       "title": "Platform One - Auto-link new GW Admin user with empty email with Site 1 account",
       "status_id": 1,
-      "labels": ["Pepi"]
+      "labels": [
+        "Pepi"
+      ]
     },
     {
-      "test_id": 53295,
+      "test_id": 65991,
       "case_id": 26100,
       "title": "Platform One - Auto-link new GW Admin user with matching Site 1 account Delink and Link again",
       "status_id": 1,
-      "labels": ["Pepi"]
+      "labels": [
+        "Pepi"
+      ]
     },
     {
-      "test_id": 53373,
+      "test_id": 66048,
       "case_id": 26490,
       "title": "Verify UI message on the Open account pages for deprecation of the back office page",
       "status_id": 1,
-      "labels": ["Pepi"]
+      "labels": [
+        "Pepi"
+      ]
     },
     {
-      "test_id": 53139,
+      "test_id": 65843,
       "case_id": 24935,
       "title": "Billing Specification - Edit Specification for a firm",
       "status_id": 1,
-      "labels": ["Pepi"]
+      "labels": [
+        "Pepi"
+      ]
     },
     {
-      "test_id": 53176,
+      "test_id": 65882,
       "case_id": 25084,
       "title": "Billing Spec Grid Shows Account Min/Max Columns",
       "status_id": 1,
-      "labels": ["Pepi"]
+      "labels": [
+        "Pepi"
+      ]
     },
     {
-      "test_id": 53177,
+      "test_id": 65883,
       "case_id": 25085,
       "title": "Billing Spec Upload/Download Includes Account Min/Max",
       "status_id": 1,
-      "labels": ["Pepi"]
+      "labels": [
+        "Pepi"
+      ]
     },
     {
-      "test_id": 53307,
+      "test_id": 65961,
+      "case_id": 25655,
+      "title": "Statement Charges - Save new grid view as default",
+      "status_id": 1,
+      "labels": [
+        "Pepi"
+      ]
+    },
+    {
+      "test_id": 65962,
+      "case_id": 25706,
+      "title": "Statement Charges - default system view sort order for advisor/advisor group and start date",
+      "status_id": 1,
+      "labels": [
+        "Pepi"
+      ]
+    },
+    {
+      "test_id": 65963,
+      "case_id": 25708,
+      "title": "Statement Charges - save default view with custom filters",
+      "status_id": 1,
+      "labels": [
+        "Pepi"
+      ]
+    },
+    {
+      "test_id": 65998,
       "case_id": 26306,
       "title": "Copy a billing specification to another firm",
-      "status_id": 3,
-      "labels": ["Pepi"]
+      "status_id": 1,
+      "labels": [
+        "Pepi"
+      ]
     },
     {
-      "test_id": 53178,
+      "test_id": 65999,
+      "case_id": 26307,
+      "title": "Export multiple billing specifications using bulk Export",
+      "status_id": 3,
+      "labels": [
+        "Pepi"
+      ]
+    },
+    {
+      "test_id": 66000,
+      "case_id": 26308,
+      "title": "Bulk Delete where some specs are in use and some are not",
+      "status_id": 3,
+      "labels": [
+        "Pepi"
+      ]
+    },
+    {
+      "test_id": 66001,
+      "case_id": 26310,
+      "title": "View billing spec update history with before/after details",
+      "status_id": 3,
+      "labels": [
+        "Pepi"
+      ]
+    },
+    {
+      "test_id": 66018,
+      "case_id": 26381,
+      "title": "Verify “Create” record is shown in Unmanaged Assets history even when no subsequent update exists",
+      "status_id": 3,
+      "labels": [
+        "Pepi"
+      ]
+    },
+    {
+      "test_id": 66091,
+      "case_id": 40951,
+      "title": "Advisor portal - Spec Active date when creating a new household",
+      "status_id": 3,
+      "labels": [
+        "Pepi"
+      ]
+    },
+    {
+      "test_id": 66123,
+      "case_id": 41496,
+      "title": "Verify that after changing the billing specs for an account, there is a history record",
+      "status_id": 3,
+      "labels": [
+        "Pepi"
+      ]
+    },
+    {
+      "test_id": 65900,
+      "case_id": 25217,
+      "title": "Household - Spec Name/Active Date - Admin and Non-Admin",
+      "status_id": 1,
+      "labels": [
+        "Pepi"
+      ]
+    },
+    {
+      "test_id": 65901,
+      "case_id": 25218,
+      "title": "Household - Exclude from billing - Admin and Non-Admin",
+      "status_id": 1,
+      "labels": [
+        "Pepi"
+      ]
+    },
+    {
+      "test_id": 65902,
+      "case_id": 25219,
+      "title": "Household - Adjustment/Expiration Date - Percent [%] - Admin and Non-Admin",
+      "status_id": 1,
+      "labels": [
+        "Pepi"
+      ]
+    },
+    {
+      "test_id": 65903,
+      "case_id": 25221,
+      "title": "Household - Adjustment/Expiration Date - Amount [$] - Admin and Non-Admin",
+      "status_id": 1,
+      "labels": [
+        "Pepi"
+      ]
+    },
+    {
+      "test_id": 65904,
+      "case_id": 25243,
+      "title": "Client - Spec Name/Active Date - Admin and Non-Admin",
+      "status_id": 1,
+      "labels": [
+        "Pepi"
+      ]
+    },
+    {
+      "test_id": 65905,
+      "case_id": 25244,
+      "title": "Client - Exclude from billing - Admin and Non-Admin",
+      "status_id": 1,
+      "labels": [
+        "Pepi"
+      ]
+    },
+    {
+      "test_id": 65906,
+      "case_id": 25245,
+      "title": "Client - Adjustment/Expiration Date - Percent [%] - Admin and Non-Admin",
+      "status_id": 1,
+      "labels": [
+        "Pepi"
+      ]
+    },
+    {
+      "test_id": 65907,
+      "case_id": 25246,
+      "title": "Client - Adjustment/Expiration Date - Amount [$] - Admin and Non-Admin",
+      "status_id": 1,
+      "labels": [
+        "Pepi"
+      ]
+    },
+    {
+      "test_id": 65885,
       "case_id": 25193,
       "title": "Account - Billing Inception Date - Admin and Non-Admin",
       "status_id": 1,
-      "labels": ["Pepi"]
+      "labels": [
+        "Pepi"
+      ]
     },
     {
-      "test_id": 53179,
+      "test_id": 65886,
       "case_id": 25194,
       "title": "Account - Billing method - Admin and Non-Admin",
       "status_id": 1,
-      "labels": ["Pepi"]
+      "labels": [
+        "Pepi"
+      ]
     },
     {
-      "test_id": 53180,
+      "test_id": 65887,
       "case_id": 25195,
       "title": "Account - Account for Billing - Admin and Non-Admin",
       "status_id": 1,
-      "labels": ["Pepi"]
+      "labels": [
+        "Pepi"
+      ]
     },
     {
-      "test_id": 53181,
+      "test_id": 65888,
       "case_id": 25196,
       "title": "Account - Spec Name/Active Date - Admin and Non-Admin",
       "status_id": 1,
-      "labels": ["Pepi"]
+      "labels": [
+        "Pepi"
+      ]
     },
     {
-      "test_id": 53182,
+      "test_id": 65889,
       "case_id": 25197,
       "title": "Account - Exclude from billing - Admin and Non-Admin",
       "status_id": 1,
-      "labels": ["Pepi"]
+      "labels": [
+        "Pepi"
+      ]
     },
     {
-      "test_id": 53183,
+      "test_id": 65890,
       "case_id": 25198,
       "title": "Account - Adjustment/Expiration Date - Percent [%] - Admin and Non-Admin",
       "status_id": 1,
-      "labels": ["Pepi"]
+      "labels": [
+        "Pepi"
+      ]
     },
     {
-      "test_id": 53184,
+      "test_id": 65891,
       "case_id": 25199,
       "title": "Account - Adjustment/Expiration Date - Amount [$] - Admin and Non-Admin",
       "status_id": 1,
-      "labels": ["Pepi"]
+      "labels": [
+        "Pepi"
+      ]
     },
     {
-      "test_id": 53185,
+      "test_id": 65892,
       "case_id": 25200,
       "title": "Account - Advisor Split/Inactive Date - Create -  Admin and Non-Admin",
       "status_id": 1,
-      "labels": ["Pepi"]
+      "labels": [
+        "Pepi"
+      ]
     },
     {
-      "test_id": 53201,
+      "test_id": 65908,
       "case_id": 25249,
       "title": "Account - Advisor Split/Inactive Date - Update -  Admin and Non-Admin",
       "status_id": 1,
-      "labels": ["Pepi"]
+      "labels": [
+        "Pepi"
+      ]
     },
     {
-      "test_id": 53186,
+      "test_id": 65893,
       "case_id": 25201,
       "title": "Account - Commission Fee- Admin and Non-Admin",
       "status_id": 1,
-      "labels": ["Pepi"]
+      "labels": [
+        "Pepi"
+      ]
     },
     {
-      "test_id": 53189,
+      "test_id": 65896,
       "case_id": 25206,
       "title": "Account - Unmanaged Assets - Create - Exclude from Performance - Admin and Non-Admin",
       "status_id": 1,
-      "labels": ["Pepi"]
+      "labels": [
+        "Pepi"
+      ]
     },
     {
-      "test_id": 53190,
+      "test_id": 65897,
       "case_id": 25207,
       "title": "Account - Unmanaged Assets - Update - Exclude from Performance - Admin and Non-Admin",
       "status_id": 1,
-      "labels": ["Pepi"]
+      "labels": [
+        "Pepi"
+      ]
     },
     {
-      "test_id": 53191,
+      "test_id": 65898,
       "case_id": 25208,
       "title": "Account - Unmanaged Assets - Create - Exclude from Billing - Admin and Non-Admin",
       "status_id": 1,
-      "labels": ["Pepi"]
+      "labels": [
+        "Pepi"
+      ]
     },
     {
-      "test_id": 53192,
+      "test_id": 65899,
       "case_id": 25209,
       "title": "Account - Unmanaged Assets - Update - Exclude from Billing - Admin and Non-Admin",
       "status_id": 1,
-      "labels": ["Pepi"]
+      "labels": [
+        "Pepi"
+      ]
     },
     {
-      "test_id": 55568,
+      "test_id": 65845,
       "case_id": 24941,
       "title": "Open new account trough Platform One - UI elements",
       "status_id": 1,
-      "labels": ["Pepi"]
+      "labels": [
+        "Pepi"
+      ]
     },
     {
-      "test_id": 55569,
+      "test_id": 65844,
       "case_id": 24940,
       "title": "Create new account manually",
       "status_id": 1,
-      "labels": ["Pepi"]
+      "labels": [
+        "Pepi"
+      ]
     },
     {
-      "test_id": 55570,
+      "test_id": 65846,
       "case_id": 24943,
       "title": "Create new account using upload",
       "status_id": 1,
-      "labels": ["Pepi"]
+      "labels": [
+        "Pepi"
+      ]
     },
     {
-      "test_id": 55571,
+      "test_id": 65862,
       "case_id": 24996,
       "title": "Create new accounts with wrong data",
       "status_id": 1,
-      "labels": ["Pepi"]
+      "labels": [
+        "Pepi"
+      ]
     },
     {
-      "test_id": 55572,
+      "test_id": 65874,
       "case_id": 25065,
       "title": "Create new accounts using an upload file that contains missing data",
       "status_id": 1,
-      "labels": ["Pepi"]
+      "labels": [
+        "Pepi"
+      ]
     },
     {
-      "test_id": 55573,
+      "test_id": 65863,
       "case_id": 24997,
       "title": "Create new accounts using grid input and bulk upload functionalities",
       "status_id": 1,
-      "labels": ["Pepi"]
+      "labels": [
+        "Pepi"
+      ]
     },
     {
-      "test_id": 55574,
+      "test_id": 65884,
       "case_id": 25102,
       "title": "Create accounts using different CLIENT types",
       "status_id": 1,
-      "labels": ["Pepi"]
+      "labels": [
+        "Pepi"
+      ]
     }
   ]
 }
