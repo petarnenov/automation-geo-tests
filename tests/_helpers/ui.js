@@ -310,8 +310,8 @@ async function setAgGridText(page, rowIndex, colId, value) {
 
 /**
  * Fill an ag-grid rich-select cell. Relies on `allowTyping: true` + `filterList`
- * (verified for the Platform One Create Account grid). Types the filter and
- * presses Enter to commit the first match.
+ * (verified for the Platform One Create Account grid). Types the filter, then
+ * clicks the option matched by exact text.
  *
  * @param {import('@playwright/test').Page} page
  * @param {number} rowIndex
@@ -320,12 +320,29 @@ async function setAgGridText(page, rowIndex, colId, value) {
  */
 async function setAgGridRichSelect(page, rowIndex, colId, optionText) {
   await activateAgGridCell(page, rowIndex, colId);
+  // Wait for the rich-select list to actually open before typing. Otherwise the
+  // keystrokes race the editor and never reach its filter input — the list then
+  // stays unfiltered and the exact-text option never renders (observed as an
+  // intermittent click timeout on the Custodian cell).
+  const viewport = page.locator('.ag-rich-select-virtual-list-viewport');
+  await expect(viewport).toBeVisible({ timeout: 5000 });
   await page.keyboard.type(optionText);
-  const firstOption = page
-    .locator('.ag-rich-select-virtual-list-viewport .ag-virtual-list-item')
-    .first();
-  await expect(firstOption).toBeVisible({ timeout: 5000 });
-  await page.keyboard.press('Enter');
+  // Click the option whose text *exactly* matches, never `.first()`. The list
+  // is virtualized and the type-filter is debounced, so `.first()` can grab the
+  // pre-filter top item (observed committing "ByAllAccounts" instead of
+  // "Manual Input"). Matching by exact text makes Playwright auto-wait until the
+  // filtered option is the one rendered before clicking.
+  //
+  // Click (not Enter) is also required: Enter does not reliably commit an option
+  // *object* for these rich selects — e.g. the Custodian column, where the
+  // client-appended "Manual Input" shares eBrokerCd=28 with "Alternatives" — and
+  // createSafeRichSelectValueSetter discards any non-object value, leaving the
+  // cell empty. See pickFirstAgGridRichSelect, which clicks for the same reason.
+  const escaped = optionText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const option = viewport
+    .locator('.ag-virtual-list-item')
+    .filter({ hasText: new RegExp(`^\\s*${escaped}\\s*$`) });
+  await option.first().click({ timeout: 10000 });
   const cell = page.locator(
     `.ag-row[row-index="${rowIndex}"] [role="gridcell"][col-id="${colId}"]`
   );

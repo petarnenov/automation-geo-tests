@@ -94,9 +94,17 @@ test('@pepi C24940 Create new account manually', async ({ page, context, workerF
     // The Client Overview page does NOT list account numbers — only totals and
     // snapshots. The dedicated Accounts tab does. Verified via the page
     // snapshot in C24940's first failure: tab href is `#/client/1/<uuid>/accounts`.
-    await page.goto(`/react/indexReact.do#/client/1/${workerFirm.client.uuid}/accounts`);
-    await expect(page.getByText(accountNumber, { exact: false }).first()).toBeVisible({
-      timeout: 30_000,
-    });
+    const accountsUrl = `/react/indexReact.do#/client/1/${workerFirm.client.uuid}/accounts`;
+    await page.goto(accountsUrl);
+    // The advisor's permission to the freshly-created client propagates with a
+    // noticeable, variable delay — navigating too early renders a hard
+    // "You do not have permission to view this Client" page (observed failing
+    // ~2 of 3 runs). Poll: full-reload the accounts page until the new account
+    // row appears, instead of relying on a single navigation.
+    const accountCell = page.getByText(accountNumber, { exact: false }).first();
+    await expect(async () => {
+      await page.reload({ waitUntil: 'load' });
+      await expect(accountCell).toBeVisible({ timeout: 8_000 });
+    }).toPass({ timeout: 90_000, intervals: [2_000, 3_000, 5_000, 10_000] });
   });
 });

@@ -81,6 +81,14 @@ class TestRailReporter {
       console.log('[testrail-reporter] no @pepi tests with C-ids matched, nothing to post.');
       return;
     }
+    // Collapse retries: keep only the FINAL result per case. Playwright calls
+    // onTestEnd once per attempt, so a flaky test that fails then passes on
+    // retry would otherwise post BOTH a failed and a passed result for the same
+    // case. Map#set preserves first-seen order while overwriting with the last
+    // (final-attempt) value.
+    const byCase = new Map();
+    for (const r of this.results) byCase.set(r.case_id, r);
+    this.results = [...byCase.values()];
     const reportEnv = (process.env.TESTRAIL_REPORT_RESULTS || '').toLowerCase();
     if (reportEnv === '0' || reportEnv === 'false' || reportEnv === 'no') {
       console.log(
