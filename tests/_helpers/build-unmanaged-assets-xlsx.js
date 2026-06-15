@@ -27,7 +27,12 @@ const fs = require('fs');
 const path = require('path');
 const zlib = require('zlib');
 
-const TEMPLATE = '/home/petar/Downloads/UnmanagedAssetsExclusions_Import_Template (15).xlsx';
+// Portable, repo-relative template. Only the zip skeleton (workbook/styles/
+// rels/Content_Types) is reused — sharedStrings.xml and worksheets/sheet1.xml
+// are fully regenerated below — so any valid Unmanaged Assets xlsx works as the
+// skeleton. Previously a hardcoded absolute path under a developer's Downloads
+// folder, which broke on every other machine (ENOENT).
+const TEMPLATE = path.join(__dirname, '..', 'fixtures', 'UnmanagedAssetsExclusions_Import_Template.xlsx');
 
 const HEADERS = [
   'Firm Code', // A
