@@ -26,7 +26,12 @@ const fs = require('fs');
 const path = require('path');
 const zlib = require('zlib');
 
-const TEMPLATE = '/home/petar/Downloads/BillingBucketExclusions_Import_Template (2).xlsx';
+// Portable, repo-relative template. Only the zip skeleton is reused —
+// sharedStrings.xml and worksheets/sheet1.xml are fully regenerated below — so
+// any valid Billing Bucket Exclusions xlsx works as the skeleton. Previously a
+// hardcoded absolute path under a developer's Downloads folder (ENOENT
+// elsewhere).
+const TEMPLATE = path.join(__dirname, '..', 'fixtures', 'BillingBucketExclusions_Import_Template.xlsx');
 
 const HEADERS = [
   'FIRM CODE',
