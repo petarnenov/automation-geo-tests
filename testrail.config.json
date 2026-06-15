@@ -7,12 +7,12 @@
   },
   "testrail": {
     "focusedRun": {
-      "url": "https://testrail.geowealth.com/index.php?/runs/view/206&group_by=cases:section_id&group_order=asc&display=tree",
-      "runId": 206,
+      "url": "https://testrail.geowealth.com/index.php?/runs/view/214&group_by=cases:section_id&group_order=asc&display=tree",
+      "runId": 214,
       "groupBy": "cases:section_id",
       "groupOrder": "asc",
       "display": "tree",
-      "note": "Автоматизацията се фокусира само върху тази тест сюита (run 206)."
+      "note": "Автоматизацията се фокусира само върху тази тест сюита (run 214)."
     },
     "filter": {
       "label": "pepi",
