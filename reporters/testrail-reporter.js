@@ -76,6 +76,43 @@ class TestRailReporter {
     return lines.join('\n');
   }
 
+  // Best-effort lookup of the case_ids that actually exist in the run. Returns
+  // a Set, or null if it could not be determined (caller then posts unfiltered).
+  async _fetchRunCaseIds(attempts) {
+    for (const attempt of attempts) {
+      const auth = Buffer.from(`${this.user}:${attempt.secret}`).toString('base64');
+      const ids = new Set();
+      let endpoint = `get_tests/${this.runId}`;
+      let authOk = true;
+      try {
+        while (endpoint) {
+          const res = await fetch(`${this.baseUrl}/index.php?/api/v2/${endpoint}`, {
+            headers: { Authorization: `Basic ${auth}`, 'Content-Type': 'application/json' },
+          });
+          if (res.status === 401) { authOk = false; break; } // try next credential
+          if (!res.ok) {
+            console.warn(
+              `[testrail-reporter] could not list run ${this.runId} tests (${res.status}); posting unfiltered.`
+            );
+            return null;
+          }
+          const d = await res.json();
+          const items = Array.isArray(d) ? d : d.tests || [];
+          for (const t of items) ids.add(t.case_id);
+          const link = d && d._links && d._links.next;
+          endpoint = link ? link.replace(/^\/api\/v2\//, '') : null;
+        }
+      } catch (err) {
+        console.warn(
+          `[testrail-reporter] error listing run ${this.runId} tests: ${err && err.message ? err.message : err}; posting unfiltered.`
+        );
+        return null;
+      }
+      if (authOk) return ids;
+    }
+    return null; // every credential 401'd — let the POST surface the auth error
+  }
+
   async onEnd() {
     if (this.results.length === 0) {
       console.log('[testrail-reporter] no @pepi tests with C-ids matched, nothing to post.');
@@ -108,15 +145,37 @@ class TestRailReporter {
       console.log(JSON.stringify({ results: this.results }, null, 2));
       return;
     }
-    const url = `${this.baseUrl}/index.php?/api/v2/add_results_for_cases/${this.runId}`;
-    const body = JSON.stringify({ results: this.results });
-
     // Prefer password (proven to work against production), fall back to api_key.
     // Trying api_key first caused TestRail to lock the user account out after
     // accumulating 401s, so we now only fall back if password is not set.
     const attempts = [];
     if (this.password) attempts.push({ label: 'password', secret: this.password });
     if (this.apiKey) attempts.push({ label: 'api_key', secret: this.apiKey });
+
+    // Drop results for cases that aren't in this run. add_results_for_cases
+    // rejects the ENTIRE batch with 400 if any case_id is absent from the run,
+    // so one @pepi spec outside the run would otherwise sink every result.
+    const runCaseIds = await this._fetchRunCaseIds(attempts);
+    if (runCaseIds) {
+      const before = this.results.length;
+      const dropped = this.results.filter((r) => !runCaseIds.has(r.case_id));
+      this.results = this.results.filter((r) => runCaseIds.has(r.case_id));
+      if (dropped.length) {
+        console.warn(
+          `[testrail-reporter] ${dropped.length}/${before} result(s) not in run ${this.runId}, dropped: ` +
+            dropped.map((r) => 'C' + r.case_id).join(', ')
+        );
+      }
+      if (this.results.length === 0) {
+        console.log(
+          `[testrail-reporter] no results left after filtering to run ${this.runId}, nothing to post.`
+        );
+        return;
+      }
+    }
+
+    const url = `${this.baseUrl}/index.php?/api/v2/add_results_for_cases/${this.runId}`;
+    const body = JSON.stringify({ results: this.results });
 
     // Heads-up for the human: if the response body is "License has expired",
     // odds are TESTRAIL_URL is pointing at a different host than the one with
