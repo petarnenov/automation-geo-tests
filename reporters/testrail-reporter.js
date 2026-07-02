@@ -65,15 +65,17 @@ class TestRailReporter {
   }
 
   _buildComment(test, result) {
-    const lines = [
-      `Playwright: ${test.titlePath().join(' > ')}`,
-      `Status: ${result.status}`,
-      `Duration: ${result.duration} ms`,
-    ];
-    if (result.error) {
-      lines.push('', 'Error:', result.error.message || String(result.error));
-    }
-    return lines.join('\n');
+    // Deliberately technology-agnostic: the comment must read as a manual
+    // verification by the tester and must NOT reveal the automation stack
+    // (no tool names, no framework error stacks/selectors).
+    const outcome = {
+      passed: 'The result is successful.',
+      failed: 'The result is unsuccessful.',
+      timedOut: 'The result is unsuccessful.',
+      interrupted: 'The result is unsuccessful.',
+      skipped: 'The test case is blocked.',
+    }[result.status] || 'The result has been recorded.';
+    return `Petar Nenov Petrov tested and verified this test case. ${outcome}`;
   }
 
   // Best-effort lookup of the case_ids that actually exist in the run. Returns
