@@ -27,16 +27,29 @@
  */
 
 const { test, expect } = require('@playwright/test');
-const { loginPlatformOneAdmin } = require('../_helpers/qa3');
+const { loginPlatformOneTim1Fresh } = require('../_helpers/qa3');
+const { seedBillingRun } = require('../_helpers/billing-seed');
 
 const BILLING_RUNS_URL = '/react/indexReact.do#platformOne/billingCenter/runs';
+const SEED_NAME = 'C25067 Client Seed';
+const SEED_TARGET_JSON =
+  '{"targets":[{"targetCd":"client","targets":[{"id":"019DF3D75E6B7154BF7547A8358FFEA9","name":"C25067 Client Target","type":"client"}]}],"buckets":["1"]}';
 const WARNING_RX =
   /Billing will be re-run for all accounts in the household and the history updated for all of the household.?s accounts\./i;
 
 test('@pepi C25067 Correct Client Target Type Displayed by Billing Type', async ({ page }) => {
   test.setTimeout(180_000);
 
-  await loginPlatformOneAdmin(page);
+  // Pre-condition (per case): a Completed, unpublished, Client-target billing
+  // must exist within the grid's default date window (15th of previous month →
+  // today — see FE getCustomDateRange). Seed it by running a Client-target
+  // billing to completion today on any firm (do not publish); the grid is
+  // virtualised, so only a run inside the default window renders and is
+  // selectable here.
+  // Seed the required row (Completed, unpublished, Client-target, in-window) on
+  // the isolated firm 44, and log in as tim1 for cross-firm visibility.
+  seedBillingRun({ name: SEED_NAME, status: 2, targetJson: SEED_TARGET_JSON });
+  await loginPlatformOneTim1Fresh(page);
 
   await test.step('Navigate to Operations > Billing > Billing Runs', async () => {
     await page.goto(BILLING_RUNS_URL);
@@ -44,6 +57,15 @@ test('@pepi C25067 Correct Client Target Type Displayed by Billing Type', async 
     await expect(
       page.locator('.ag-header-cell[col-id="firmName"]').first()
     ).toBeVisible({ timeout: 60_000 });
+  });
+
+  await test.step(`Filter the grid to the seeded run "${SEED_NAME}"`, async () => {
+    // Quick-filter by the distinctive run name so the seeded row is the only
+    // one left and renders despite ag-grid's DOM virtualization.
+    const search = page.getByPlaceholder('Search').first();
+    await search.click();
+    await search.fill(SEED_NAME);
+    await expect(page.locator('.ag-row').first()).toBeVisible({ timeout: 15_000 });
   });
 
   const findClientRow = async () => {

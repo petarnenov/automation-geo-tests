@@ -26,15 +26,19 @@
  */
 
 const { test, expect } = require('@playwright/test');
-const { loginPlatformOneAdmin } = require('../_helpers/qa3');
+const { loginPlatformOneTim1Fresh } = require('../_helpers/qa3');
+const { seedBillingRun } = require('../_helpers/billing-seed');
 
 const BILLING_RUNS_URL = '/react/indexReact.do#platformOne/billingCenter/runs';
-const SEED_TEMPLATE_NAME = 'min-max-1111111';
+const SEED_TEMPLATE_NAME = 'C25021 Partial Seed';
 
 test('@pepi C25021 Timestamp Superscript for Partial Re-run', async ({ page }) => {
   test.setTimeout(180_000);
 
-  await loginPlatformOneAdmin(page);
+  // Seed a Completed run with a PARTIAL_RE_RUN=1 history row (the '*' status
+  // marker) in-window on the isolated firm 44; tim1 for cross-firm visibility.
+  seedBillingRun({ name: SEED_TEMPLATE_NAME, status: 2, partialReRun: true });
+  await loginPlatformOneTim1Fresh(page);
 
   await test.step('Navigate to Operations > Billing > Billing Runs', async () => {
     await page.goto(BILLING_RUNS_URL);
