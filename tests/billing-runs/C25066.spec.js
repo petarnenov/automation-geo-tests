@@ -29,7 +29,7 @@
  */
 
 const { test, expect } = require('@playwright/test');
-const { loginPlatformOneAdmin } = require('../_helpers/qa3');
+const { loginPlatformOneTim1Fresh } = require('../_helpers/qa3');
 
 const BILLING_RUNS_URL = '/react/indexReact.do#platformOne/billingCenter/runs';
 const WARNING_RX =
@@ -38,7 +38,10 @@ const WARNING_RX =
 test('@pepi C25066 Correct Account Target Type Displayed by Billing Type', async ({ page }) => {
   test.setTimeout(180_000);
 
-  await loginPlatformOneAdmin(page);
+  // tim1 (role Admins), not the worker GW Admin (role 529 "All Employees"):
+  // the account-target Completed/Unpublished runs live on other firms, so only
+  // a full admin with cross-firm visibility sees them in the grid at all.
+  await loginPlatformOneTim1Fresh(page);
 
   await test.step('Navigate to Operations > Billing > Billing Runs', async () => {
     await page.goto(BILLING_RUNS_URL);
@@ -48,49 +51,61 @@ test('@pepi C25066 Correct Account Target Type Displayed by Billing Type', async
     ).toBeVisible({ timeout: 60_000 });
   });
 
-  /** Find first BillingRuns master row with Status=Completed, Published=N, target "Account(s):". */
-  const findAccountRow = async () => {
-    await page.locator('.ag-row').first().waitFor({ state: 'visible', timeout: 30_000 }).catch(() => {});
-    return await page.evaluateHandle(() => {
+  // The default window holds hundreds of rows and ag-grid virtualizes the DOM,
+  // so a Completed/Unpublished account row that exists in the data may never be
+  // rendered by a plain scan. Scroll the grid viewport top-to-bottom, scanning
+  // the rendered master rows on each step, until the target row appears; return
+  // its row-id. (The billing-runs grid quick-filter matches the underlying run
+  // data, not the rendered "Account(s): …" target text, so a text filter can't
+  // surface these rows — scrolling is the reliable approach.)
+  const scanForRowId = async () =>
+    page.evaluate(async () => {
+      const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
       const grids = Array.from(document.querySelectorAll('.ag-center-cols-container'));
-      const billingGrid = grids.find((g) =>
-        g.querySelector('[col-id="billingRunStatuses"]')
-      );
+      const billingGrid = grids.find((g) => g.querySelector('[col-id="billingRunStatuses"]'));
       if (!billingGrid) return null;
-      const masters = Array.from(billingGrid.querySelectorAll(':scope > .ag-row')).filter(
-        (r) => !r.closest('.ag-details-row')
-      );
-      for (const row of masters) {
-        const status = row.querySelector('[col-id="billingRunStatuses"]')?.textContent?.trim() || '';
-        const published = row.querySelector('[col-id="publishedRuns"]')?.textContent?.trim() || '';
-        const target = row.querySelector('[col-id="targets"]')?.textContent?.trim() || '';
-        if (status === 'Completed' && published === 'N' && /^Account\(s\):/.test(target)) {
-          return row;
+      const viewport =
+        billingGrid.closest('.ag-body-viewport') || document.querySelector('.ag-body-viewport');
+      const scan = () => {
+        const masters = Array.from(billingGrid.querySelectorAll(':scope > .ag-row')).filter(
+          (r) => !r.closest('.ag-details-row')
+        );
+        for (const row of masters) {
+          const status = row.querySelector('[col-id="billingRunStatuses"]')?.textContent?.trim() || '';
+          const published = row.querySelector('[col-id="publishedRuns"]')?.textContent?.trim() || '';
+          const target = row.querySelector('[col-id="targets"]')?.textContent?.trim() || '';
+          if (status === 'Completed' && published === 'N' && /^Account\(s\):/.test(target)) {
+            return row.getAttribute('row-id');
+          }
         }
+        return null;
+      };
+      if (!viewport) return scan();
+      viewport.scrollTop = 0;
+      await sleep(200);
+      let last = -1;
+      for (let i = 0; i < 400; i += 1) {
+        const id = scan();
+        if (id) return id;
+        if (viewport.scrollTop === last) break; // reached the bottom
+        last = viewport.scrollTop;
+        viewport.scrollTop += Math.max(200, viewport.clientHeight * 0.8);
+        await sleep(150);
       }
-      return null;
+      return scan();
     });
-  };
 
+  let rowId = null;
   await expect
     .poll(
       async () => {
-        const h = await findAccountRow();
-        const ok = !!h.asElement();
-        await h.dispose();
-        return ok;
+        rowId = await scanForRowId();
+        return rowId;
       },
-      { timeout: 30_000, intervals: [1000, 2000, 3000] }
+      { timeout: 90_000, intervals: [1000, 2000, 3000] }
     )
-    .toBe(true);
+    .toBeTruthy();
 
-  const handle = await findAccountRow();
-  const el = handle.asElement();
-  expect(el).toBeTruthy();
-
-  const rowId = await /** @type {import('playwright-core').ElementHandle} */ (
-    el
-  ).evaluate((r) => r.getAttribute('row-id'));
   const masterRow = page.locator(
     `.ag-center-cols-container > .ag-row[row-id="${rowId}"]`
   );

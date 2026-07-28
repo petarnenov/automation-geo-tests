@@ -36,16 +36,21 @@ const {
   loginAsClient,
 } = require('../_helpers/client-portal');
 
-const FIRM_CD = 1;
-const MANAGE_CONTACTS_URL = `/react/indexReact.do#platformOne/firmAdmin/contactManagement/manageContacts/${FIRM_CD}`;
-
 test.setTimeout(360_000);
 
 test('@pepi C26254 Non-deactivated Client remains logged in Advisor Portal after another Client is disabled', async ({
   browser,
   page,
+  workerFirm,
 }) => {
-  await test.step('Login tim1 (will create the test clients in firm 1)', async () => {
+  // Provision the test clients in the per-worker dummy advisory firm. Firm 1
+  // clients are internal and land on /platformOne; other real firms (e.g. 106)
+  // serve a firm-branded login the generic qa4 host rejects. A dummy firm is a
+  // plain advisory firm whose clients authenticate on the generic host and land
+  // on the client portal — which is what Step 9 asserts.
+  const FIRM_CD = workerFirm.firmCd;
+  const MANAGE_CONTACTS_URL = `/react/indexReact.do#platformOne/firmAdmin/contactManagement/manageContacts/${FIRM_CD}`;
+  await test.step(`Login tim1 (will create the test clients in firm ${FIRM_CD})`, async () => {
     await loginPlatformOneAdmin(page);
   });
 
@@ -76,7 +81,7 @@ test('@pepi C26254 Non-deactivated Client remains logged in Advisor Portal after
   });
 
   // ── Main page (tim1): Manage Contacts → EditClient → Disable Client A ──
-  await test.step('Step 3-5: Open Manage Contacts firm 1 as tim1', async () => {
+  await test.step('Step 3-5: Open Manage Contacts firm 106 as tim1', async () => {
     await page.goto(MANAGE_CONTACTS_URL);
     const firmInput = page.locator('#selectCompany_typeAhead');
     await expect(firmInput).toHaveValue(new RegExp(`\\(${FIRM_CD}\\)`), { timeout: 30_000 });

@@ -47,7 +47,7 @@
  */
 
 const { test, expect } = require('@playwright/test');
-const { loginPlatformOneAdmin } = require('../_helpers/qa3');
+const { loginPlatformOneTim1Fresh } = require('../_helpers/qa3');
 
 const STATEMENT_CHARGES_URL = '/react/indexReact.do#platformOne/billingCenter/statementCharges';
 const STATEMENT_TEMPLATES_URL =
@@ -58,7 +58,7 @@ const VIEW_NAME = `Custom filter view C25708 ${Date.now()}`;
 test('@pepi C25708 Statement Charges - save default view with custom filters', async ({ page }) => {
   test.setTimeout(180_000);
 
-  await loginPlatformOneAdmin(page);
+  await loginPlatformOneTim1Fresh(page);
 
   /** @type {string} */
   let pickedDescription;

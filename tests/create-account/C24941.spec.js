@@ -49,11 +49,16 @@ const CREATE_ACCOUNT_URL = '/react/indexReact.do#platformOne/backOffice/createAc
 // Limited to options that fit in the rich-select's first virtualization batch
 // (~8 items). Roth IRA / SEP IRA / 401(k) etc. live further down the list and
 // would require scrolling the virtualized viewport — overkill for a smoke test.
+// NOM_GWM_ACCOUNT_TYPES is code-built (PortalCacheControler) and rendered in
+// account-type-cd order, NOT name-sorted. It is identical for every firm, so no
+// per-firm seed can add a label. On the qa4 WAR account-type-cd 4 is labeled
+// "Custodial Account" (not "UTMA" as in the local source checkout — a version
+// skew), so we assert only labels the deployed qa4 first batch actually serves.
 const EXPECTED_ACCOUNT_TYPES_SAMPLE = [
   'Unknown',
   'Individual Taxable',
   'Joint Account (with right of survivorship)',
-  'UTMA',
+  'Joint Account (tenants in common)',
   'Rollover Roth IRA',
 ];
 

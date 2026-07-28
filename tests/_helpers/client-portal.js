@@ -32,6 +32,8 @@
 
 const fs = require('fs');
 const path = require('path');
+const { execSync } = require('child_process');
+const { DB_DSN } = require('./qa3');
 
 const cfg = JSON.parse(
   fs.readFileSync(path.join(__dirname, '..', '..', 'testrail.config.json'), 'utf8')
@@ -130,6 +132,27 @@ async function provisionClientPortalAccess(
     );
   }
 
+  // ── Step 4: seed LDAP_UID directly ────────────────────────────────────────
+  // createClient's activateClientLogin sets ldap_uid (the login username) but
+  // only commits that transaction AFTER sending the activation email. qa4 has
+  // no SMTP for @geowealth.com, so the send throws and the whole tx rolls back,
+  // leaving ldap_uid NULL — login is then rejected ("having trouble logging
+  // in") even though setInitialPassword committed the password hash in its own
+  // transaction. isLoginActive = !loginInactivatedFlag && ldapUid!=null
+  // (UserManagerTrait), so restoring ldap_uid here is all that's needed;
+  // entity_active_flag is already 1 and the hash is already set.
+  execSync(
+    `python3 -c "
+import oracledb
+c = oracledb.connect(user='gp', password='gp123', dsn='${DB_DSN}')
+cur = c.cursor()
+cur.execute('UPDATE entity_tbl SET ldap_uid = :1, login_inactivated_flag = 0 WHERE entity_id = :2', ['${email}', '${clientUUID}'])
+c.commit()
+c.close()
+"`,
+    { timeout: 15_000 }
+  );
+
   return { clientUUID, email, password, firstName, lastName, firmCd };
 }
 
@@ -147,7 +170,20 @@ async function loginAsClient(page, { email, password }) {
   await page.getByPlaceholder(/email|username/i).fill(email);
   await page.getByPlaceholder(/password/i).fill(password);
   await page.getByRole('button', { name: 'Login' }).click();
-  await page.waitForURL(/#(clientPortal|client\/|dashboard)/, { timeout: 30_000 });
+  // A client provisioned in an internal/admin firm (e.g. firm 1) logs in as a
+  // GW-internal user and getHomePage() routes to /platformOne, never the client
+  // portal — the clientPortal regex would then silently time out at 30s. Race
+  // both landings and fail loudly with the actual cause instead.
+  await Promise.race([
+    page.waitForURL(/#(clientPortal|client\/|dashboard)/, { timeout: 30_000 }),
+    page.waitForURL(/#platformOne/, { timeout: 30_000 }),
+  ]);
+  if (/#platformOne/.test(page.url())) {
+    throw new Error(
+      `loginAsClient: ${email} landed on Platform One (admin), not the Client Portal — ` +
+        'the client was provisioned in an internal/admin firm (check firmCd; must not be firm 1).'
+    );
+  }
 }
 
 module.exports = {

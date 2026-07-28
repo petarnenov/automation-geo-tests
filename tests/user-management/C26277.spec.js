@@ -45,7 +45,6 @@ const {
   loginAsClient,
 } = require('../_helpers/client-portal');
 
-const FIRM_CD = 1;
 const DISABLE_PATH = '/platformOne/disableClient.do';
 const ENTITY_TYPE_INDIVIDUAL = 1;
 
@@ -54,7 +53,13 @@ test.setTimeout(300_000);
 test('@pepi C26277 Failed deactivation does not log out the Client from Platform One', async ({
   browser,
   page,
+  workerFirm,
 }) => {
+  // Provision the test client in the per-worker dummy advisory firm. Firm 1
+  // clients are internal and land on /platformOne; other real firms (e.g. 106)
+  // serve a firm-branded login the generic qa4 host rejects. A dummy firm's
+  // clients authenticate on the generic host and land on the client portal.
+  const FIRM_CD = workerFirm.firmCd;
   await test.step('Login tim1 (will provision the test client)', async () => {
     await loginPlatformOneAdmin(page);
   });

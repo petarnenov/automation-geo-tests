@@ -35,7 +35,7 @@
  */
 
 const { test, expect } = require('@playwright/test');
-const { loginPlatformOneAdmin } = require('../_helpers/qa3');
+const { loginPlatformOneTim1Fresh } = require('../_helpers/qa3');
 
 const STATEMENT_CHARGES_URL = '/react/indexReact.do#platformOne/billingCenter/statementCharges';
 
@@ -45,7 +45,7 @@ const SYSTEM_VIEW_DEFAULT_LABEL = `${SYSTEM_VIEW_LABEL} - default`;
 test('@pepi C25706 Statement Charges - default system view sort order', async ({ page }) => {
   test.setTimeout(180_000);
 
-  await loginPlatformOneAdmin(page);
+  await loginPlatformOneTim1Fresh(page);
 
   await test.step('Open Statement Charges', async () => {
     await page.goto(STATEMENT_CHARGES_URL);
