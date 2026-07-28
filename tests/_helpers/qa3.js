@@ -12,6 +12,32 @@ const cfg = JSON.parse(
   fs.readFileSync(path.join(__dirname, '..', '..', 'testrail.config.json'), 'utf8')
 );
 
+// Oracle DSN for the direct-DB helpers (MFA disable, password-expiry seeding,
+// audit probes). A wrong DSN makes the UPDATEs silently no-op — see
+// docs/tim1-shim.md — so the DSN must track whichever env appUnderTest.url
+// points at. Resolution order:
+//   1. GEO_DB_DSN env var (explicit override, always wins)
+//   2. derived from the app host: qa4's long-lived DB is at 192.168.1.42
+//      (the `dbhost` alias); qa5+ each sit on their own `<env>db.geowealth.int` clone
+//      (confirmed via the Deploy Environment flyway log, e.g. qa7 →
+//      qa7db.geowealth.int:1521/orcl12vm). See project_qa7_db_mismatch /
+//      project_qa5_db_dsn memories.
+function resolveDbDsn() {
+  if (process.env.GEO_DB_DSN) return process.env.GEO_DB_DSN;
+  const host = (() => {
+    try {
+      return new URL(cfg.appUnderTest.url).hostname;
+    } catch {
+      return '';
+    }
+  })();
+  const env = (host.match(/^(qa\d+)\./i) || [])[1];
+  if (!env || /^qa4$/i.test(env)) return '192.168.1.42:1521/ORCL12VM';
+  return `${env.toLowerCase()}db.geowealth.int:1521/orcl12vm`;
+}
+
+const DB_DSN = resolveDbDsn();
+
 /**
  * Log in via the qa3 login form. Works for both Platform One admins (lands on
  * #platformOne) and advisor users (lands on #dashboard) — the caller asserts
@@ -20,8 +46,12 @@ const cfg = JSON.parse(
  * @param {import('@playwright/test').Page} page
  * @param {string} username
  * @param {string} password
+ * @param {{ dismissPasswordWarning?: boolean }} [opts]
+ *   When false, the helper leaves the "Your password will expire in N days"
+ *   warning modal on screen for the caller to assert against (used by the
+ *   password-expiry suite: C24975/C24983 etc.). Default true.
  */
-async function login(page, username, password) {
+async function login(page, username, password, { dismissPasswordWarning = true } = {}) {
   await page.goto('/');
   // qa3 routes to /#login asynchronously after the SPA boots; wait for it
   // before touching the form fields. The form uses placeholder-only inputs
@@ -35,10 +65,12 @@ async function login(page, username, password) {
   // and the X is svg#circle_close_btn. If the modal appears, click it;
   // otherwise the catch swallows the timeout. See
   // project_qa4_password_expiry_warning memory.
-  await page
-    .locator('#circle_close_btn')
-    .click({ timeout: 4000 })
-    .catch(() => {});
+  if (dismissPasswordWarning) {
+    await page
+      .locator('#circle_close_btn')
+      .click({ timeout: 4000 })
+      .catch(() => {});
+  }
 }
 
 /**
@@ -79,6 +111,33 @@ async function loginPlatformOneAdmin(page, credentials) {
   if (!page.url().includes('#platformOne')) {
     // Session is valid but landed on #dashboard. GW Admin still has
     // Platform One permissions — force-navigate.
+    await page.goto('/react/indexReact.do#platformOne');
+    await expect(page).toHaveURL(/#platformOne/, { timeout: 30_000 });
+  }
+}
+
+/**
+ * Force the page into a fresh tim1 Platform One session.
+ *
+ * Why this exists alongside loginPlatformOneAdmin: the worker fixture preloads
+ * each context with a per-worker GW Admin (`gwa{0..7}_...`, storageState
+ * override in playwright.config.js). loginPlatformOneAdmin short-circuits when
+ * ANY valid session is present, so it silently stays as `gwa0` — which carries
+ * only the "All Employees" role (529). Some Platform One pages are gated on
+ * permissions that role lacks and that have NO GW-Admin fallback — e.g. the
+ * Statement Charges / Statement Templates grids require BILLING_STMT_CHARGES_VIEW
+ * (60_1), so under `gwa0` the grid renders null (no header cells) and specs
+ * time out. Clearing cookies first guarantees the form login runs as tim1, the
+ * full Platform One admin who carries these grants. Mirrors loginAsTim1Fresh in
+ * the user-impersonation suite.
+ *
+ * @param {import('@playwright/test').Page} page
+ */
+async function loginPlatformOneTim1Fresh(page) {
+  await page.context().clearCookies();
+  await login(page, cfg.appUnderTest.username, cfg.appUnderTest.password);
+  await page.waitForURL(/#(platformOne|dashboard)/, { timeout: 30_000 });
+  if (!page.url().includes('#platformOne')) {
     await page.goto('/react/indexReact.do#platformOne');
     await expect(page).toHaveURL(/#platformOne/, { timeout: 30_000 });
   }
@@ -294,10 +353,28 @@ async function uploadBillingBucketExclusions(page, firmCode, file) {
  * @param {string} householdUuid
  */
 async function gotoHouseholdBillingSettings(page, householdUuid) {
-  await page.goto(`/react/indexReact.do#/client/5/${householdUuid}/detailsActivity/info`);
-  // The Billing Settings tab content is rendered through SPA routing — clicking
-  // the in-page link is more reliable than navigating to the deep URL directly.
-  await page.getByRole('link', { name: 'Billing Settings' }).click();
+  // Freshly-seeded dummy-firm advisors hit the same FE-cached "You do not
+  // have permission to view this Client" denial as gotoAccountUnmanagedAssets
+  // when jumping straight to a deep #/client/5/{uuid}/... URL. Bounce via
+  // #/dashboard and retry on detection — see project_advisor_permission_cache_warmup.
+  const deepUrl = `/react/indexReact.do#/client/5/${householdUuid}/detailsActivity/info`;
+  const billingLink = page.getByRole('link', { name: 'Billing Settings' });
+  const permDenied = page.getByText(/do not have permission to view this Client/i).first();
+  await expect(async () => {
+    await page.goto(deepUrl);
+    const outcome = await Promise.race([
+      billingLink.waitFor({ state: 'visible', timeout: 15_000 }).then(() => 'ready'),
+      permDenied.waitFor({ state: 'visible', timeout: 15_000 }).then(() => 'perm'),
+    ]);
+    if (outcome === 'perm') {
+      await page.goto('/react/indexReact.do#/dashboard');
+      await page.waitForTimeout(2000);
+      throw new Error('advisor permission cache not warm yet');
+    }
+  }).toPass({ timeout: 180_000, intervals: [3000, 6000, 10_000, 15_000] });
+  // SPA routing: clicking the in-page Billing Settings link is more reliable
+  // than navigating to the deep URL with that segment directly.
+  await billingLink.click();
   await expect(page.getByText(/ADVISOR BILLING SPEC/i).first()).toBeVisible({ timeout: 15_000 });
 }
 
@@ -359,9 +436,35 @@ async function gotoAccountUnmanagedAssets(page, householdUuid, accountUuid) {
       permDenied.waitFor({ state: 'visible', timeout: 15_000 }).then(() => 'perm'),
     ]);
     if (outcome === 'perm') {
+      // Actively warm the cache (matches this fn's docstring): bounce to the
+      // dashboard, then poll the advisor's client directory until the target
+      // household actually shows up for THIS advisor — that is the real signal
+      // the BE permission cache is warm. A blind dashboard+sleep retry was not
+      // enough (the FE keeps serving the cached "permission denied").
       await page.goto('/react/indexReact.do#/dashboard');
-      await page.waitForTimeout(2000);
-      throw new Error('advisor permission cache not warm yet');
+      await page.waitForLoadState('networkidle').catch(() => {});
+      const seen = await page.evaluate(async (hhUuid) => {
+        for (let i = 0; i < 12; i++) {
+          try {
+            const form = new FormData();
+            form.append('filter', JSON.stringify([{ property: 'searchTargetCd', value: 'household' }]));
+            form.append('isCfDefinition', 'true');
+            const r = await fetch('/react/clientDirectory.do?reactRequest=true', {
+              method: 'POST',
+              body: form,
+            });
+            const d = await r.json();
+            if ((d.hits || []).some((h) => (h.entityID || '').toUpperCase() === hhUuid.toUpperCase())) {
+              return true;
+            }
+          } catch (e) {
+            /* transient — keep polling */
+          }
+          await new Promise((res) => setTimeout(res, 2500));
+        }
+        return false;
+      }, householdUuid);
+      throw new Error(`advisor permission cache not warm yet (household in directory=${seen})`);
     }
   }).toPass({ timeout: 180_000, intervals: [3000, 6000, 10_000, 15_000] });
 }
@@ -435,7 +538,7 @@ async function createGwAdmin(name) {
   execSync(
     `python3 -c "
 import oracledb
-c = oracledb.connect(user='gp', password='gp123', dsn='dbhost:1521/ORCL12VM')
+c = oracledb.connect(user='gp', password='gp123', dsn='${DB_DSN}')
 cur = c.cursor()
 cur.execute('UPDATE entity_tbl SET mfa_required_flag = 0 WHERE entity_id = :1', ['${userId}'])
 c.commit()
@@ -476,7 +579,7 @@ function expireUserPassword(entityId, daysAgo = 91) {
   execSync(
     `python3 -c "
 import oracledb
-c = oracledb.connect(user='gp', password='gp123', dsn='dbhost:1521/ORCL12VM')
+c = oracledb.connect(user='gp', password='gp123', dsn='${DB_DSN}')
 cur = c.cursor()
 # Use MERGE so the same call works whether or not a row already exists.
 cur.execute('''
@@ -512,7 +615,7 @@ function getLastPasswordChangeMs(entityId) {
   const out = execSync(
     `python3 -c "
 import oracledb, sys
-c = oracledb.connect(user='gp', password='gp123', dsn='dbhost:1521/ORCL12VM')
+c = oracledb.connect(user='gp', password='gp123', dsn='${DB_DSN}')
 cur = c.cursor()
 cur.execute('SELECT MAX(change_date) FROM entity_pswd_change_tbl WHERE entity_id = :1', ['${entityId}'])
 row = cur.fetchone()
@@ -547,7 +650,7 @@ function linkUserTo(linkedEntityId, parentEntityId) {
   execSync(
     `python3 -c "
 import oracledb
-c = oracledb.connect(user='gp', password='gp123', dsn='dbhost:1521/ORCL12VM')
+c = oracledb.connect(user='gp', password='gp123', dsn='${DB_DSN}')
 cur = c.cursor()
 cur.execute('UPDATE entity_tbl SET linked_gw_user = :1 WHERE entity_id = :2', ['${parentEntityId}', '${linkedEntityId}'])
 c.commit()
@@ -630,7 +733,7 @@ async function createFirmUser({ name, gwAdminFlag = false, firmCd = 1, emailAddr
     execSync(
       `python3 -c "
 import oracledb
-c = oracledb.connect(user='gp', password='gp123', dsn='dbhost:1521/ORCL12VM')
+c = oracledb.connect(user='gp', password='gp123', dsn='${DB_DSN}')
 cur = c.cursor()
 cur.execute('UPDATE entity_tbl SET mfa_required_flag = 0 WHERE entity_id = :1', ['${userId}'])
 c.commit()
@@ -656,7 +759,7 @@ function getUserPrimaryEmail(entityId) {
   const out = execSync(
     `python3 -c "
 import oracledb
-c = oracledb.connect(user='gp', password='gp123', dsn='dbhost:1521/ORCL12VM')
+c = oracledb.connect(user='gp', password='gp123', dsn='${DB_DSN}')
 cur = c.cursor()
 cur.execute('SELECT email FROM entity_email_tbl WHERE entity_id = :1 AND primary_email_flag = 1', ['${entityId}'])
 row = cur.fetchone()
@@ -687,7 +790,7 @@ function patchUserPrimaryEmail(entityId, email) {
   execSync(
     `python3 -c "
 import oracledb
-c = oracledb.connect(user='gp', password='gp123', dsn='dbhost:1521/ORCL12VM')
+c = oracledb.connect(user='gp', password='gp123', dsn='${DB_DSN}')
 cur = c.cursor()
 cur.execute('UPDATE entity_email_tbl SET email = :1 WHERE entity_id = :2 AND primary_email_flag = 1', ['${email}', '${entityId}'])
 c.commit()
@@ -718,7 +821,7 @@ function createLostPasswordLink(entityId) {
   execSync(
     `python3 -c "
 import oracledb
-c = oracledb.connect(user='gp', password='gp123', dsn='dbhost:1521/ORCL12VM')
+c = oracledb.connect(user='gp', password='gp123', dsn='${DB_DSN}')
 cur = c.cursor()
 cur.execute('INSERT INTO user_link_tbl (link_id, user_id) VALUES (:1, :2)', ['${linkId}', '${entityId}'])
 c.commit()
@@ -729,10 +832,177 @@ c.close()
   return linkId;
 }
 
+// Bucket label → billingTypeCd integer (NOM_TEMPLATE_BILLING_BUCKETS).
+const BILLING_BUCKET_CD = {
+  Advisor: 1,
+  'Money Manager': 2,
+  Platform: 3,
+  'Internal Advisor': 4,
+  'Internal MM': 5,
+  'Internal Platform': 6,
+};
+
+/**
+ * Idempotently ensure firm `firmCd` has a billing specification named `name`,
+ * seeding it when missing by cloning an existing spec (same bucket when
+ * possible), renaming it, and POSTing to createUpdateBillingSpec.do.
+ *
+ * Env-agnostic replacement for the qa4-only pre-seeded specs the account-billing
+ * specs assume (e.g. "Flat Fee $11,000-HH internal advisor").
+ *
+ * Pass `page` (an already-authenticated Playwright page) to run against that
+ * session's firm — required for firm-106 specs (tim106). Without `page`, it
+ * falls back to the saved tim1 session (firm 1). See [[account-billing-qa5-splits]].
+ *
+ * @param {number} firmCd
+ * @param {{name: string, bucket?: string, page?: import('@playwright/test').Page}} opts
+ * @returns {Promise<string>} the billingSpecificationID (existing or newly created)
+ */
+async function ensureBillingSpec(firmCd, { name, bucket, page } = {}) {
+  if (!name) throw new Error('ensureBillingSpec: name is required');
+  const bucketCd = bucket ? BILLING_BUCKET_CD[bucket] : undefined;
+  if (bucket && !bucketCd) throw new Error(`ensureBillingSpec: unknown bucket "${bucket}"`);
+
+  // In-browser path: reuse the test's live session (correct firm context) and
+  // native FormData (repeated keys for arrays, exactly what the backend wants).
+  if (page) {
+    const result = await page.evaluate(
+      async ({ firmCd, name, bucketCd }) => {
+        const listRes = await fetch(`/react/getP1BillingSpecs.do?firmCd=${firmCd}`, {
+          headers: { 'Content-Type': 'application/json' },
+        });
+        const list = await listRes.json();
+        if (!list.success) return { error: `list failed: ${JSON.stringify(list).slice(0, 200)}` };
+        const rows = list.rows || [];
+        const existing = rows.find((r) => r.specificationDescription === name);
+        if (existing) return { id: existing.billingSpecificationID, existed: true };
+        const template = (bucketCd && rows.find((r) => r.billingTypeCd === bucketCd)) || rows[0];
+        if (!template) return { error: `firm ${firmCd} has no spec to clone from` };
+        const spec = JSON.parse(JSON.stringify(template));
+        spec.specificationDescription = name;
+        if (bucketCd) spec.billingTypeCd = bucketCd;
+        delete spec.billingSpecificationID;
+        const form = new FormData();
+        for (const [k, v] of Object.entries(spec)) {
+          if (Array.isArray(v)) v.forEach((iv) => form.append(k, JSON.stringify(iv)));
+          else if (v !== null && v !== undefined) form.append(k, String(v));
+        }
+        const res = await fetch('/react/createUpdateBillingSpec.do', { method: 'POST', body: form });
+        const data = await res.json();
+        if (!data.success) return { error: `create failed: ${JSON.stringify(data).slice(0, 200)}` };
+        return { id: data.billingSpecificationID };
+      },
+      { firmCd, name, bucketCd }
+    );
+    if (result.error) throw new Error(`ensureBillingSpec: ${result.error}`);
+    return result.id;
+  }
+
+  // Node fallback: saved tim1 session (firm 1 only).
+  const storageRaw = fs.readFileSync(STORAGE_STATE_PATH, 'utf8');
+  const cookie = JSON.parse(storageRaw)
+    .cookies.map((c) => `${c.name}=${c.value}`)
+    .join('; ');
+  const base = cfg.appUnderTest.url.replace(/\/$/, '');
+  const listRes = await fetch(`${base}/react/getP1BillingSpecs.do?firmCd=${firmCd}`, {
+    headers: { Cookie: cookie, 'Content-Type': 'application/json' },
+  });
+  const list = await listRes.json();
+  if (!list.success) {
+    throw new Error(`ensureBillingSpec: list failed: ${JSON.stringify(list).slice(0, 200)}`);
+  }
+  const rows = list.rows || [];
+  const existing = rows.find((r) => r.specificationDescription === name);
+  if (existing) return existing.billingSpecificationID;
+  const template = (bucketCd && rows.find((r) => r.billingTypeCd === bucketCd)) || rows[0];
+  if (!template) throw new Error(`ensureBillingSpec: firm ${firmCd} has no spec to clone from`);
+  const spec = JSON.parse(JSON.stringify(template));
+  spec.specificationDescription = name;
+  if (bucketCd) spec.billingTypeCd = bucketCd;
+  delete spec.billingSpecificationID;
+  const form = new FormData();
+  for (const [k, v] of Object.entries(spec)) {
+    if (Array.isArray(v)) v.forEach((iv) => form.append(k, JSON.stringify(iv)));
+    else if (v !== null && v !== undefined) form.append(k, String(v));
+  }
+  const res = await fetch(`${base}/react/createUpdateBillingSpec.do`, {
+    method: 'POST',
+    headers: { Cookie: cookie },
+    body: form,
+  });
+  const data = await res.json();
+  if (!data.success) {
+    throw new Error(`ensureBillingSpec: create failed: ${JSON.stringify(data).slice(0, 200)}`);
+  }
+  return data.billingSpecificationID;
+}
+
+/**
+ * Resolve an active household that has at least `minAccounts` accounts, from the
+ * logged-in user's client directory. Env-agnostic replacement for the hardcoded
+ * qa4 household UUIDs the account-billing specs assume (which don't exist on
+ * qa5/qa10).
+ *
+ * Pass `page` (an already-authenticated Playwright page) to resolve within that
+ * session's firm — required for firm-106 (tim106). Without `page`, falls back to
+ * the saved tim1 session (firm 1).
+ *
+ * @param {{minAccounts?: number, page?: import('@playwright/test').Page}} [opts]
+ * @returns {Promise<{uuid: string, name: string, accountsCount: number}>}
+ */
+async function resolveBillableHousehold({ minAccounts = 1, page } = {}) {
+  const pickFrom = (hits) => {
+    const pick = (hits || [])
+      .filter((h) => h.entityActiveFlag === 'Active' && Number(h.accountsCount) >= minAccounts)
+      .sort((a, b) => Number(b.accountsCount) - Number(a.accountsCount))[0];
+    if (!pick) {
+      throw new Error(
+        `resolveBillableHousehold: no active household with >=${minAccounts} account(s) found (${(hits || []).length} total)`
+      );
+    }
+    return { uuid: pick.entityID, name: pick.displayName, accountsCount: Number(pick.accountsCount) };
+  };
+
+  if (page) {
+    const hits = await page.evaluate(async () => {
+      const form = new FormData();
+      form.append('filter', JSON.stringify([{ property: 'searchTargetCd', value: 'household' }]));
+      form.append('isCfDefinition', 'true');
+      const res = await fetch('/react/clientDirectory.do?reactRequest=true', {
+        method: 'POST',
+        body: form,
+      });
+      const data = await res.json();
+      return data.hits || [];
+    });
+    return pickFrom(hits);
+  }
+
+  const storageRaw = fs.readFileSync(STORAGE_STATE_PATH, 'utf8');
+  const cookie = JSON.parse(storageRaw)
+    .cookies.map((c) => `${c.name}=${c.value}`)
+    .join('; ');
+  const base = cfg.appUnderTest.url.replace(/\/$/, '');
+  const form = new FormData();
+  form.append('filter', JSON.stringify([{ property: 'searchTargetCd', value: 'household' }]));
+  form.append('isCfDefinition', 'true');
+  const res = await fetch(`${base}/react/clientDirectory.do?reactRequest=true`, {
+    method: 'POST',
+    headers: { Cookie: cookie },
+    body: form,
+  });
+  const data = await res.json();
+  return pickFrom(data.hits || []);
+}
+
 module.exports = {
   cfg,
+  DB_DSN,
+  ensureBillingSpec,
+  resolveBillableHousehold,
   login,
   loginPlatformOneAdmin,
+  loginPlatformOneTim1Fresh,
   loginFirmAdvisor,
   loginAsAdvisor,
   switchToFirmAdvisor,
