@@ -16,7 +16,7 @@
  */
 
 const { test, expect } = require('@playwright/test');
-const { loginPlatformOneAdmin } = require('../../_helpers/qa3');
+const { loginPlatformOneAdmin, loginPlatformOneTim1Fresh } = require('../../_helpers/qa3');
 const { ensureProspect } = require('../../_helpers/worker-firm');
 
 /**
@@ -60,7 +60,10 @@ async function runMergeProspectSmoke({ page, workerFirm, prospect }) {
   const clientHeadingPattern = new RegExp(`${escapedLast},\\s*${escapedFirst}`, 'i');
 
   await test.step(`Login and switch to firm ${firmCode} (${firmDisplayName})`, async () => {
-    await loginPlatformOneAdmin(page);
+    // tim1 (role Admins), not the worker GW Admin (role 529 "All Employees"):
+    // the "Merge With Prospect" button is gated on permission 80_5
+    // (MERGE_PROSPECT), which tim1 carries but gwa does not.
+    await loginPlatformOneTim1Fresh(page);
     await page.goto(
       `/react/indexReact.do#platformOne/firmAdmin/contactManagement/manageContacts/${firmCode}`
     );
