@@ -1,0 +1,12 @@
+{
+  "aio": {
+    "projectKey": "GEO",
+    "cycleKey": "GEO-CY-8",
+    "mappingFile": "pepi-aio-map.json",
+    "statusNames": {
+      "passed": "Passed",
+      "failed": "Failed",
+      "blocked": "Blocked"
+    }
+  }
+}

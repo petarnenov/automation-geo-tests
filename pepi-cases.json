@@ -1,7 +1,7 @@
 {
   "run_id": 206,
   "label": "pepi",
-  "count": 123,
+  "count": 146,
   "cases": [
     {
       "test_id": 67133,
@@ -1105,6 +1105,213 @@
       "test_id": 65884,
       "case_id": 25102,
       "title": "Create accounts using different CLIENT types",
+      "status_id": 1,
+      "labels": [
+        "Pepi"
+      ]
+    },
+    {
+      "test_id": null,
+      "case_id": 22296,
+      "title": "Billing Templates - Filters are saved per user",
+      "status_id": 1,
+      "labels": [
+        "Pepi"
+      ]
+    },
+    {
+      "test_id": null,
+      "case_id": 22297,
+      "title": "Billing Templates - Edit Saved Filters",
+      "status_id": 1,
+      "labels": [
+        "Pepi"
+      ]
+    },
+    {
+      "test_id": null,
+      "case_id": 22298,
+      "title": "Billing Templates - Default Filters",
+      "status_id": 1,
+      "labels": [
+        "Pepi"
+      ]
+    },
+    {
+      "test_id": null,
+      "case_id": 22299,
+      "title": "Billing Templates - Delete Filters",
+      "status_id": 1,
+      "labels": [
+        "Pepi"
+      ]
+    },
+    {
+      "test_id": null,
+      "case_id": 22317,
+      "title": "Statement Charges - Filter by 'End Date'",
+      "status_id": 1,
+      "labels": [
+        "Pepi"
+      ]
+    },
+    {
+      "test_id": null,
+      "case_id": 22318,
+      "title": "Statement Charges - Filter by 'Advisor(s)'",
+      "status_id": 1,
+      "labels": [
+        "Pepi"
+      ]
+    },
+    {
+      "test_id": null,
+      "case_id": 22319,
+      "title": "Statement Charges - Filter by 'Split Advisor(s)'",
+      "status_id": 1,
+      "labels": [
+        "Pepi"
+      ]
+    },
+    {
+      "test_id": null,
+      "case_id": 22320,
+      "title": "Statement Charges - Filter by 'Status'",
+      "status_id": 1,
+      "labels": [
+        "Pepi"
+      ]
+    },
+    {
+      "test_id": null,
+      "case_id": 22290,
+      "title": "Statement Charges - Filter by the 'Firm Name' of an active firm",
+      "status_id": 1,
+      "labels": [
+        "Pepi"
+      ]
+    },
+    {
+      "test_id": null,
+      "case_id": 22307,
+      "title": "Statement Charges - Edit a statement charge",
+      "status_id": 1,
+      "labels": [
+        "Pepi"
+      ]
+    },
+    {
+      "test_id": null,
+      "case_id": 22308,
+      "title": "Statement Charges - Delete a single Statement Charge",
+      "status_id": 1,
+      "labels": [
+        "Pepi"
+      ]
+    },
+    {
+      "test_id": null,
+      "case_id": 22291,
+      "title": "Statement Charges - Filter by 'Start Date'",
+      "status_id": 1,
+      "labels": [
+        "Pepi"
+      ]
+    },
+    {
+      "test_id": null,
+      "case_id": 22284,
+      "title": "Statement Charges - Grid sorting, filtering and column availability",
+      "status_id": 1,
+      "labels": [
+        "Pepi"
+      ]
+    },
+    {
+      "test_id": null,
+      "case_id": 22314,
+      "title": "Statement Charges - Clear Selection",
+      "status_id": 1,
+      "labels": [
+        "Pepi"
+      ]
+    },
+    {
+      "test_id": null,
+      "case_id": 22315,
+      "title": "Statement Charges - Bulk Delete",
+      "status_id": 1,
+      "labels": [
+        "Pepi"
+      ]
+    },
+    {
+      "test_id": null,
+      "case_id": 22316,
+      "title": "Statement Charges - Copy a statement charge after editing all its data",
+      "status_id": 1,
+      "labels": [
+        "Pepi"
+      ]
+    },
+    {
+      "test_id": null,
+      "case_id": 22321,
+      "title": "Statement Charges -  Mandatory fields in the 'Statement Charges | Create New Charge' dialog with Flat Charge Type",
+      "status_id": 1,
+      "labels": [
+        "Pepi"
+      ]
+    },
+    {
+      "test_id": null,
+      "case_id": 22322,
+      "title": "Statement Charges - Create a statement charge from firm 1",
+      "status_id": 1,
+      "labels": [
+        "Pepi"
+      ]
+    },
+    {
+      "test_id": null,
+      "case_id": 22323,
+      "title": "Statement Charges -  Mandatory fields in the 'Statement Charges | Create New Charge' dialog with AUM Charge Type",
+      "status_id": 1,
+      "labels": [
+        "Pepi"
+      ]
+    },
+    {
+      "test_id": null,
+      "case_id": 22324,
+      "title": "Statement Charges -  Mandatory fields in the 'Statement Charges | Create New Charge' dialog with Revenue Charge Type",
+      "status_id": 1,
+      "labels": [
+        "Pepi"
+      ]
+    },
+    {
+      "test_id": null,
+      "case_id": 22310,
+      "title": "Statement Charges - At least one field must have been updated to create a statement charge copy",
+      "status_id": 1,
+      "labels": [
+        "Pepi"
+      ]
+    },
+    {
+      "test_id": null,
+      "case_id": 22289,
+      "title": "Statement Charges - Filter by the 'Firm Name' of an inactive firm",
+      "status_id": 1,
+      "labels": [
+        "Pepi"
+      ]
+    },
+    {
+      "test_id": null,
+      "case_id": 22293,
+      "title": "Billing Templates - Save Filters",
       "status_id": 1,
       "labels": [
         "Pepi"
