@@ -24,3 +24,9 @@ Thumbs.db
 # Logs
 *.log
 npm-debug.log*
+
+# Nested auth state + local tooling
+**/tests/.auth/
+.claude/scheduled_tasks.lock
+# Separate repo (petarnenov/fullstack)
+fullstack/
