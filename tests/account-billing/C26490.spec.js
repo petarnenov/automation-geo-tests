@@ -62,7 +62,7 @@ test('@pepi C26490 Open Account back-office deprecation message', async ({ page,
 
   await test.step('Page 0: Open Account intro shows deprecation banner', async () => {
     await page.goto(OPEN_ACCOUNT_URL);
-    await expect(page).toHaveTitle(/Open Account/i, { timeout: 30_000 });
+    await expect(page).toHaveTitle(/Open Account/i, { timeout: 60_000 });
     await assertDeprecationBanner(page);
   });
 

@@ -106,6 +106,19 @@ function flattenFirm(raw) {
   for (const advisor of raw.users || []) {
     for (const householdNode of advisor.clients || []) {
       if (householdNode.entityTypeCd !== 5) continue; // not a household
+      // createDummyFirm nests EVERY household under EVERY advisor, but only one
+      // advisor actually owns each household (its `adviserName`). Pairing by
+      // nesting order alone yields tuples where the advisor lacks book
+      // permission to the household/client → the advisor portal returns
+      // "You do not have permission to view this Client". Pair by the real
+      // owner so `switchToAdvisor` lands on an advisor who can see the entity.
+      if (
+        householdNode.adviserName &&
+        advisor.name &&
+        householdNode.adviserName !== advisor.name
+      ) {
+        continue;
+      }
       for (const clientNode of householdNode.clients || []) {
         if (clientNode.entityTypeCd !== 1) continue; // not a client
         const accounts = (clientNode.accounts || []).map((a) => ({

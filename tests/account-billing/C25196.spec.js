@@ -97,6 +97,10 @@ test('@pepi C25196 Spec Name/Active Date - Admin and Non-Admin', async ({ page, 
   await test.step('Phase 1.2: flip Advisor Billing Spec to the other test value', async () => {
     await openEditBillingSettings(page);
     await setComboBoxValue(page, 'adviserBillingSpecification', secondSpec);
+    // Phase 1.1 set Active Date to 06/15/2025 — now in the past relative to
+    // wall-clock; the form silently blocks Save when re-flipping with a
+    // historical Active Date. Bump it forward to keep the Save reachable.
+    await setReactDatePicker(page, page.locator('#adviserBillingActiveDate'), '06/15/2026');
     await saveEditBillingSettings(page);
     await expect(
       page.locator('section[data-key="adviserBillingSpecification"] button', {

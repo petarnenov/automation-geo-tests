@@ -16,14 +16,15 @@
  *      Client(s), Account(s); Firm must NOT appear.
  *
  * Test data:
- *   The default System View filter on /billingCenter/runs hides many rows,
- *   but the unfiltered API returns several firm-target Completed+Unpublished
- *   rows (probed via /platformOne/getNewBillingRows.do). We force the row
- *   into view by routing the response through `transformBillingRows`-shape
- *   data the grid recognises: we keep the original API rows but additionally
- *   surface ours by clearing the firmName ag-grid filter and using the
- *   shared Search box to narrow on the template name "firm 7" (a
- *   pre-seeded Wise Wealth firm-target billing).
+ *   Runtime-seeded (see billing-seed.js): a firm-target Completed+Unpublished
+ *   billing run named "C25014 Firm Target Seed", created with
+ *   CREATED_DATE=SYSTIMESTAMP so it always lands inside the grid's default
+ *   date window (15th of previous month → today). The earlier static
+ *   dependency on the pre-seeded Wise Wealth "firm 7" rows broke every time
+ *   the window rolled past their fixed 2026-07-02 created_date.
+ *   The seeded target_json mirrors the firm-7 shape
+ *   ({"targets":[{"targetCd":"firm","targets":[]}],...}) so the Target cell
+ *   renders "Firm: …" exactly like a UI-created firm-target run.
  *
  * Source-of-truth (FE):
  *   - BillingRuns/Components/ReRunBillingForm/ReRunTargetGroup.js — Target
@@ -40,12 +41,23 @@
 
 const { test, expect } = require('@playwright/test');
 const { loginPlatformOneAdmin } = require('../_helpers/qa3');
+const { seedBillingRun } = require('../_helpers/billing-seed');
 
 const BILLING_RUNS_URL = '/react/indexReact.do#platformOne/billingCenter/runs';
-const SEED_TEMPLATE_NAME = 'firm 7'; // pre-seeded Wise Wealth firm-only template
+const SEED_TEMPLATE_NAME = 'C25014 Firm Target Seed';
+const FIRM_TARGET_JSON =
+  '{"targets":[{"targetCd":"firm","targets":[]}],"buckets":["1","2","3","4","5","6"]}';
 
 test('@pepi C25014 Correct Firm Target Types Displayed by Billing Type', async ({ page }) => {
   test.setTimeout(240_000);
+
+  // Completed (2) + unpublished (0) + firm-target, created now → always inside
+  // the grid's default date window regardless of month rollover.
+  seedBillingRun({
+    name: SEED_TEMPLATE_NAME,
+    status: 2,
+    targetJson: FIRM_TARGET_JSON,
+  });
 
   await loginPlatformOneAdmin(page);
 

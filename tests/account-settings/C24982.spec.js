@@ -36,7 +36,7 @@ test('@pepi C24982 Expiration notification shows immediately on login (UI smoke)
 
   await test.step('Login → notification shows immediately', async () => {
     await context.clearCookies();
-    await login(page, admin.username, admin.password);
+    await login(page, admin.username, admin.password, { dismissPasswordWarning: false });
     await expect(page.getByText(/Your password will expire in 10 days/i)).toBeVisible({
       timeout: 30_000,
     });

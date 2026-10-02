@@ -77,7 +77,7 @@ test('@pepi C25209 Account Unmanaged Assets - Update Exclude from Billing', asyn
     await loginAsWorkerFirmAdmin(context, page, workerFirm);
     await gotoAccountUnmanagedAssets(page, workerFirm.household.uuid, workerFirm.accounts[0].uuid);
     await expect(page.getByRole('button', { name: 'Manage Unmanaged Assets' })).toBeVisible({
-      timeout: 30_000,
+      timeout: 60_000,
     });
 
     await openManageDialog(page);

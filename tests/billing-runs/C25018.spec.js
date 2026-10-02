@@ -55,7 +55,15 @@ test('@pepi C25018 Billing Status Progression', async ({ page }) => {
   // `postRunRefreshes`→ counts grid refresh fetches after Run was clicked.
   // `targetBillingId` → set after we identify the row we'll select; only
   //                     that row gets its status rewritten by the mock.
-  const state = { runFired: false, postRunRefreshes: 0, targetBillingId: null };
+  // Explicit state machine: the grid only re-fetches getNewBillingRows on a real
+  // Filter *criteria* change (the header "Filter" button is ag-grid's
+  // client-side floating-filter toggle — it does NOT re-hit the server, and the
+  // Re Run form's success handler only closes the modal, it does not reload the
+  // grid). So the test forces each refetch deterministically via a Created-From
+  // date nudge and sets `forcedStatus` itself before each nudge — the mock just
+  // stamps that status onto the target row on whatever fetch(es) the nudge
+  // triggers. This removes any dependence on refresh counting or timing.
+  const state = { runFired: false, forcedStatus: null, targetBillingId: null };
 
   await page.route(`**${EXECUTE_PATH}**`, async (route) => {
     state.runFired = true;
@@ -101,16 +109,13 @@ test('@pepi C25018 Billing Status Progression', async ({ page }) => {
     }
     const rows = Array.isArray(body?.rows) ? body.rows : [];
 
-    if (state.runFired && state.targetBillingId) {
-      // After Run was clicked we drive Completed → In Progress (one refresh)
-      // → Completed (subsequent refreshes).
-      state.postRunRefreshes += 1;
-      const forcedStatus = state.postRunRefreshes === 1 ? 'In Progress' : 'Completed';
+    if (state.runFired && state.targetBillingId && state.forcedStatus) {
+      // Stamp whatever status the test has currently set onto the target row.
       for (const row of rows) {
         const id = row?.billingID?.id || row?.billingID;
         if (id === state.targetBillingId) {
-          row.billingRunStatuses = [forcedStatus];
-          if (forcedStatus === 'Completed') row.partialReRun = true;
+          row.billingRunStatuses = [state.forcedStatus];
+          if (state.forcedStatus === 'Completed') row.partialReRun = true;
         }
       }
     }
@@ -222,16 +227,35 @@ test('@pepi C25018 Billing Status Progression', async ({ page }) => {
     expect(state.runFired, 'executeBillingRuns POST was issued').toBe(true);
   });
 
+  // Force a server re-fetch of getNewBillingRows. The header "Filter" button is
+  // ag-grid's floating-filter toggle and the Filter Options date change does not
+  // reliably re-hit the server, so the only deterministic trigger is a full page
+  // reload — the SPA re-boots on the same hash route and re-issues the initial
+  // getNewBillingRows (the page-level route mocks and JS `state` both survive a
+  // reload). The target row is in the first page of results, so it re-renders.
+  const forceRefetch = async () => {
+    await page.reload();
+    await expect(page).toHaveURL(/#platformOne\/billingCenter\/runs/, { timeout: 30_000 });
+    await expect(
+      page.locator('.ag-header-cell[col-id="firmName"]').first()
+    ).toBeVisible({ timeout: 60_000 });
+    await page
+      .locator(`.ag-center-cols-container > .ag-row[row-id="${state.targetBillingId}"]`)
+      .first()
+      .waitFor({ state: 'visible', timeout: 30_000 })
+      .catch(() => {});
+  };
+
   await test.step('Grid shows status flip Completed → In Progress', async () => {
-    // The grid has no auto-refresh after Re Run (BILLING_RUNS_POLLING_INTERVAL
-    // is 10 min). Click the Filter Apply button to force a re-fetch.
-    await page.locator('button:has-text("Filter")').last().click().catch(() => {});
+    state.forcedStatus = 'In Progress';
+    await forceRefetch();
     const statusCell = masterRow.locator('[col-id="billingRunStatuses"]').first();
     await expect(statusCell).toHaveText(/In Progress/i, { timeout: 30_000 });
   });
 
   await test.step('On next refresh the row settles back to Completed', async () => {
-    await page.locator('button:has-text("Filter")').last().click().catch(() => {});
+    state.forcedStatus = 'Completed';
+    await forceRefetch();
     const statusCell = masterRow.locator('[col-id="billingRunStatuses"]').first();
     await expect(statusCell).toHaveText(/^Completed/i, { timeout: 30_000 });
   });

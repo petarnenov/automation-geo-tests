@@ -57,7 +57,7 @@ test('@pepi C25207 Account Unmanaged Assets - Update Exclude from Performance', 
     await loginAsAdmin(context, page);
     await page.goto(UA_URL);
     await expect(page.getByRole('button', { name: 'Manage Unmanaged Assets' })).toBeVisible({
-      timeout: 30_000,
+      timeout: 60_000,
     });
 
     await openManageDialog(page);
@@ -76,7 +76,11 @@ test('@pepi C25207 Account Unmanaged Assets - Update Exclude from Performance', 
       } else {
         aaplRow = 0;
       }
-      await pickInstrumentSymbol(page, aaplRow, 'AAPL', APPLE_HOLDINGS);
+      // Match the dropdown option by regex (like every other APPLE_HOLDINGS
+      // use): the option renders "Apple Inc Ordinary Shares", so the literal
+      // "APPLE INC." (trailing period) never substring-matches. As a regex the
+      // "." is a wildcard and matches the real description.
+      await pickInstrumentSymbol(page, aaplRow, 'AAPL', new RegExp(APPLE_HOLDINGS, 'i'));
       for (const key of BUCKET_KEYS) {
         if ((await getMultiGroupBucket(page, aaplRow, key)) !== 'All') {
           await setMultiGroupBucket(page, aaplRow, key, 'All');

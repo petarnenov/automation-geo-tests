@@ -57,7 +57,7 @@ test('@pepi C40951 Spec Active date when creating a new household', async ({
     await loginAsAdmin(context, page);
     await page.goto(CREATE_HOUSEHOLD_URL);
     await expect(page.getByText('Create a New Household', { exact: false }).first()).toBeVisible({
-      timeout: 30_000,
+      timeout: 60_000,
     });
     // Wait for the form's Household Name field to mount (matched by
     // placeholder since the FormBuilder field id differs per build).

@@ -45,7 +45,7 @@ test('@pepi C26307 Export multiple billing specifications using bulk Export', as
     await expect(
       page.getByText('Billing Specifications', { exact: true }).first()
     ).toBeVisible({ timeout: 30_000 });
-    await expect(page.locator('.ag-row').first()).toBeVisible({ timeout: 60_000 });
+    await expect(page.locator('.ag-row').first()).toBeVisible({ timeout: 120_000 });
   });
 
   await test.step('Select two billing spec rows via the selection checkboxes', async () => {

@@ -44,7 +44,7 @@
  */
 
 const { test, expect } = require('@playwright/test');
-const { cfg, login } = require('../../_helpers/qa3');
+const { cfg, login, DB_DSN } = require('../../_helpers/qa3');
 
 const IMPERSONATE_HREF = /firmAdmin\/userImpersonation/;
 const FIRM_CD_GEOWEALTH = 1;
@@ -377,7 +377,7 @@ function countTim1ImpersonationEventsSince(sinceIsoUtc) {
   const py = `
 import oracledb
 from datetime import datetime
-c = oracledb.connect(user='gp', password='gp123', dsn='dbhost:1521/ORCL12VM')
+c = oracledb.connect(user='gp', password='gp123', dsn='${DB_DSN}')
 cur = c.cursor()
 # Oracle DB column is DATE (no tz). Use UTC-naive parse + cast.
 since = datetime.fromisoformat('${sinceIsoUtc.replace('Z', '+00:00')}').replace(tzinfo=None)

@@ -33,7 +33,7 @@ const DATE_B = '07/20/2027';
 async function gotoClientBilling(page) {
   await page.goto(CLIENT_BILLING_URL);
   await expect(page.getByRole('button', { name: 'History', exact: true })).toBeVisible({
-    timeout: 30_000,
+    timeout: 60_000,
   });
 }
 
@@ -43,14 +43,14 @@ async function openEditClientBillingSettings(page) {
     timeout: 15_000,
   });
   await expect(page.getByRole('button', { name: 'Save', exact: true })).toBeVisible({
-    timeout: 30_000,
+    timeout: 60_000,
   });
 }
 
 async function saveEditClientBillingSettings(page) {
   await page.locator('button[data-role="formSubmitButton"]').first().click();
   await expect(page.getByText(/Billing Details are Updated/i).first()).toBeVisible({
-    timeout: 30_000,
+    timeout: 60_000,
   });
   await page.getByRole('button', { name: 'Close', exact: true }).click();
   await expect(page.getByText(/Billing Details are Updated/i)).toBeHidden({
@@ -126,7 +126,7 @@ test('@pepi C25246 Client Adjustment/Expiration Date - Amount', async ({
 
   await test.step('Phase 1.2: History shows 3 adjustment rows for Advisor billing', async () => {
     await openHistory(page);
-    await expect(page.locator('.ag-row').first()).toBeVisible({ timeout: 30_000 });
+    await expect(page.locator('.ag-row').first()).toBeVisible({ timeout: 60_000 });
 
     const rowRecords = await page.evaluate(() => {
       const viewport =

@@ -38,7 +38,7 @@ test('@pepi C24975 Password expiration notification starts at day 76 (UI smoke)'
 
   await test.step('Login → Expiration warning shows "in 14 days"', async () => {
     await context.clearCookies();
-    await login(page, admin.username, admin.password);
+    await login(page, admin.username, admin.password, { dismissPasswordWarning: false });
     await expect(page.getByText(/Your password will expire in 14 days/i)).toBeVisible({
       timeout: 30_000,
     });

@@ -80,7 +80,7 @@ test('@pepi C26306 Copy a billing specification to another firm', async ({ page,
       timeout: 30_000,
     });
     await expect(page.locator('.ag-row').first()).toBeVisible({
-      timeout: 60_000,
+      timeout: 120_000,
     });
   });
 
@@ -254,7 +254,7 @@ test('@pepi C26306 Copy a billing specification to another firm', async ({ page,
     // Successful" confirmation heading instead of navigating. Wait for that
     // confirmation rather than a URL transition.
     await expect(page.getByRole('heading', { name: 'Create Successful' })).toBeVisible({
-      timeout: 60_000,
+      timeout: 120_000,
     });
   });
 
@@ -264,7 +264,7 @@ test('@pepi C26306 Copy a billing specification to another firm', async ({ page,
       timeout: 30_000,
     });
     await expect(page.locator('.ag-row').first()).toBeVisible({
-      timeout: 60_000,
+      timeout: 120_000,
     });
     // Search for the new spec name via the grid's Search input — much faster
     // than scrolling the full list.

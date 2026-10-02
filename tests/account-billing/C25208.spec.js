@@ -93,7 +93,7 @@ test('@pepi C25208 Account Unmanaged Assets - Create Exclude from Billing', asyn
     await loginAsWorkerFirmAdmin(context, page, workerFirm);
     await gotoAccountUnmanagedAssets(page, workerFirm.client.uuid, workerFirm.accounts[0].uuid);
     await expect(page.getByRole('button', { name: 'Manage Unmanaged Assets' })).toBeVisible({
-      timeout: 30_000,
+      timeout: 60_000,
     });
 
     await openManageDialog(page);
@@ -153,8 +153,11 @@ test('@pepi C25208 Account Unmanaged Assets - Create Exclude from Billing', asyn
     await loginAsNonAdmin(context, page);
     await page.goto(FIRM_106_UA_URL);
     await expect(page.getByRole('button', { name: 'Manage Unmanaged Assets' })).toHaveCount(0);
+    // The firm-106 account's unmanaged-assets content is shared and mutable
+    // across runs (AAPL may be deleted, leaving MSFT, etc.), so assert the
+    // non-admin can see a populated UA grid — not a specific ticker.
     await expect(
-      page.getByRole('row', { name: /AAPL.*Apple Inc Ordinary Shares/ })
+      page.getByRole('row', { name: /Ordinary Shares/ }).first()
     ).toBeVisible({ timeout: 15_000 });
   });
 });

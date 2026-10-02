@@ -90,7 +90,12 @@ module.exports = defineConfig({
   // Run global setup once per `playwright test` invocation: log in as tim1
   // and save the storage state. Each test then reuses that session.
   globalSetup: require.resolve('./tests/_helpers/global-setup'),
-  reporter: [['list'], ['html', { open: 'never' }], ['./reporters/testrail-reporter.js']],
+  reporter: [
+    ['list'],
+    ['html', { open: 'never' }],
+    ['./reporters/testrail-reporter.js'],
+    ['./reporters/aio-reporter.js'],
+  ],
   use: {
     baseURL: cfg.appUnderTest.url,
     trace: 'retain-on-failure',

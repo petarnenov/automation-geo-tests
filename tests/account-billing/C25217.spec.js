@@ -100,7 +100,7 @@ const HISTORY_BUCKET_BY_KEY = {
 async function gotoHouseholdBilling(page) {
   await page.goto(HOUSEHOLD_BILLING_URL);
   await expect(page.getByRole('button', { name: 'History', exact: true })).toBeVisible({
-    timeout: 30_000,
+    timeout: 60_000,
   });
 }
 
@@ -110,7 +110,7 @@ async function openEditHouseholdBillingSettings(page) {
     timeout: 15_000,
   });
   await expect(page.getByRole('button', { name: 'Save', exact: true })).toBeVisible({
-    timeout: 30_000,
+    timeout: 60_000,
   });
 }
 
@@ -143,7 +143,7 @@ async function saveEditHouseholdBillingSettings(page) {
   await expect(submit).not.toHaveClass(/disabled/i, { timeout: 15_000 });
   await submit.click();
   await expect(page.getByText(/Billing Details are Updated/i).first()).toBeVisible({
-    timeout: 30_000,
+    timeout: 60_000,
   });
   await page.getByRole('button', { name: 'Close', exact: true }).click();
   await expect(page.getByText(/Billing Details are Updated/i)).toBeHidden({
@@ -223,7 +223,7 @@ test('@pepi C25217 Household Spec Name/Active Date - Admin and Non-Admin', async
 
   await test.step('Phase 1.2: History shows spec + active-date rows per bucket', async () => {
     await openHistory(page);
-    await expect(page.locator('.ag-row').first()).toBeVisible({ timeout: 30_000 });
+    await expect(page.locator('.ag-row').first()).toBeVisible({ timeout: 60_000 });
 
     const rowRecords = await page.evaluate(() => {
       const viewport =

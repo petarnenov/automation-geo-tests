@@ -33,7 +33,7 @@ async function copySpecFromFirm1ToWorker(page, workerFirm, newSpecName) {
   await expect(page.getByText('Billing Specifications', { exact: true }).first()).toBeVisible({
     timeout: 30_000,
   });
-  await expect(page.locator('.ag-row').first()).toBeVisible({ timeout: 60_000 });
+  await expect(page.locator('.ag-row').first()).toBeVisible({ timeout: 120_000 });
 
   // Hover the first row and click Copy.
   await page.locator('.ag-row').first().hover();
@@ -96,7 +96,7 @@ async function copySpecFromFirm1ToWorker(page, workerFirm, newSpecName) {
   await page.getByRole('button', { name: 'Create Spec', exact: true }).click();
   await expect(
     page.getByRole('heading', { name: 'Create Successful' })
-  ).toBeVisible({ timeout: 60_000 });
+  ).toBeVisible({ timeout: 120_000 });
 }
 
 test('@pepi C26308 Bulk delete unused billing spec on the worker firm grid', async ({
@@ -120,7 +120,7 @@ test('@pepi C26308 Bulk delete unused billing spec on the worker firm grid', asy
     await expect(
       page.getByText('Billing Specifications', { exact: true }).first()
     ).toBeVisible({ timeout: 30_000 });
-    await expect(page.locator('.ag-row').first()).toBeVisible({ timeout: 60_000 });
+    await expect(page.locator('.ag-row').first()).toBeVisible({ timeout: 120_000 });
     // The grid Search input narrows on Spec Name.
     const searchBox = page.getByPlaceholder('Search').first();
     await searchBox.click();

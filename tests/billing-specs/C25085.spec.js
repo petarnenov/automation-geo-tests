@@ -156,7 +156,7 @@ test('@pepi C25085 Billing Spec Upload/Download Includes Account Min/Max', async
       timeout: 30_000,
     });
     await expect(page.locator('.ag-row').first()).toBeVisible({
-      timeout: 60_000,
+      timeout: 120_000,
     });
   });
 

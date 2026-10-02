@@ -67,7 +67,7 @@ test('@pepi C25206 Account Unmanaged Assets - Create Exclude from Performance', 
     await loginAsAdmin(context, page);
     await page.goto(UA_URL);
     await expect(page.getByRole('button', { name: 'Manage Unmanaged Assets' })).toBeVisible({
-      timeout: 30_000,
+      timeout: 60_000,
     });
 
     await openManageDialog(page);

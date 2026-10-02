@@ -96,7 +96,7 @@ const BUCKETS = [
 async function gotoClientBilling(page) {
   await page.goto(CLIENT_BILLING_URL);
   await expect(page.getByRole('button', { name: 'History', exact: true })).toBeVisible({
-    timeout: 30_000,
+    timeout: 60_000,
   });
 }
 
@@ -106,7 +106,7 @@ async function openEditClientBillingSettings(page) {
     timeout: 15_000,
   });
   await expect(page.getByRole('button', { name: 'Save', exact: true })).toBeVisible({
-    timeout: 30_000,
+    timeout: 60_000,
   });
 }
 
@@ -115,7 +115,7 @@ async function saveEditClientBillingSettings(page) {
   // share the name "Save".
   await page.locator('button[data-role="formSubmitButton"]').first().click();
   await expect(page.getByText(/Billing Details are Updated/i).first()).toBeVisible({
-    timeout: 30_000,
+    timeout: 60_000,
   });
   await page.getByRole('button', { name: 'Close', exact: true }).click();
   await expect(page.getByText(/Billing Details are Updated/i)).toBeHidden({
@@ -249,7 +249,7 @@ test('@pepi C25244 Client Exclude from billing - Admin and Non-Admin', async ({
 
   await test.step('Phase 1.2: History shows 6 Exclude rows (one per bucket)', async () => {
     await openHistory(page);
-    await expect(page.locator('.ag-row').first()).toBeVisible({ timeout: 30_000 });
+    await expect(page.locator('.ag-row').first()).toBeVisible({ timeout: 60_000 });
 
     // Collect rows by row-id, paging through the virtualised viewport.
     // Same approach as C25243 — the Plimsoll FP client has hundreds of

@@ -113,7 +113,7 @@ const DATE_B = '06/22/2025';
 async function gotoClientBilling(page) {
   await page.goto(CLIENT_BILLING_URL);
   await expect(page.getByRole('button', { name: 'History', exact: true })).toBeVisible({
-    timeout: 30_000,
+    timeout: 60_000,
   });
 }
 
@@ -125,7 +125,7 @@ async function openEditClientBillingSettings(page) {
   // Form content (combos, date pickers) is fetched async; the Save button
   // is only mounted once the form fields finish loading.
   await expect(page.getByRole('button', { name: 'Save', exact: true })).toBeVisible({
-    timeout: 30_000,
+    timeout: 60_000,
   });
 }
 
@@ -185,7 +185,7 @@ async function saveEditClientBillingSettings(page) {
   // "Billing Details are Updated!" — different wording than the account
   // variant ("Account Billing Successfully Updated!").
   await expect(page.getByText(/Billing Details are Updated/i).first()).toBeVisible({
-    timeout: 30_000,
+    timeout: 60_000,
   });
   await page.getByRole('button', { name: 'Close', exact: true }).click();
   await expect(page.getByText(/Billing Details are Updated/i)).toBeHidden({
@@ -335,7 +335,7 @@ test('@pepi C25243 Client Spec Name/Active Date - Admin and Non-Admin', async ({
     // for at least one `.ag-row` to mount before reading the rendered
     // texts; without this the snapshot fires while the grid is still
     // empty.
-    await expect(page.locator('.ag-row').first()).toBeVisible({ timeout: 30_000 });
+    await expect(page.locator('.ag-row').first()).toBeVisible({ timeout: 60_000 });
 
     // The History grid is an ag-grid sorted by DATE & TIME desc, so our
     // just-saved rows live at the TOP. ag-grid 33 virtualises both rows

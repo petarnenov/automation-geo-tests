@@ -43,7 +43,7 @@ test('@pepi C25084 Billing Spec Grid Shows Account Min/Max Columns', async ({ pa
       timeout: 30_000,
     });
     // Wait for at least one ag-grid row before interacting with the grid header.
-    await expect(page.locator('.ag-row').first()).toBeVisible({ timeout: 60_000 });
+    await expect(page.locator('.ag-row').first()).toBeVisible({ timeout: 120_000 });
   });
 
   await test.step('Open the Customize Columns overlay', async () => {

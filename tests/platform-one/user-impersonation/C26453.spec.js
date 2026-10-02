@@ -40,12 +40,19 @@ test('@pepi C26453 Platform One Check for impersonated user roles cross-browser 
   const concurrentUser = gwadmins[0];
 
   const browser = await chromium.launch();
-  const contextA = await browser.newContext();
+  // `@playwright/test`'s `chromium.launch()` returns the worker's shared
+  // browser, and `newContext()` inherits the project-level `use.storageState`
+  // (worker GW Admin session). For this test we need contextA to start fresh
+  // and sign in via the form, so wipe any pre-loaded session cookies.
+  const contextA = await browser.newContext({ storageState: { cookies: [], origins: [] } });
   const pageA = await contextA.newPage();
   try {
-    await pageA.goto(cfg.appUnderTest.url);
     await login(pageA, concurrentUser.username, concurrentUser.password);
-    await pageA.waitForURL(/#(platformOne|dashboard)/, { timeout: 30_000 });
+    // Hash-only navigation (#platformOne) does not fire a `load` lifecycle
+    // event, so page.waitForURL with default waitUntil:'load' hangs even
+    // after the URL matches. Use expect.toHaveURL which polls without
+    // waiting on lifecycle.
+    await expect(pageA).toHaveURL(/#(platformOne|dashboard)/, { timeout: 30_000 });
     console.log(`[C26453] context A live as ${concurrentUser.username} → ${pageA.url()}`);
 
     const contextB = await browser.newContext();

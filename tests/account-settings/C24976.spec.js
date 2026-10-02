@@ -40,7 +40,7 @@ test('@pepi C24976 Expiration notification countdown days 76 to 89 (UI smoke)', 
     await test.step(`Day ${daysAgo}: warning shows "in ${daysLeft} days"`, async () => {
       await context.clearCookies();
       expireUserPassword(admin.userId, daysAgo);
-      await login(page, admin.username, admin.password);
+      await login(page, admin.username, admin.password, { dismissPasswordWarning: false });
       await expect(
         page.getByText(new RegExp(`Your password will expire in ${daysLeft} days`, 'i'))
       ).toBeVisible({ timeout: 30_000 });

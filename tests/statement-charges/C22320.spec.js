@@ -24,12 +24,18 @@
  * ── What this asserts (both statuses, per the "repeat for each status" step) ──
  * Against the endpoint's JSON (robust to ag-grid virtualisation):
  *   1. Read the unfiltered result on load (baseline) and count rows per status.
- *   2. For EACH status the combo offers that has baseline rows: select it, click
- *      Filter, and require that every returned row carries that status, the row
- *      count equals the baseline count for that status, and the result is a strict
- *      subset of the baseline (the filter narrowed the grid).
+ *   2. For EACH status the combo offers that has baseline rows: reload, re-capture
+ *      a FRESH unfiltered baseline from the reload's own fetch, filter, and require
+ *      that every returned row carries that status, the filtered set (by
+ *      billingStatementChargeID) contains every fresh-baseline row of that status
+ *      and none of the other status, and the filter strictly narrowed the grid.
  * The two statuses partition the grid (New + Processed = all rows), so each filter
  * is a genuine, non-trivial narrowing.
+ *
+ * Assertions are set-based against the same-reload snapshot, NOT exact counts
+ * against the initial load: other @pepi specs create statement charges in
+ * parallel, so an exact count captured a minute earlier goes stale (seen as
+ * 290 vs 292 in the 8-worker run).
  *
  * Read-only: the test only filters; it creates/changes no data.
  */
@@ -124,25 +130,41 @@ test("@pepi C22320 Statement Charges - Filter by 'Status'", async ({ page }) => 
   for (const status of present) {
     await test.step(`Filter by '${status}' — only ${status} charges remain`, async () => {
       // Fresh form for each status (see filterByStatus). Reload — not goto — since
-      // the page is already on this #hash route.
+      // the page is already on this #hash route. The reload's own unfiltered fetch
+      // doubles as a fresh per-iteration baseline, closing the race window that an
+      // initial-load count leaves open while parallel specs seed new charges.
       const reloadResp = page.waitForResponse(
         (r) => r.url().includes(GET_CHARGES) && r.status() === 200,
         { timeout: 60_000 }
       );
       await page.reload();
       await expect(page.locator('#status')).toBeVisible({ timeout: 30_000 });
-      await reloadResp;
+      const fresh = (await (await reloadResp).json()).rows || [];
+      const freshIds = (s) =>
+        new Set(
+          fresh.filter((r) => r.status === s).map((r) => r.billingStatementChargeID)
+        );
+      const wantIds = freshIds(status);
+      const otherIds = freshIds(status === 'New' ? 'Processed' : 'New');
 
       const filtered = await filterByStatus(page, status);
       expect(filtered.length, `${status}: filter returns rows`).toBeGreaterThan(0);
       for (const row of filtered) {
         expect(row.status, `every row is '${status}'`).toBe(status);
       }
-      expect(filtered.length, `${status}: row count equals the baseline count`).toBe(
-        baseCount[status]
-      );
+      const filteredIds = new Set(filtered.map((r) => r.billingStatementChargeID));
+      for (const id of wantIds) {
+        expect(filteredIds.has(id), `${status}: fresh ${status} row ${id} survives the filter`).toBe(
+          true
+        );
+      }
+      for (const id of filteredIds) {
+        expect(otherIds.has(id), `${status}: row ${id} of the other status is filtered out`).toBe(
+          false
+        );
+      }
       expect(filtered.length, `${status}: the filter narrowed the grid`).toBeLessThan(
-        baseline.length
+        fresh.length
       );
     });
   }

@@ -40,7 +40,7 @@ test('@pepi C24983 Expiration notification is dismissible in warning window (UI 
 
   await test.step('Login → ExpirationWarningModal appears', async () => {
     await context.clearCookies();
-    await login(page, admin.username, admin.password);
+    await login(page, admin.username, admin.password, { dismissPasswordWarning: false });
     await expect(warningText).toBeVisible({ timeout: 30_000 });
   });
 

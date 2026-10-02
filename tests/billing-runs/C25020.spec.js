@@ -30,7 +30,6 @@ const { test, expect } = require('@playwright/test');
 const { loginPlatformOneAdmin } = require('../_helpers/qa3');
 
 const BILLING_RUNS_URL = '/react/indexReact.do#platformOne/billingCenter/runs';
-const SEED_TEMPLATE_NAME = 'min-max-1111111';
 
 test('@pepi C25020 Totals Update for Full Billing Run', async ({ page }) => {
   test.setTimeout(180_000);
@@ -45,14 +44,12 @@ test('@pepi C25020 Totals Update for Full Billing Run', async ({ page }) => {
     ).toBeVisible({ timeout: 60_000 });
   });
 
-  await test.step(`Search the partial re-run row by template "${SEED_TEMPLATE_NAME}"`, async () => {
-    const search = page.getByPlaceholder('Search').first();
-    await search.click();
-    await search.fill(SEED_TEMPLATE_NAME);
-  });
-
+  // This test only needs a Completed billing run whose detail grid carries
+  // populated totals — it asserts nothing partial-re-run-specific. The old
+  // hardcoded "min-max-1111111" template does not exist on every env, so we
+  // pick the first Completed master row present in the default grid instead.
   const findReRunRow = async () => {
-    return await page.evaluateHandle((name) => {
+    return await page.evaluateHandle(() => {
       const grids = Array.from(document.querySelectorAll('.ag-center-cols-container'));
       const billingGrid = grids.find((g) =>
         g.querySelector('[col-id="billingRunStatuses"]')
@@ -62,11 +59,11 @@ test('@pepi C25020 Totals Update for Full Billing Run', async ({ page }) => {
         (r) => !r.closest('.ag-details-row')
       );
       for (const row of masters) {
-        const tmplt = row.querySelector('[col-id="tmpltName"]')?.textContent?.trim() || '';
-        if (tmplt === name) return row;
+        const status = row.querySelector('[col-id="billingRunStatuses"]')?.textContent?.trim() || '';
+        if (/^Completed/i.test(status)) return row;
       }
       return null;
-    }, SEED_TEMPLATE_NAME);
+    });
   };
 
   await expect

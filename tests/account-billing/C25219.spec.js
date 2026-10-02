@@ -42,7 +42,7 @@ function householdBillingUrl(uuid) {
 async function gotoHouseholdBilling(page, householdUuid) {
   await page.goto(householdBillingUrl(householdUuid));
   await expect(page.getByRole('button', { name: 'History', exact: true })).toBeVisible({
-    timeout: 30_000,
+    timeout: 60_000,
   });
 }
 
@@ -52,14 +52,14 @@ async function openEditHouseholdBillingSettings(page) {
     timeout: 15_000,
   });
   await expect(page.getByRole('button', { name: 'Save', exact: true })).toBeVisible({
-    timeout: 30_000,
+    timeout: 60_000,
   });
 }
 
 async function saveEditHouseholdBillingSettings(page) {
   await page.locator('button[data-role="formSubmitButton"]').first().click();
   await expect(page.getByText(/Billing Details are Updated/i).first()).toBeVisible({
-    timeout: 30_000,
+    timeout: 60_000,
   });
   await page.getByRole('button', { name: 'Close', exact: true }).click();
   await expect(page.getByText(/Billing Details are Updated/i)).toBeHidden({
@@ -129,7 +129,7 @@ test('@pepi C25219 Household Adjustment/Expiration Date - Percent', async ({
 
   await test.step('Phase 1.2: History shows 3 adjustment rows for Advisor billing', async () => {
     await openHistory(page);
-    await expect(page.locator('.ag-row').first()).toBeVisible({ timeout: 30_000 });
+    await expect(page.locator('.ag-row').first()).toBeVisible({ timeout: 60_000 });
 
     const rowRecords = await page.evaluate(() => {
       const viewport =

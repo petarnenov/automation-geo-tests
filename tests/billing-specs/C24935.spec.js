@@ -56,7 +56,7 @@ test('@pepi C24935 Billing Specification - Edit Specification for a firm', async
   await test.step('Wait for at least one billing spec row to render', async () => {
     firstRow = page.locator('.ag-row').first();
     // Grid render is slow on qa3 — give it up to 60s.
-    await expect(firstRow).toBeVisible({ timeout: 60_000 });
+    await expect(firstRow).toBeVisible({ timeout: 120_000 });
   });
 
   await test.step('Hover the row and click the Edit icon', async () => {

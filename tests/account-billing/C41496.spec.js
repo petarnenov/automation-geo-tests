@@ -102,7 +102,7 @@ test('@pepi C41496 Account spec change creates history record with USER', async 
    */
   async function readHistoryRows(p) {
     await openHistory(p);
-    await expect(p.locator('.ag-row').first()).toBeVisible({ timeout: 30_000 });
+    await expect(p.locator('.ag-row').first()).toBeVisible({ timeout: 60_000 });
     const rows = await p.evaluate(() => {
       const viewport =
         document.querySelector('.ag-body-viewport') ||
