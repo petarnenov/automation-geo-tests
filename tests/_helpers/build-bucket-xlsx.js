@@ -225,4 +225,4 @@ function buildBucketXlsx(rows, opts = {}) {
   return out;
 }
 
-module.exports = { buildBucketXlsx, HEADERS };
+module.exports = { buildBucketXlsx, HEADERS, readZip };

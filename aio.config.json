@@ -1,7 +1,7 @@
 {
   "aio": {
     "projectKey": "GEO",
-    "cycleKey": "GEO-CY-8",
+    "cycleKey": "GEO-CY-142",
     "mappingFile": "pepi-aio-map.json",
     "statusNames": {
       "passed": "Passed",

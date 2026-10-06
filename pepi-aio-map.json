@@ -6,7 +6,7 @@
     "aio_id": 8195,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "Users",
     "aio_status": "Published",
     "title": "C41291 - Edit User modal (GW_Admin): pre-loaded invalid stored email keeps form invalid until corrected - ref. GEO-27429,GEO-28299"
@@ -18,7 +18,7 @@
     "aio_id": 8224,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "User Impersonation",
     "aio_status": "Published",
     "title": "C26424 - Impersonate menu visible for site 1 firms with enabled Impersonation permission(Positive) - ref. GEO-22320"
@@ -30,7 +30,7 @@
     "aio_id": 8225,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "User Impersonation",
     "aio_status": "Published",
     "title": "C26425 - Impersonate menu not visible for site 1 firms with disabled Impersonation permission(Negative) - ref. GEO-22320"
@@ -42,7 +42,7 @@
     "aio_id": 8226,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "User Impersonation",
     "aio_status": "Published",
     "title": "C26426 - Firm dropdown shows all firms for site 1 firms with enabled Impersonation permission(Positive) - ref. GEO-22320"
@@ -54,7 +54,7 @@
     "aio_id": 8227,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "User Impersonation",
     "aio_status": "Published",
     "title": "C26427 - Load user list when a firm is selected for site 1 firms with enabled Impersonation permission(Positive) - ref. GEO-22320"
@@ -66,7 +66,7 @@
     "aio_id": 8228,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "User Impersonation",
     "aio_status": "Published",
     "title": "C26436 - Switching firms reloads corresponding user list with enabled Impersonation permission(Positive) - ref. GEO-22320"
@@ -78,7 +78,7 @@
     "aio_id": 8229,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "User Impersonation",
     "aio_status": "Published",
     "title": "C26437 - Grid shows correct columns and user data with enabled Impersonation permission(Positive) - ref. GEO-22320"
@@ -90,7 +90,7 @@
     "aio_id": 8230,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "User Impersonation",
     "aio_status": "Published",
     "title": "C26438 - Grid supports sorting by Name with enabled Impersonation permission(Positive) - ref. GEO-22320"
@@ -102,7 +102,7 @@
     "aio_id": 8231,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "User Impersonation",
     "aio_status": "Published",
     "title": "C26445 - Search returns matching users with enabled Impersonation permission(Positive) - ref. GEO-22320"
@@ -114,7 +114,7 @@
     "aio_id": 8232,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "User Impersonation",
     "aio_status": "Published",
     "title": "C26446 - Search with no results with enabled Impersonation permission (Positive / Edge) - ref. GEO-22320"
@@ -126,7 +126,7 @@
     "aio_id": 8233,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "User Impersonation",
     "aio_status": "Published",
     "title": "C26447 - Search returns matching users with enabled Impersonation permission(Positive) - ref. GEO-22320"
@@ -138,7 +138,7 @@
     "aio_id": 8234,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "User Impersonation",
     "aio_status": "Published",
     "title": "C26448 - Advisor Portal button visible for employee users with enabled Impersonation permission(Positive) - ref. GEO-22320"
@@ -150,7 +150,7 @@
     "aio_id": 8235,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "User Impersonation",
     "aio_status": "Published",
     "title": "C26449 - Launch Advisor Portal impersonation with enabled Impersonation permission(Positive) - ref. GEO-22320"
@@ -162,7 +162,7 @@
     "aio_id": 8236,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "User Impersonation",
     "aio_status": "Published",
     "title": "C26450 - Terminate impersonation returns to P1 Impersonate page with enabled Impersonation permission(Positive) - ref. GEO-22320"
@@ -174,7 +174,7 @@
     "aio_id": 8237,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "User Impersonation",
     "aio_status": "Published",
     "title": "C26451 - Session & audit behaviour with enabled Impersonation permission(Positive) - ref. GEO-22320"
@@ -186,7 +186,7 @@
     "aio_id": 8238,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "User Impersonation",
     "aio_status": "Published",
     "title": "C26452 - Failure to create impersonated session with enabled Impersonation permission(Negative) - ref. GEO-22320"
@@ -198,7 +198,7 @@
     "aio_id": 8239,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "User Impersonation",
     "aio_status": "Published",
     "title": "C26453 - Check for impersonated user role/s with enabled Impersonation permission(Positive) - ref. GEO-22320"
@@ -210,7 +210,7 @@
     "aio_id": 8240,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "User Impersonation",
     "aio_status": "Published",
     "title": "C26477 - Check for impersonated user role/s is not affecting existing logic from Back Office - ref. GEO-22320"
@@ -222,7 +222,7 @@
     "aio_id": 8241,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "User Impersonation",
     "aio_status": "Published",
     "title": "C26479 - Direct URL access blocked for unauthorized user (Negative) - ref. GEO-22320"
@@ -234,7 +234,7 @@
     "aio_id": 8242,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "User Impersonation",
     "aio_status": "Published",
     "title": "C26480 - Load performance for large firms (Positive – Non‑functional) - ref. GEO-22320"
@@ -246,7 +246,7 @@
     "aio_id": 8243,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "User Impersonation",
     "aio_status": "Published",
     "title": "C26481 - Search/filter performance for large firm (Positive – Non‑functional) - ref. GEO-22320"
@@ -258,7 +258,7 @@
     "aio_id": 8244,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "User Impersonation",
     "aio_status": "Published",
     "title": "C26482 - Impersonated user from firm74 lands on the Manager portal -> Model Center - ref. GEO-21288"
@@ -270,7 +270,7 @@
     "aio_id": 8245,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "User Impersonation",
     "aio_status": "Published",
     "title": "C26483 - Impersonated user from any other firm lands on the Advisor Portal -> Dashboard - ref. GEO-21288"
@@ -282,7 +282,7 @@
     "aio_id": 8246,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "User Impersonation",
     "aio_status": "Published",
     "title": "C26597 - Advisor Portal button visible for employee users with enabled Impersonation permission from AP (Positive) - ref. GEO-22320"
@@ -294,7 +294,7 @@
     "aio_id": 8247,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "User Impersonation",
     "aio_status": "Published",
     "title": "C26596 - Launch Advisor Portal impersonation with enabled Impersonation permission from AP (Positive) - ref. GEO-22320"
@@ -306,7 +306,7 @@
     "aio_id": 8248,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "User Impersonation",
     "aio_status": "Published",
     "title": "C26598 - Terminate impersonation returns to P1 Impersonate page with enabled Impersonation permission from AP (Positive) - ref. GEO-22320"
@@ -318,7 +318,7 @@
     "aio_id": 8367,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "Bulk upload tool Unmanaged Assets",
     "aio_status": "Published",
     "title": "C25441 - Unmanaged Assets – the template can be downloaded added and uploaded via drag & drop - ref. GEO-19731"
@@ -330,7 +330,7 @@
     "aio_id": 8368,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "Bulk upload tool Unmanaged Assets",
     "aio_status": "Published",
     "title": "C25445 - Unmanaged Assets – a correctly filled template can be added and uploaded using file explorer - ref. GEO-19731"
@@ -342,7 +342,7 @@
     "aio_id": 8369,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "Bulk upload tool Unmanaged Assets",
     "aio_status": "Published",
     "title": "C25446 - Unmanaged Assets – validation is triggered when a template is incorrectly filled with invalid data - ref. GEO-19731"
@@ -354,7 +354,7 @@
     "aio_id": 8370,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "Bulk upload tool Unmanaged Assets",
     "aio_status": "Published",
     "title": "C25447 - Unmanaged Assets – validation is triggered when a template is with wrong file format - ref. GEO-19731"
@@ -366,7 +366,7 @@
     "aio_id": 8371,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "Bulk upload tool Unmanaged Assets",
     "aio_status": "Published",
     "title": "C25448 - Unmanaged Assets - Required Fields Validation - ref. GEO-19731"
@@ -378,7 +378,7 @@
     "aio_id": 8372,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "Bulk upload tool Unmanaged Assets",
     "aio_status": "Published",
     "title": "C25449 - Unmanaged Assets – Validation of Ignore Firm Values - ref. GEO-19731"
@@ -390,7 +390,7 @@
     "aio_id": 8373,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "Bulk upload tool Unmanaged Assets",
     "aio_status": "Published",
     "title": "C25450 - Unmanaged Assets – Consistency Validation for Ignore Firm per Account - ref. GEO-19731"
@@ -402,7 +402,7 @@
     "aio_id": 8374,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "Bulk upload tool Unmanaged Assets",
     "aio_status": "Published",
     "title": "C25451 - Unmanaged Assets – Validation of Action Values - ref. GEO-19731"
@@ -414,7 +414,7 @@
     "aio_id": 8375,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "Bulk upload tool Unmanaged Assets",
     "aio_status": "Published",
     "title": "C26073 - Unmanaged Assets [Update/Add action ]  verified that the user is able to create a new record using U action - ref. GEO-19731"
@@ -426,7 +426,7 @@
     "aio_id": 8376,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "Bulk upload tool Unmanaged Assets",
     "aio_status": "Published",
     "title": "C26074 - Unmanaged Assets [Delete action ] verified that the user is able to delete a record using D action - ref. GEO-19731"
@@ -438,7 +438,7 @@
     "aio_id": 8377,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "Bulk upload tool Unmanaged Assets",
     "aio_status": "Published",
     "title": "C26075 - Unmanaged Assets [Remove All action ] verified that the user is able to remove all records using RA action - ref. GEO-19731"
@@ -450,7 +450,7 @@
     "aio_id": 8378,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "Bulk upload tool Bucket Exclusions",
     "aio_status": "Published",
     "title": "C25363 - Bucket Exclusions – a correctly filled template can be added and uploaded via drag & drop - ref. GEO-15798"
@@ -462,7 +462,7 @@
     "aio_id": 8379,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "Bulk upload tool Bucket Exclusions",
     "aio_status": "Published",
     "title": "C25364 - Bucket Exclusions – Multiple templates can be added and uploaded via drag and drop - ref. GEO-15798"
@@ -474,7 +474,7 @@
     "aio_id": 8380,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "Bulk upload tool Bucket Exclusions",
     "aio_status": "Published",
     "title": "C25377 - Bucket Exclusions – a correctly filled template can be added and uploaded using file explorer - ref. GEO-15798"
@@ -486,7 +486,7 @@
     "aio_id": 8381,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "Bulk upload tool Bucket Exclusions",
     "aio_status": "Published",
     "title": "C25378 - Bucket Exclusions – validation is triggered when a template is incorrectly filled with invalid required fields - ref. GEO-15798"
@@ -498,7 +498,7 @@
     "aio_id": 8382,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "Bulk upload tool Bucket Exclusions",
     "aio_status": "Published",
     "title": "C25379 - Bucket Exclusions – validation is triggered when a template is with wrong file format - ref. GEO-15798"
@@ -510,7 +510,7 @@
     "aio_id": 8383,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "Bulk upload tool Bucket Exclusions",
     "aio_status": "Published",
     "title": "C25380 - Bucket Exclusions – validation is triggered when a template is with wrong Values - ref. GEO-15798"
@@ -522,7 +522,7 @@
     "aio_id": 8384,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "Bulk upload tool Bucket Exclusions",
     "aio_status": "Published",
     "title": "C25381 - Bucket Exclusions – the user is allowed to use all billing buckets and perform Y/N/I excluded actions. - ref. GEO-15798"
@@ -534,7 +534,7 @@
     "aio_id": 8385,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "Bulk upload tool Bucket Exclusions",
     "aio_status": "Published",
     "title": "C25789 - Bucket Exclusions - ‘Set All Accts to I = Y’ –  all accounts under hh/client inherit the setting - ref. GEO-20985"
@@ -546,7 +546,7 @@
     "aio_id": 8386,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "Bulk upload tool Bucket Exclusions",
     "aio_status": "Published",
     "title": "C25790 - Bucket Exclusions - ‘Set All Accts to I = N’ or blank  accounts retain their current settings - ref. GEO-20985"
@@ -558,7 +558,7 @@
     "aio_id": 8387,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "Bulk upload tool Bucket Exclusions",
     "aio_status": "Published",
     "title": "C25791 - Bucket Exclusions  - Verify that the ‘Set All Accts to I’ column is optional and defaults to N - ref. GEO-20985"
@@ -570,7 +570,7 @@
     "aio_id": 8388,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "Bulk upload tool Bucket Exclusions",
     "aio_status": "Published",
     "title": "C25792 - Bucket Exclusions - Verify that individual account UUID records can override the setting if included after hh/client record - ref. GEO-20985"
@@ -582,7 +582,7 @@
     "aio_id": 8389,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "Bulk upload tool Bucket Exclusions",
     "aio_status": "Published",
     "title": "C25793 - Bucket Exclusions - Verify appropriate error message for invalid combinations or missing data - ref. GEO-20985"
@@ -594,7 +594,7 @@
     "aio_id": 8481,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "Require 90 day password resets for the GeoWealth platform for GWAdmin users",
     "aio_status": "Published",
     "title": "C24974 - TC001 - Validate 90-Day Password Expiration - 0 days left - ref. GEO-14886"
@@ -606,7 +606,7 @@
     "aio_id": 8482,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "Require 90 day password resets for the GeoWealth platform for GWAdmin users",
     "aio_status": "Published",
     "title": "C26551 - Validate 90-Day Password Expiration -  logging in with a non-expired user after we tried logging in with an expired one - ref. GEO-14886"
@@ -618,7 +618,7 @@
     "aio_id": 8483,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "Require 90 day password resets for the GeoWealth platform for GWAdmin users",
     "aio_status": "Published",
     "title": "C24975 - TC002 - Validate Password Expiration Notification Start (Day 76) - ref. GEO-14886"
@@ -630,7 +630,7 @@
     "aio_id": 8484,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "Require 90 day password resets for the GeoWealth platform for GWAdmin users",
     "aio_status": "Published",
     "title": "C24976 - TC003 - Validate Notification Continues Until Expiration - ref. GEO-14886"
@@ -642,7 +642,7 @@
     "aio_id": 8485,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "Require 90 day password resets for the GeoWealth platform for GWAdmin users",
     "aio_status": "Published",
     "title": "C24977 - TC004 - Validate Forced Password Reset on Day 90 - ref. GEO-14886"
@@ -654,7 +654,7 @@
     "aio_id": 8486,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "Require 90 day password resets for the GeoWealth platform for GWAdmin users",
     "aio_status": "Published",
     "title": "C24978 - TC005 - Validate Password Change Resets Timer - ref. GEO-14886"
@@ -666,7 +666,7 @@
     "aio_id": 8487,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "Require 90 day password resets for the GeoWealth platform for GWAdmin users",
     "aio_status": "Published",
     "title": "C24979 - TC006 - Password Change Flow Validation - ref. GEO-14886"
@@ -678,7 +678,7 @@
     "aio_id": 8488,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "Require 90 day password resets for the GeoWealth platform for GWAdmin users",
     "aio_status": "Published",
     "title": "C24980 - TC007 - Validate Password History Restriction - ref. GEO-14886"
@@ -690,7 +690,7 @@
     "aio_id": 8489,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "Require 90 day password resets for the GeoWealth platform for GWAdmin users",
     "aio_status": "Published",
     "title": "C24981 - TC008 - Validate Linked Account Password Sync - ref. GEO-14886"
@@ -702,7 +702,7 @@
     "aio_id": 8490,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "Require 90 day password resets for the GeoWealth platform for GWAdmin users",
     "aio_status": "Published",
     "title": "C24982 - TC009 - Validate Notification on Login - ref. GEO-14886"
@@ -714,7 +714,7 @@
     "aio_id": 8491,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "Require 90 day password resets for the GeoWealth platform for GWAdmin users",
     "aio_status": "Published",
     "title": "C24983 - TC010 - Validate Notification Dismiss Option - ref. GEO-14886"
@@ -726,7 +726,7 @@
     "aio_id": 8492,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "Require 90 day password resets for the GeoWealth platform for GWAdmin users",
     "aio_status": "Published",
     "title": "C24984 - TC011 - Validate Notification Cannot Be Ignored on Day 90 - ref. GEO-14886"
@@ -738,7 +738,7 @@
     "aio_id": 8493,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "Require 90 day password resets for the GeoWealth platform for GWAdmin users",
     "aio_status": "Published",
     "title": "C24985 - TC012 - Validate Forgot Password Resets 90-Day Timer - ref. GEO-14886"
@@ -750,7 +750,7 @@
     "aio_id": 8494,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "Require 90 day password resets for the GeoWealth platform for GWAdmin users",
     "aio_status": "Published",
     "title": "C24986 - TC013 - Password Change - Mismatched New Passwords - ref. GEO-14886"
@@ -762,7 +762,7 @@
     "aio_id": 8495,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "Require 90 day password resets for the GeoWealth platform for GWAdmin users",
     "aio_status": "Published",
     "title": "C24987 - TC014 - Password Change - Wrong Current Password - ref. GEO-14886"
@@ -774,7 +774,7 @@
     "aio_id": 8496,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "Require 90 day password resets for the GeoWealth platform for GWAdmin users",
     "aio_status": "Published",
     "title": "C24988 - TC015 - Password Change - Password Meets All Rules - ref. GEO-14886"
@@ -786,7 +786,7 @@
     "aio_id": 8497,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "Merge prospect Platform One",
     "aio_status": "Published",
     "title": "C26057 - Platform One - Merge prospect with empty client from Platform One with prospect with all data (MERGE PROSPECT permissions enabled) site 61 - ref. GEO-13610, GEO-22638"
@@ -798,7 +798,7 @@
     "aio_id": 8498,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "Merge prospect Platform One",
     "aio_status": "Published",
     "title": "C26058 - Platform One - Merge prospect with client which has accounts and documents from Platform One with prospect with all data (MERGE PROSPECT permissions enabled) site 61 - ref. GEO-13610, GEO-22638"
@@ -810,7 +810,7 @@
     "aio_id": 8499,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "Merge prospect Platform One",
     "aio_status": "Published",
     "title": "C26059 - Platform One - Merge prospect with client which has document with same name with prospect document from Platform One with prospect (MERGE PROSPECT permissions enabled) site 61 - ref. GEO-13610, GEO-22638"
@@ -822,7 +822,7 @@
     "aio_id": 8500,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "Merge prospect Platform One",
     "aio_status": "Published",
     "title": "C26060 - Platform One - Merge prospect with empty client from Platform One with empty prospect (MERGE PROSPECT permissions disabled by default) site 61 - ref. GEO-13610"
@@ -834,7 +834,7 @@
     "aio_id": 8501,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "Merge prospect Platform One",
     "aio_status": "Published",
     "title": "C26082 - Platform One - Merge prospect with empty client from Platform One with prospect with all data (MERGE PROSPECT permissions enabled) site 1 - ref. GEO-13610, GEO-22638"
@@ -846,7 +846,7 @@
     "aio_id": 8502,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "Merge prospect Platform One",
     "aio_status": "Published",
     "title": "C26083 - Platform One - Merge prospect with client which has accounts and documents from Platform One with prospect with all data (MERGE PROSPECT permissions enabled) site 1 - ref. GEO-13610, GEO-22638"
@@ -858,7 +858,7 @@
     "aio_id": 8503,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "Merge prospect Platform One",
     "aio_status": "Published",
     "title": "C26084 - Platform One - Merge prospect with client which has document with same name with prospect document from Platform One with prospect (MERGE PROSPECT permissions enabled) site 1 - ref. GEO-13610, GEO-22638"
@@ -870,7 +870,7 @@
     "aio_id": 8504,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "Merge prospect Platform One",
     "aio_status": "Published",
     "title": "C26085 - Platform One - Merge prospect with empty client from Platform One with empty prospect (MERGE PROSPECT permissions disabled by default) site 1 - ref. GEO-13610"
@@ -882,7 +882,7 @@
     "aio_id": 8505,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "Auto-lining users",
     "aio_status": "Published",
     "title": "C26077 - Platform One - Auto-link new GW Admin user with matching Site 1 account - ref. GEO-21017"
@@ -894,7 +894,7 @@
     "aio_id": 8506,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "Auto-lining users",
     "aio_status": "Published",
     "title": "C26078 - Platform One - Auto-link after admin email update to match Site 1 account - ref. GEO-21017"
@@ -906,7 +906,7 @@
     "aio_id": 8507,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "Auto-lining users",
     "aio_status": "Published",
     "title": "C26079 - Platform One - Auto-link not allowed for non-GW Admin user to link with Site 1 account - ref. GEO-21017"
@@ -918,7 +918,7 @@
     "aio_id": 8508,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "Auto-lining users",
     "aio_status": "Published",
     "title": "C26080 - Platform One - Auto-link new GW Admin user with non matching email from Site 1 account - ref. GEO-21017"
@@ -930,7 +930,7 @@
     "aio_id": 8509,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "Auto-lining users",
     "aio_status": "Published",
     "title": "C26093 - Platform One - Auto-link new GW Admin user with Site 1 account both saved without email addresses - ref. GEO-21017"
@@ -942,7 +942,7 @@
     "aio_id": 8510,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "Auto-lining users",
     "aio_status": "Published",
     "title": "C26094 - Platform One - Auto-link new GW Admin user with empty email with Site 1 account - ref. GEO-21017"
@@ -954,7 +954,7 @@
     "aio_id": 8511,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "Auto-lining users",
     "aio_status": "Published",
     "title": "C26100 - Platform One - Auto-link new GW Admin user with matching Site 1 account Delink and Link again - ref. GEO-21017"
@@ -966,7 +966,7 @@
     "aio_id": 8688,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "UI Message in BO",
     "aio_status": "Published",
     "title": "C26490 - Verify UI message on the Open account pages for deprecation of the back office page - ref. GEO-22328"
@@ -978,7 +978,7 @@
     "aio_id": 11831,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "Edit Billing Specification",
     "aio_status": "Published",
     "title": "C24935 - Billing Specification - Edit Specification for a firm"
@@ -990,7 +990,7 @@
     "aio_id": 11837,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "Min/Max Fees",
     "aio_status": "Published",
     "title": "C25084 - Billing Spec Grid Shows Account Min/Max Columns - ref. GEO-13918"
@@ -1002,7 +1002,7 @@
     "aio_id": 11838,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "Min/Max Fees",
     "aio_status": "Published",
     "title": "C25085 - Billing Spec Upload/Download Includes Account Min/Max - ref. GEO-13918"
@@ -1014,7 +1014,7 @@
     "aio_id": 11888,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "Statement Charges UI and actions from firm 1",
     "aio_status": "Published",
     "title": "C25655 - Statement Charges - Save new grid view as default - ref. https://geowealth.atlassian.net/browse/GEO-20451"
@@ -1026,7 +1026,7 @@
     "aio_id": 11889,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "Statement Charges UI and actions from firm 1",
     "aio_status": "Published",
     "title": "C25706 - Statement Charges - default system view sort order for advisor/advisor group and start date - ref. https://geowealth.atlassian.net/browse/GEO-20451"
@@ -1038,7 +1038,7 @@
     "aio_id": 11890,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "Statement Charges UI and actions from firm 1",
     "aio_status": "Published",
     "title": "C25708 - Statement Charges - save default view with custom filters - ref. https://geowealth.atlassian.net/browse/GEO-20451"
@@ -1050,7 +1050,7 @@
     "aio_id": 11905,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "Billing Setting & History",
     "aio_status": "Published",
     "title": "C26306 - Copy a billing specification to another firm"
@@ -1062,7 +1062,7 @@
     "aio_id": 11906,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "Billing Setting & History",
     "aio_status": "Published",
     "title": "C26307 - Export multiple billing specifications using bulk Export"
@@ -1074,7 +1074,7 @@
     "aio_id": 11907,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "Billing Setting & History",
     "aio_status": "Published",
     "title": "C26308 - Bulk Delete where some specs are in use and some are not"
@@ -1086,7 +1086,7 @@
     "aio_id": 11908,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "Billing Setting & History",
     "aio_status": "Published",
     "title": "C26310 - View billing spec update history with before/after details"
@@ -1098,7 +1098,7 @@
     "aio_id": 11909,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "Billing Setting & History",
     "aio_status": "Published",
     "title": "C26381 - Verify “Create” record is shown in Unmanaged Assets history even when no subsequent update exists - ref. GEO-22458"
@@ -1110,7 +1110,7 @@
     "aio_id": 11910,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "Billing Setting & History",
     "aio_status": "Published",
     "title": "C40951 - Advisor portal - Spec Active date when creating a new household - ref. GEO-27427"
@@ -1122,7 +1122,7 @@
     "aio_id": 11911,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "Billing Setting & History",
     "aio_status": "Published",
     "title": "C41496 - Verify that after changing the billing specs for an account, there is a history record - ref. GEO-28477"
@@ -1134,7 +1134,7 @@
     "aio_id": 11914,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "Household",
     "aio_status": "Published",
     "title": "C25217 - Household - Spec Name/Active Date - Admin and Non-Admin - ref. https://geowealth.atlassian.net/browse/GEO-11480"
@@ -1146,7 +1146,7 @@
     "aio_id": 11915,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "Household",
     "aio_status": "Published",
     "title": "C25218 - Household - Exclude from billing - Admin and Non-Admin - ref. https://geowealth.atlassian.net/browse/GEO-11480"
@@ -1158,7 +1158,7 @@
     "aio_id": 11916,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "Household",
     "aio_status": "Published",
     "title": "C25219 - Household - Adjustment/Expiration Date - Percent [%] - Admin and Non-Admin - ref. https://geowealth.atlassian.net/browse/GEO-11480"
@@ -1170,7 +1170,7 @@
     "aio_id": 11917,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "Household",
     "aio_status": "Published",
     "title": "C25221 - Household - Adjustment/Expiration Date - Amount [$] - Admin and Non-Admin - ref. https://geowealth.atlassian.net/browse/GEO-11480"
@@ -1182,7 +1182,7 @@
     "aio_id": 11918,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "Client",
     "aio_status": "Published",
     "title": "C25243 - Client - Spec Name/Active Date - Admin and Non-Admin - ref. https://geowealth.atlassian.net/browse/GEO-11480"
@@ -1194,7 +1194,7 @@
     "aio_id": 11919,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "Client",
     "aio_status": "Published",
     "title": "C25244 - Client - Exclude from billing - Admin and Non-Admin - ref. https://geowealth.atlassian.net/browse/GEO-11480"
@@ -1206,7 +1206,7 @@
     "aio_id": 11920,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "Client",
     "aio_status": "Published",
     "title": "C25245 - Client - Adjustment/Expiration Date - Percent [%] - Admin and Non-Admin - ref. https://geowealth.atlassian.net/browse/GEO-11480"
@@ -1218,7 +1218,7 @@
     "aio_id": 11921,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "Client",
     "aio_status": "Published",
     "title": "C25246 - Client - Adjustment/Expiration Date - Amount [$] - Admin and Non-Admin - ref. https://geowealth.atlassian.net/browse/GEO-11480"
@@ -1230,7 +1230,7 @@
     "aio_id": 11922,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "Account",
     "aio_status": "Published",
     "title": "C25193 - Account - Billing Inception Date - Admin and Non-Admin - ref. https://geowealth.atlassian.net/browse/GEO-11480"
@@ -1242,7 +1242,7 @@
     "aio_id": 11923,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "Account",
     "aio_status": "Published",
     "title": "C25194 - Account - Billing method - Admin and Non-Admin - ref. https://geowealth.atlassian.net/browse/GEO-11480"
@@ -1254,7 +1254,7 @@
     "aio_id": 11924,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "Account",
     "aio_status": "Published",
     "title": "C25195 - Account - Account for Billing - Admin and Non-Admin - ref. https://geowealth.atlassian.net/browse/GEO-11480"
@@ -1266,7 +1266,7 @@
     "aio_id": 11925,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "Account",
     "aio_status": "Published",
     "title": "C25196 - Account - Spec Name/Active Date - Admin and Non-Admin - ref. https://geowealth.atlassian.net/browse/GEO-11480"
@@ -1278,7 +1278,7 @@
     "aio_id": 11926,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "Account",
     "aio_status": "Published",
     "title": "C25197 - Account - Exclude from billing - Admin and Non-Admin - ref. https://geowealth.atlassian.net/browse/GEO-11480"
@@ -1290,7 +1290,7 @@
     "aio_id": 11927,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "Account",
     "aio_status": "Published",
     "title": "C25198 - Account - Adjustment/Expiration Date - Percent [%] - Admin and Non-Admin - ref. https://geowealth.atlassian.net/browse/GEO-11480"
@@ -1302,7 +1302,7 @@
     "aio_id": 11928,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "Account",
     "aio_status": "Published",
     "title": "C25199 - Account - Adjustment/Expiration Date - Amount [$] - Admin and Non-Admin - ref. https://geowealth.atlassian.net/browse/GEO-11480"
@@ -1314,7 +1314,7 @@
     "aio_id": 11929,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "Account",
     "aio_status": "Published",
     "title": "C25200 - Account - Advisor Split/Inactive Date - Create -  Admin and Non-Admin - ref. https://geowealth.atlassian.net/browse/GEO-11480"
@@ -1326,7 +1326,7 @@
     "aio_id": 11930,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "Account",
     "aio_status": "Published",
     "title": "C25249 - Account - Advisor Split/Inactive Date - Update -  Admin and Non-Admin - ref. https://geowealth.atlassian.net/browse/GEO-11480"
@@ -1338,7 +1338,7 @@
     "aio_id": 11931,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "Account",
     "aio_status": "Published",
     "title": "C25201 - Account - Commission Fee- Admin and Non-Admin - ref. https://geowealth.atlassian.net/browse/GEO-11480"
@@ -1350,7 +1350,7 @@
     "aio_id": 11932,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "Account",
     "aio_status": "Published",
     "title": "C25206 - Account - Unmanaged Assets - Create - Exclude from Performance - Admin and Non-Admin - ref. https://geowealth.atlassian.net/browse/GEO-20808"
@@ -1362,7 +1362,7 @@
     "aio_id": 11933,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "Account",
     "aio_status": "Published",
     "title": "C25207 - Account - Unmanaged Assets - Update - Exclude from Performance - Admin and Non-Admin - ref. https://geowealth.atlassian.net/browse/GEO-20808"
@@ -1374,7 +1374,7 @@
     "aio_id": 11934,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "Account",
     "aio_status": "Published",
     "title": "C25208 - Account - Unmanaged Assets - Create - Exclude from Billing - Admin and Non-Admin - ref. https://geowealth.atlassian.net/browse/GEO-20808"
@@ -1386,7 +1386,7 @@
     "aio_id": 11935,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "Account",
     "aio_status": "Published",
     "title": "C25209 - Account - Unmanaged Assets - Update - Exclude from Billing - Admin and Non-Admin - ref. https://geowealth.atlassian.net/browse/GEO-20808"
@@ -1398,7 +1398,7 @@
     "aio_id": 12088,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "Open manual new accounts in Platform One",
     "aio_status": "Published",
     "title": "C24941 - Open new account trough Platform One - UI elements"
@@ -1410,7 +1410,7 @@
     "aio_id": 12089,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "Open manual new accounts in Platform One",
     "aio_status": "Published",
     "title": "C24940 - Create new account manually"
@@ -1422,7 +1422,7 @@
     "aio_id": 12090,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": false,
     "folder": "Open manual new accounts in Platform One",
     "aio_status": "Published",
     "title": "C24943 - Create new account using upload"
@@ -1434,7 +1434,7 @@
     "aio_id": 12091,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "Open manual new accounts in Platform One",
     "aio_status": "Published",
     "title": "C24996 - Create new accounts with wrong data"
@@ -1446,7 +1446,7 @@
     "aio_id": 12092,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "Open manual new accounts in Platform One",
     "aio_status": "Published",
     "title": "C25065 - Create new accounts using an upload file that contains missing data"
@@ -1458,7 +1458,7 @@
     "aio_id": 12093,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": false,
     "folder": "Open manual new accounts in Platform One",
     "aio_status": "Published",
     "title": "C24997 - Create new accounts using grid input and bulk upload functionalities"
@@ -1470,7 +1470,7 @@
     "aio_id": 12094,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "Open manual new accounts in Platform One",
     "aio_status": "Published",
     "title": "C25102 - Create accounts using different CLIENT types"
@@ -1482,7 +1482,7 @@
     "aio_id": 11901,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "Filters",
     "aio_status": "Published",
     "title": "C22296 - Billing Templates - Filters are saved per user"
@@ -1494,7 +1494,7 @@
     "aio_id": 11902,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "Filters",
     "aio_status": "Published",
     "title": "C22297 - Billing Templates - Edit Saved Filters"
@@ -1506,7 +1506,7 @@
     "aio_id": 11903,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "Filters",
     "aio_status": "Published",
     "title": "C22298 - Billing Templates - Default Filters"
@@ -1518,7 +1518,7 @@
     "aio_id": 11904,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "Filters",
     "aio_status": "Published",
     "title": "C22299 - Billing Templates - Delete Filters"
@@ -1530,7 +1530,7 @@
     "aio_id": 11897,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "Filters",
     "aio_status": "Published",
     "title": "C22317 - Statement Charges - Filter by 'End Date'"
@@ -1542,7 +1542,7 @@
     "aio_id": 11894,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "Filters",
     "aio_status": "Published",
     "title": "C22318 - Statement Charges - Filter by 'Advisor(s)'"
@@ -1554,7 +1554,7 @@
     "aio_id": 11893,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "Filters",
     "aio_status": "Published",
     "title": "C22319 - Statement Charges - Filter by 'Split Advisor(s)'"
@@ -1566,7 +1566,7 @@
     "aio_id": 11895,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "Filters",
     "aio_status": "Published",
     "title": "C22320 - Statement Charges - Filter by 'Status'"
@@ -1578,7 +1578,7 @@
     "aio_id": 11892,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "Filters",
     "aio_status": "Published",
     "title": "C22290 - Statement Charges - Filter by the  'Firm Name'  of an active firm"
@@ -1590,7 +1590,7 @@
     "aio_id": 11878,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "Statement Charges UI and actions from firm 1",
     "aio_status": "Published",
     "title": "C22307 - Statement Charges - Edit a statement charge"
@@ -1602,7 +1602,7 @@
     "aio_id": 11879,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "Statement Charges UI and actions from firm 1",
     "aio_status": "Published",
     "title": "C22308 - Statement Charges - Delete a single Statement Charge"
@@ -1614,7 +1614,7 @@
     "aio_id": 11896,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "Filters",
     "aio_status": "Published",
     "title": "C22291 - Statement Charges - Filter by 'Start Date'"
@@ -1626,7 +1626,7 @@
     "aio_id": 11873,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "Statement Charges UI and actions from firm 1",
     "aio_status": "Published",
     "title": "C22284 - Statement Charges - Grid sorting, filtering and column availability"
@@ -1638,7 +1638,7 @@
     "aio_id": 11883,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "Statement Charges UI and actions from firm 1",
     "aio_status": "Published",
     "title": "C22314 - Statement Charges - Clear Selection"
@@ -1650,7 +1650,7 @@
     "aio_id": 11880,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "Statement Charges UI and actions from firm 1",
     "aio_status": "Published",
     "title": "C22315 - Statement Charges - Bulk Delete"
@@ -1662,7 +1662,7 @@
     "aio_id": 11882,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "Statement Charges UI and actions from firm 1",
     "aio_status": "Published",
     "title": "C22316 - Statement Charges - Copy a statement charge after editing all its data"
@@ -1674,7 +1674,7 @@
     "aio_id": 11884,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "Statement Charges UI and actions from firm 1",
     "aio_status": "Published",
     "title": "C22321 - Statement Charges -  Mandatory fields in the 'Statement Charges | Create New Charge' dialog with Flat Charge Type"
@@ -1686,7 +1686,7 @@
     "aio_id": 11887,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "Statement Charges UI and actions from firm 1",
     "aio_status": "Published",
     "title": "C22322 - Statement Charges - Create a statement charge from firm 1"
@@ -1698,7 +1698,7 @@
     "aio_id": 11885,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "Statement Charges UI and actions from firm 1",
     "aio_status": "Published",
     "title": "C22323 - Statement Charges -  Mandatory fields in the 'Statement Charges | Create New Charge' dialog with AUM Charge Type"
@@ -1710,7 +1710,7 @@
     "aio_id": 11886,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "Statement Charges UI and actions from firm 1",
     "aio_status": "Published",
     "title": "C22324 - Statement Charges -  Mandatory fields in the 'Statement Charges | Create New Charge' dialog with Revenue Charge Type"
@@ -1722,7 +1722,7 @@
     "aio_id": 11881,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "Statement Charges UI and actions from firm 1",
     "aio_status": "Published",
     "title": "C22310 - Statement Charges - At least one field must have been updated to create a statement charge copy"
@@ -1734,7 +1734,7 @@
     "aio_id": 11891,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "Filters",
     "aio_status": "Published",
     "title": "C22289 - Statement Charges - Filter by the  'Firm Name'  of an inactive firm"
@@ -1746,9 +1746,585 @@
     "aio_id": 11898,
     "title_verified": true,
     "ambiguous": false,
-    "in_cycle": "",
+    "in_cycle": true,
     "folder": "Filters",
     "aio_status": "Published",
     "title": "C22293 - Billing Templates - Save Filters"
+  },
+  {
+    "testrail_case_id": "C26629",
+    "testrail_test_id": null,
+    "aio_key": "GEO-TC-8679",
+    "aio_id": 8679,
+    "title_verified": true,
+    "ambiguous": false,
+    "in_cycle": true,
+    "folder": "Access Sets",
+    "aio_status": "Published",
+    "title": "C26629 - Employee Access Set cannot be removed from the list"
+  },
+  {
+    "testrail_case_id": "C25013",
+    "testrail_test_id": null,
+    "aio_key": "GEO-TC-11707",
+    "aio_id": 11707,
+    "title_verified": true,
+    "ambiguous": false,
+    "in_cycle": true,
+    "folder": "Billing re-runs",
+    "aio_status": "Published",
+    "title": "C25013 - Partial Re-run Action Visibility for Eligible Billings - ref. https://geowealth.atlassian.net/browse/GEO-12914"
+  },
+  {
+    "testrail_case_id": "C25014",
+    "testrail_test_id": null,
+    "aio_key": "GEO-TC-11708",
+    "aio_id": 11708,
+    "title_verified": true,
+    "ambiguous": false,
+    "in_cycle": true,
+    "folder": "Billing re-runs",
+    "aio_status": "Published",
+    "title": "C25014 - Correct Firm Target Types Displayed by Billing Type - ref. https://geowealth.atlassian.net/browse/GEO-12914"
+  },
+  {
+    "testrail_case_id": "C25017",
+    "testrail_test_id": null,
+    "aio_key": "GEO-TC-11714",
+    "aio_id": 11714,
+    "title_verified": true,
+    "ambiguous": false,
+    "in_cycle": true,
+    "folder": "Billing re-runs",
+    "aio_status": "Published",
+    "title": "C25017 - Run Button Activation Upon Valid Selection - ref. https://geowealth.atlassian.net/browse/GEO-12914"
+  },
+  {
+    "testrail_case_id": "C25018",
+    "testrail_test_id": null,
+    "aio_key": "GEO-TC-11715",
+    "aio_id": 11715,
+    "title_verified": true,
+    "ambiguous": false,
+    "in_cycle": true,
+    "folder": "Billing re-runs",
+    "aio_status": "Published",
+    "title": "C25018 - Billing Status Progression - ref. https://geowealth.atlassian.net/browse/GEO-12914"
+  },
+  {
+    "testrail_case_id": "C25019",
+    "testrail_test_id": null,
+    "aio_key": "GEO-TC-11716",
+    "aio_id": 11716,
+    "title_verified": true,
+    "ambiguous": false,
+    "in_cycle": true,
+    "folder": "Billing re-runs",
+    "aio_status": "Published",
+    "title": "C25019 - Billing History Replacement for Target Accounts - ref. https://geowealth.atlassian.net/browse/GEO-12914"
+  },
+  {
+    "testrail_case_id": "C25020",
+    "testrail_test_id": null,
+    "aio_key": "GEO-TC-11717",
+    "aio_id": 11717,
+    "title_verified": true,
+    "ambiguous": false,
+    "in_cycle": true,
+    "folder": "Billing re-runs",
+    "aio_status": "Published",
+    "title": "C25020 - Totals Update for Full Billing Run - ref. https://geowealth.atlassian.net/browse/GEO-12914"
+  },
+  {
+    "testrail_case_id": "C25021",
+    "testrail_test_id": null,
+    "aio_key": "GEO-TC-11718",
+    "aio_id": 11718,
+    "title_verified": true,
+    "ambiguous": false,
+    "in_cycle": true,
+    "folder": "Billing re-runs",
+    "aio_status": "Published",
+    "title": "C25021 - Timestamp Superscript for Partial Re-run - ref. https://geowealth.atlassian.net/browse/GEO-12914"
+  },
+  {
+    "testrail_case_id": "C25023",
+    "testrail_test_id": null,
+    "aio_key": "GEO-TC-11713",
+    "aio_id": 11713,
+    "title_verified": true,
+    "ambiguous": false,
+    "in_cycle": true,
+    "folder": "Billing re-runs",
+    "aio_status": "Published",
+    "title": "C25023 - Partial Re-run Action Not Available for Ineligible Billings - ref. https://geowealth.atlassian.net/browse/GEO-12914"
+  },
+  {
+    "testrail_case_id": "C25041",
+    "testrail_test_id": null,
+    "aio_key": "GEO-TC-11710",
+    "aio_id": 11710,
+    "title_verified": true,
+    "ambiguous": false,
+    "in_cycle": true,
+    "folder": "Billing re-runs",
+    "aio_status": "Published",
+    "title": "C25041 - Correct Advisor Target Types Displayed by Billing Type - ref. https://geowealth.atlassian.net/browse/GEO-12914"
+  },
+  {
+    "testrail_case_id": "C25048",
+    "testrail_test_id": null,
+    "aio_key": "GEO-TC-11709",
+    "aio_id": 11709,
+    "title_verified": true,
+    "ambiguous": false,
+    "in_cycle": true,
+    "folder": "Billing re-runs",
+    "aio_status": "Published",
+    "title": "C25048 - Correct Household Target Types Displayed by Billing Type - ref. https://geowealth.atlassian.net/browse/GEO-12914"
+  },
+  {
+    "testrail_case_id": "C25066",
+    "testrail_test_id": null,
+    "aio_key": "GEO-TC-11711",
+    "aio_id": 11711,
+    "title_verified": true,
+    "ambiguous": false,
+    "in_cycle": true,
+    "folder": "Billing re-runs",
+    "aio_status": "Published",
+    "title": "C25066 - Correct Account Target Type Displayed by Billing Type - ref. GEO-12914"
+  },
+  {
+    "testrail_case_id": "C25067",
+    "testrail_test_id": null,
+    "aio_key": "GEO-TC-11712",
+    "aio_id": 11712,
+    "title_verified": true,
+    "ambiguous": false,
+    "in_cycle": true,
+    "folder": "Billing re-runs",
+    "aio_status": "Published",
+    "title": "C25067 - Correct Client Target Type Displayed by Billing Type - ref. https://geowealth.atlassian.net/browse/GEO-12914"
+  },
+  {
+    "testrail_case_id": "C26330",
+    "testrail_test_id": null,
+    "aio_key": "GEO-TC-11742",
+    "aio_id": 11742,
+    "title_verified": false,
+    "ambiguous": false,
+    "in_cycle": true,
+    "folder": "Billing Others",
+    "aio_status": "Published",
+    "title": "C26330 - Billing Run with no targets shows explanatory message in Progress status (run remains In Progress) - ref. GEO-22412"
+  },
+  {
+    "testrail_case_id": "C26398",
+    "testrail_test_id": null,
+    "aio_key": "GEO-TC-11746",
+    "aio_id": 11746,
+    "title_verified": false,
+    "ambiguous": false,
+    "in_cycle": false,
+    "folder": "Manager Fees",
+    "aio_status": "Published",
+    "title": "C26398 - Billing Runs UI: Post / Unpost Mgr Fees actions + Mgr Fees Posted column - ref. GEO-15882"
+  },
+  {
+    "testrail_case_id": "C35120",
+    "testrail_test_id": null,
+    "aio_key": "GEO-TC-11842",
+    "aio_id": 11842,
+    "title_verified": false,
+    "ambiguous": false,
+    "in_cycle": true,
+    "folder": "Min/Max Fees",
+    "aio_status": "Published",
+    "title": "C35120 - Regression: Verify Min/Max fee fields retain full functionality after label update - ref. GEO-26096"
+  },
+  {
+    "testrail_case_id": "C25652",
+    "testrail_test_id": null,
+    "aio_key": "GEO-TC-11575",
+    "aio_id": 11575,
+    "title_verified": true,
+    "ambiguous": false,
+    "in_cycle": true,
+    "folder": "Billing",
+    "aio_status": "Published",
+    "title": "C25652 - Statement Templates - Save new grid view as default"
+  },
+  {
+    "testrail_case_id": "C25711",
+    "testrail_test_id": null,
+    "aio_key": "GEO-TC-11576",
+    "aio_id": 11576,
+    "title_verified": true,
+    "ambiguous": false,
+    "in_cycle": true,
+    "folder": "Billing",
+    "aio_status": "Published",
+    "title": "C25711 - Statement Templates - save default view with custom filters - ref. https://geowealth.atlassian.net/browse/GEO-20452"
+  },
+  {
+    "testrail_case_id": "C25594",
+    "testrail_test_id": null,
+    "aio_key": "GEO-TC-8183",
+    "aio_id": 8183,
+    "title_verified": false,
+    "ambiguous": false,
+    "in_cycle": true,
+    "folder": "Users",
+    "aio_status": "Published",
+    "title": "C25594 - Impersonalize newly created user"
+  },
+  {
+    "testrail_case_id": "C25783",
+    "testrail_test_id": null,
+    "aio_key": "GEO-TC-8170",
+    "aio_id": 8170,
+    "title_verified": false,
+    "ambiguous": false,
+    "in_cycle": true,
+    "folder": "User Management",
+    "aio_status": "Published",
+    "title": "C25783 - Verify edit user from User Management and check in Access Sets - Modify Entity Roles association in BE - ref. GEO-21861"
+  },
+  {
+    "testrail_case_id": "C26254",
+    "testrail_test_id": null,
+    "aio_key": "GEO-TC-8107",
+    "aio_id": 8107,
+    "title_verified": false,
+    "ambiguous": false,
+    "in_cycle": true,
+    "folder": "Contact Management",
+    "aio_status": "Published",
+    "title": "C26254 - Non-deactivated Client remains logged in Advisor Portal after deactivate/Disable different Client from Platform One - ref. GEO-22184"
+  },
+  {
+    "testrail_case_id": "C26273",
+    "testrail_test_id": null,
+    "aio_key": "GEO-TC-8172",
+    "aio_id": 8172,
+    "title_verified": false,
+    "ambiguous": false,
+    "in_cycle": true,
+    "folder": "User Management",
+    "aio_status": "Published",
+    "title": "C26273 - Non-deactivated NCC Employee remains logged in Advisor Portal after deactivate/Disable different NCC from Platform One - ref. GEO-22184"
+  },
+  {
+    "testrail_case_id": "C26274",
+    "testrail_test_id": null,
+    "aio_key": "GEO-TC-8173",
+    "aio_id": 8173,
+    "title_verified": false,
+    "ambiguous": false,
+    "in_cycle": true,
+    "folder": "User Management",
+    "aio_status": "Published",
+    "title": "C26274 - Failed deactivation does not logout the NCC Employee (error handling) from Platform One - ref. GEO-22184"
+  },
+  {
+    "testrail_case_id": "C26276",
+    "testrail_test_id": null,
+    "aio_key": "GEO-TC-8175",
+    "aio_id": 8175,
+    "title_verified": false,
+    "ambiguous": false,
+    "in_cycle": true,
+    "folder": "User Management",
+    "aio_status": "Published",
+    "title": "C26276 - Direct URL access after deactivation NCC Employee from Platform One -> NCC tab Portal Activity - Deactivate NCC Employee - ref. GEO-22184"
+  },
+  {
+    "testrail_case_id": "C26277",
+    "testrail_test_id": null,
+    "aio_key": "GEO-TC-8108",
+    "aio_id": 8108,
+    "title_verified": false,
+    "ambiguous": false,
+    "in_cycle": true,
+    "folder": "Contact Management",
+    "aio_status": "Published",
+    "title": "C26277 - Failed deactivation does not logout the Client (error handling) from Platform One - ref. GEO-22184"
+  },
+  {
+    "testrail_case_id": "C26555",
+    "testrail_test_id": null,
+    "aio_key": "GEO-TC-8176",
+    "aio_id": 8176,
+    "title_verified": false,
+    "ambiguous": false,
+    "in_cycle": true,
+    "folder": "User Management",
+    "aio_status": "Published",
+    "title": "C26555 - Verify edit user from User Management and check in NCC grid in Advisor Portal + Access Set in BO were updated - ref. GEO-21728"
+  },
+  {
+    "testrail_case_id": "C41284",
+    "testrail_test_id": null,
+    "aio_key": "GEO-TC-8188",
+    "aio_id": 8188,
+    "title_verified": false,
+    "ambiguous": false,
+    "in_cycle": true,
+    "folder": "Users",
+    "aio_status": "Published",
+    "title": "C41284 - Edit User modal (GW_Admin): malformed email shows GW error and blocks Save - ref. GEO-27429,GEO-28299"
+  },
+  {
+    "testrail_case_id": "C41285",
+    "testrail_test_id": null,
+    "aio_key": "GEO-TC-8189",
+    "aio_id": 8189,
+    "title_verified": false,
+    "ambiguous": false,
+    "in_cycle": false,
+    "folder": "Users",
+    "aio_status": "Published",
+    "title": "C41285 - Edit User modal (GW_Admin): valid @geowealth.com email allows Save and shows confirmation - ref. GEO-27429,GEO-28299"
+  },
+  {
+    "testrail_case_id": "C41286",
+    "testrail_test_id": null,
+    "aio_key": "GEO-TC-8190",
+    "aio_id": 8190,
+    "title_verified": false,
+    "ambiguous": false,
+    "in_cycle": false,
+    "folder": "Users",
+    "aio_status": "Published",
+    "title": "C41286 - Edit User modal (GW_Admin): mixed-case @GeoWealth.COM is accepted - ref. GEO-27429,GEO-28299"
+  },
+  {
+    "testrail_case_id": "C41287",
+    "testrail_test_id": null,
+    "aio_key": "GEO-TC-8191",
+    "aio_id": 8191,
+    "title_verified": false,
+    "ambiguous": false,
+    "in_cycle": false,
+    "folder": "Users",
+    "aio_status": "Published",
+    "title": "C41287 - Edit User modal (GW_Admin): non-@geowealth.com email shows GW error and blocks Save - ref. GEO-27429,GEO-28299"
+  },
+  {
+    "testrail_case_id": "C41288",
+    "testrail_test_id": null,
+    "aio_key": "GEO-TC-8192",
+    "aio_id": 8192,
+    "title_verified": false,
+    "ambiguous": false,
+    "in_cycle": false,
+    "folder": "Users",
+    "aio_status": "Published",
+    "title": "C41288 - Edit User modal (GW_Admin): suffix-spoof guard rejects @evilgeowealth.com - ref. GEO-27429,GEO-28299"
+  },
+  {
+    "testrail_case_id": "C41289",
+    "testrail_test_id": null,
+    "aio_key": "GEO-TC-8193",
+    "aio_id": 8193,
+    "title_verified": false,
+    "ambiguous": false,
+    "in_cycle": false,
+    "folder": "Users",
+    "aio_status": "Published",
+    "title": "C41289 - Edit User modal (GW_Admin): suffix-spoof guard rejects @geowealth.com.evil - ref. GEO-27429,GEO-28299"
+  },
+  {
+    "testrail_case_id": "C41290",
+    "testrail_test_id": null,
+    "aio_key": "GEO-TC-8194",
+    "aio_id": 8194,
+    "title_verified": false,
+    "ambiguous": false,
+    "in_cycle": false,
+    "folder": "Users",
+    "aio_status": "Published",
+    "title": "C41290 - Edit User modal (Non-GW_Admin): domain is not restricted and existing validation behavior is unchanged - ref. GEO-27429,GEO-28299"
+  },
+  {
+    "testrail_case_id": "C41292",
+    "testrail_test_id": null,
+    "aio_key": "GEO-TC-8196",
+    "aio_id": 8196,
+    "title_verified": false,
+    "ambiguous": false,
+    "in_cycle": false,
+    "folder": "Users",
+    "aio_status": "Published",
+    "title": "C41292 - Edit User modal (GW_Admin): update email from valid → another valid @geowealth.com persists after save - ref. GEO-27429,GEO-28299"
+  },
+  {
+    "testrail_case_id": "C41293",
+    "testrail_test_id": null,
+    "aio_key": "GEO-TC-8197",
+    "aio_id": 8197,
+    "title_verified": false,
+    "ambiguous": false,
+    "in_cycle": false,
+    "folder": "Users",
+    "aio_status": "Published",
+    "title": "C41293 - Edit User modal (GW_Admin): inline error copy matches exact required text - ref. GEO-27429,GEO-28299"
+  },
+  {
+    "testrail_case_id": "C41294",
+    "testrail_test_id": null,
+    "aio_key": "GEO-TC-8198",
+    "aio_id": 8198,
+    "title_verified": false,
+    "ambiguous": false,
+    "in_cycle": false,
+    "folder": "Users",
+    "aio_status": "Published",
+    "title": "C41294 - Edit User modal (GW_Admin): invalid email blocks save (no confirmation modal) - ref. GEO-27429,GEO-28299"
+  },
+  {
+    "testrail_case_id": "C41295",
+    "testrail_test_id": null,
+    "aio_key": "GEO-TC-8199",
+    "aio_id": 8199,
+    "title_verified": false,
+    "ambiguous": false,
+    "in_cycle": false,
+    "folder": "Users",
+    "aio_status": "Published",
+    "title": "C41295 - Edit User modal (GW_Admin): update email from valid → invalid domain is blocked and not persisted - ref. GEO-27429,GEO-28299"
+  },
+  {
+    "testrail_case_id": "C18114",
+    "testrail_test_id": null,
+    "aio_key": "GEO-TC-7942",
+    "aio_id": 7942,
+    "title_verified": true,
+    "ambiguous": false,
+    "in_cycle": true,
+    "folder": "Custom CRM Fields - Navigation/Custom Field List",
+    "aio_status": "Published",
+    "title": "C18114 - Custom CRM Fields - “Custom Fields” page availability"
+  },
+  {
+    "testrail_case_id": "C17806",
+    "testrail_test_id": null,
+    "aio_key": "GEO-TC-8103",
+    "aio_id": 8103,
+    "title_verified": true,
+    "ambiguous": false,
+    "in_cycle": true,
+    "folder": "Contact Management",
+    "aio_status": "Published",
+    "title": "C17806 - Contact Management - 'Manage Contacts' page availability"
+  },
+  {
+    "testrail_case_id": "C18080",
+    "testrail_test_id": null,
+    "aio_key": "GEO-TC-8063",
+    "aio_id": 8063,
+    "title_verified": true,
+    "ambiguous": false,
+    "in_cycle": true,
+    "folder": "Edit Contacts (Contact Management)",
+    "aio_status": "Published",
+    "title": "C18080 - Reset  Editing Household"
+  },
+  {
+    "testrail_case_id": "C18083",
+    "testrail_test_id": null,
+    "aio_key": "GEO-TC-8066",
+    "aio_id": 8066,
+    "title_verified": true,
+    "ambiguous": false,
+    "in_cycle": true,
+    "folder": "Edit Contacts (Contact Management)",
+    "aio_status": "Published",
+    "title": "C18083 - Cancel Editing Hpusehold"
+  },
+  {
+    "testrail_case_id": "C18084",
+    "testrail_test_id": null,
+    "aio_key": "GEO-TC-8067",
+    "aio_id": 8067,
+    "title_verified": true,
+    "ambiguous": false,
+    "in_cycle": true,
+    "folder": "Edit Contacts (Contact Management)",
+    "aio_status": "Published",
+    "title": "C18084 - Cancel Editing Client"
+  },
+  {
+    "testrail_case_id": "C18085",
+    "testrail_test_id": null,
+    "aio_key": "GEO-TC-8068",
+    "aio_id": 8068,
+    "title_verified": true,
+    "ambiguous": false,
+    "in_cycle": true,
+    "folder": "Edit Contacts (Contact Management)",
+    "aio_status": "Published",
+    "title": "C18085 - Cancel Editing Prospect"
+  },
+  {
+    "testrail_case_id": "C35117",
+    "testrail_test_id": null,
+    "aio_key": "GEO-TC-11840",
+    "aio_id": 11840,
+    "title_verified": true,
+    "ambiguous": false,
+    "in_cycle": true,
+    "folder": "Min/Max Fees",
+    "aio_status": "Published",
+    "title": "C35117 - Verify Min/Max fee fields display \"\"per billing period\"\" hint label on Create New Billing Spec - ref. GEO-26096"
+  },
+  {
+    "testrail_case_id": "C35119",
+    "testrail_test_id": null,
+    "aio_key": "GEO-TC-11841",
+    "aio_id": 11841,
+    "title_verified": true,
+    "ambiguous": false,
+    "in_cycle": true,
+    "folder": "Min/Max Fees",
+    "aio_status": "Published",
+    "title": "C35119 - Verify Min/Max \"\"per billing period\"\" hint label is consistent across all billing bucket types - ref. GEO-26096"
+  },
+  {
+    "testrail_case_id": "C18986",
+    "testrail_test_id": null,
+    "aio_key": "GEO-TC-11791",
+    "aio_id": 11791,
+    "title_verified": true,
+    "ambiguous": false,
+    "in_cycle": true,
+    "folder": "Billing Specifications",
+    "aio_status": "Published",
+    "title": "C18986 - Billing Specification - Bulk Export"
+  },
+  {
+    "testrail_case_id": "C19066",
+    "testrail_test_id": null,
+    "aio_key": "GEO-TC-11949",
+    "aio_id": 11949,
+    "title_verified": true,
+    "ambiguous": false,
+    "in_cycle": true,
+    "folder": "Default Fee Rate Management - Platform One",
+    "aio_status": "Published",
+    "title": "C19066 - Fee Rate - Only active firms should appear in \"\"Proposal Fee Rate\"\" dropdown"
+  },
+  {
+    "testrail_case_id": "C19068",
+    "testrail_test_id": null,
+    "aio_key": "GEO-TC-11953",
+    "aio_id": 11953,
+    "title_verified": true,
+    "ambiguous": false,
+    "in_cycle": true,
+    "folder": "Default Fee Rate Management - Platform One",
+    "aio_status": "Published",
+    "title": "C19068 - Fee Rate - \"\"Requires Permission to Edit\"\" checkbox is not selected"
   }
 ]

@@ -1,147 +1,195 @@
 testrail_case_id,testrail_test_id,aio_key,aio_id,title_verified,ambiguous,in_cycle,folder,aio_status,title
-C41291,67133,GEO-TC-8195,8195,true,false,,Users,Published,"C41291 - Edit User modal (GW_Admin): pre-loaded invalid stored email keeps form invalid until corrected - ref. GEO-27429,GEO-28299"
-C26424,66026,GEO-TC-8224,8224,true,false,,User Impersonation,Published,C26424 - Impersonate menu visible for site 1 firms with enabled Impersonation permission(Positive) - ref. GEO-22320
-C26425,66027,GEO-TC-8225,8225,true,false,,User Impersonation,Published,C26425 - Impersonate menu not visible for site 1 firms with disabled Impersonation permission(Negative) - ref. GEO-22320
-C26426,66028,GEO-TC-8226,8226,true,false,,User Impersonation,Published,C26426 - Firm dropdown shows all firms for site 1 firms with enabled Impersonation permission(Positive) - ref. GEO-22320
-C26427,66029,GEO-TC-8227,8227,true,false,,User Impersonation,Published,C26427 - Load user list when a firm is selected for site 1 firms with enabled Impersonation permission(Positive) - ref. GEO-22320
-C26436,66030,GEO-TC-8228,8228,true,false,,User Impersonation,Published,C26436 - Switching firms reloads corresponding user list with enabled Impersonation permission(Positive) - ref. GEO-22320
-C26437,66031,GEO-TC-8229,8229,true,false,,User Impersonation,Published,C26437 - Grid shows correct columns and user data with enabled Impersonation permission(Positive) - ref. GEO-22320
-C26438,66032,GEO-TC-8230,8230,true,false,,User Impersonation,Published,C26438 - Grid supports sorting by Name with enabled Impersonation permission(Positive) - ref. GEO-22320
-C26445,66033,GEO-TC-8231,8231,true,false,,User Impersonation,Published,C26445 - Search returns matching users with enabled Impersonation permission(Positive) - ref. GEO-22320
-C26446,66034,GEO-TC-8232,8232,true,false,,User Impersonation,Published,C26446 - Search with no results with enabled Impersonation permission (Positive / Edge) - ref. GEO-22320
-C26447,66035,GEO-TC-8233,8233,true,false,,User Impersonation,Published,C26447 - Search returns matching users with enabled Impersonation permission(Positive) - ref. GEO-22320
-C26448,66036,GEO-TC-8234,8234,true,false,,User Impersonation,Published,C26448 - Advisor Portal button visible for employee users with enabled Impersonation permission(Positive) - ref. GEO-22320
-C26449,66037,GEO-TC-8235,8235,true,false,,User Impersonation,Published,C26449 - Launch Advisor Portal impersonation with enabled Impersonation permission(Positive) - ref. GEO-22320
-C26450,66038,GEO-TC-8236,8236,true,false,,User Impersonation,Published,C26450 - Terminate impersonation returns to P1 Impersonate page with enabled Impersonation permission(Positive) - ref. GEO-22320
-C26451,66039,GEO-TC-8237,8237,true,false,,User Impersonation,Published,C26451 - Session & audit behaviour with enabled Impersonation permission(Positive) - ref. GEO-22320
-C26452,66040,GEO-TC-8238,8238,true,false,,User Impersonation,Published,C26452 - Failure to create impersonated session with enabled Impersonation permission(Negative) - ref. GEO-22320
-C26453,66041,GEO-TC-8239,8239,true,false,,User Impersonation,Published,C26453 - Check for impersonated user role/s with enabled Impersonation permission(Positive) - ref. GEO-22320
-C26477,66042,GEO-TC-8240,8240,true,false,,User Impersonation,Published,C26477 - Check for impersonated user role/s is not affecting existing logic from Back Office - ref. GEO-22320
-C26479,66043,GEO-TC-8241,8241,true,false,,User Impersonation,Published,C26479 - Direct URL access blocked for unauthorized user (Negative) - ref. GEO-22320
-C26480,66044,GEO-TC-8242,8242,true,false,,User Impersonation,Published,C26480 - Load performance for large firms (Positive – Non‑functional) - ref. GEO-22320
-C26481,66045,GEO-TC-8243,8243,true,false,,User Impersonation,Published,C26481 - Search/filter performance for large firm (Positive – Non‑functional) - ref. GEO-22320
-C26482,66046,GEO-TC-8244,8244,true,false,,User Impersonation,Published,C26482 - Impersonated user from firm74 lands on the Manager portal -> Model Center - ref. GEO-21288
-C26483,66047,GEO-TC-8245,8245,true,false,,User Impersonation,Published,C26483 - Impersonated user from any other firm lands on the Advisor Portal -> Dashboard - ref. GEO-21288
-C26597,66068,GEO-TC-8246,8246,true,false,,User Impersonation,Published,C26597 - Advisor Portal button visible for employee users with enabled Impersonation permission from AP (Positive) - ref. GEO-22320
-C26596,66067,GEO-TC-8247,8247,true,false,,User Impersonation,Published,C26596 - Launch Advisor Portal impersonation with enabled Impersonation permission from AP (Positive) - ref. GEO-22320
-C26598,66069,GEO-TC-8248,8248,true,false,,User Impersonation,Published,C26598 - Terminate impersonation returns to P1 Impersonate page with enabled Impersonation permission from AP (Positive) - ref. GEO-22320
-C25441,65931,GEO-TC-8367,8367,true,false,,Bulk upload tool Unmanaged Assets,Published,C25441 - Unmanaged Assets – the template can be downloaded added and uploaded via drag & drop - ref. GEO-19731
-C25445,65933,GEO-TC-8368,8368,true,false,,Bulk upload tool Unmanaged Assets,Published,C25445 - Unmanaged Assets – a correctly filled template can be added and uploaded using file explorer - ref. GEO-19731
-C25446,65934,GEO-TC-8369,8369,true,false,,Bulk upload tool Unmanaged Assets,Published,C25446 - Unmanaged Assets – validation is triggered when a template is incorrectly filled with invalid data - ref. GEO-19731
-C25447,65935,GEO-TC-8370,8370,true,false,,Bulk upload tool Unmanaged Assets,Published,C25447 - Unmanaged Assets – validation is triggered when a template is with wrong file format - ref. GEO-19731
-C25448,65936,GEO-TC-8371,8371,true,false,,Bulk upload tool Unmanaged Assets,Published,C25448 - Unmanaged Assets - Required Fields Validation - ref. GEO-19731
-C25449,65937,GEO-TC-8372,8372,true,false,,Bulk upload tool Unmanaged Assets,Published,C25449 - Unmanaged Assets – Validation of Ignore Firm Values - ref. GEO-19731
-C25450,65938,GEO-TC-8373,8373,true,false,,Bulk upload tool Unmanaged Assets,Published,C25450 - Unmanaged Assets – Consistency Validation for Ignore Firm per Account - ref. GEO-19731
-C25451,65939,GEO-TC-8374,8374,true,false,,Bulk upload tool Unmanaged Assets,Published,C25451 - Unmanaged Assets – Validation of Action Values - ref. GEO-19731
-C26073,65975,GEO-TC-8375,8375,true,false,,Bulk upload tool Unmanaged Assets,Published,C26073 - Unmanaged Assets [Update/Add action ]  verified that the user is able to create a new record using U action - ref. GEO-19731
-C26074,65976,GEO-TC-8376,8376,true,false,,Bulk upload tool Unmanaged Assets,Published,C26074 - Unmanaged Assets [Delete action ] verified that the user is able to delete a record using D action - ref. GEO-19731
-C26075,65977,GEO-TC-8377,8377,true,false,,Bulk upload tool Unmanaged Assets,Published,C26075 - Unmanaged Assets [Remove All action ] verified that the user is able to remove all records using RA action - ref. GEO-19731
-C25363,65921,GEO-TC-8378,8378,true,false,,Bulk upload tool Bucket Exclusions,Published,C25363 - Bucket Exclusions – a correctly filled template can be added and uploaded via drag & drop - ref. GEO-15798
-C25364,65922,GEO-TC-8379,8379,true,false,,Bulk upload tool Bucket Exclusions,Published,C25364 - Bucket Exclusions – Multiple templates can be added and uploaded via drag and drop - ref. GEO-15798
-C25377,65923,GEO-TC-8380,8380,true,false,,Bulk upload tool Bucket Exclusions,Published,C25377 - Bucket Exclusions – a correctly filled template can be added and uploaded using file explorer - ref. GEO-15798
-C25378,65924,GEO-TC-8381,8381,true,false,,Bulk upload tool Bucket Exclusions,Published,C25378 - Bucket Exclusions – validation is triggered when a template is incorrectly filled with invalid required fields - ref. GEO-15798
-C25379,65925,GEO-TC-8382,8382,true,false,,Bulk upload tool Bucket Exclusions,Published,C25379 - Bucket Exclusions – validation is triggered when a template is with wrong file format - ref. GEO-15798
-C25380,65926,GEO-TC-8383,8383,true,false,,Bulk upload tool Bucket Exclusions,Published,C25380 - Bucket Exclusions – validation is triggered when a template is with wrong Values - ref. GEO-15798
-C25381,65927,GEO-TC-8384,8384,true,false,,Bulk upload tool Bucket Exclusions,Published,C25381 - Bucket Exclusions – the user is allowed to use all billing buckets and perform Y/N/I excluded actions. - ref. GEO-15798
-C25789,65966,GEO-TC-8385,8385,true,false,,Bulk upload tool Bucket Exclusions,Published,C25789 - Bucket Exclusions - ‘Set All Accts to I = Y’ –  all accounts under hh/client inherit the setting - ref. GEO-20985
-C25790,65967,GEO-TC-8386,8386,true,false,,Bulk upload tool Bucket Exclusions,Published,C25790 - Bucket Exclusions - ‘Set All Accts to I = N’ or blank  accounts retain their current settings - ref. GEO-20985
-C25791,65968,GEO-TC-8387,8387,true,false,,Bulk upload tool Bucket Exclusions,Published,C25791 - Bucket Exclusions  - Verify that the ‘Set All Accts to I’ column is optional and defaults to N - ref. GEO-20985
-C25792,65969,GEO-TC-8388,8388,true,false,,Bulk upload tool Bucket Exclusions,Published,C25792 - Bucket Exclusions - Verify that individual account UUID records can override the setting if included after hh/client record - ref. GEO-20985
-C25793,65970,GEO-TC-8389,8389,true,false,,Bulk upload tool Bucket Exclusions,Published,C25793 - Bucket Exclusions - Verify appropriate error message for invalid combinations or missing data - ref. GEO-20985
-C24974,65847,GEO-TC-8481,8481,true,false,,Require 90 day password resets for the GeoWealth platform for GWAdmin users,Published,C24974 - TC001 - Validate 90-Day Password Expiration - 0 days left - ref. GEO-14886
-C26551,66059,GEO-TC-8482,8482,true,false,,Require 90 day password resets for the GeoWealth platform for GWAdmin users,Published,C26551 - Validate 90-Day Password Expiration -  logging in with a non-expired user after we tried logging in with an expired one - ref. GEO-14886
-C24975,65848,GEO-TC-8483,8483,true,false,,Require 90 day password resets for the GeoWealth platform for GWAdmin users,Published,C24975 - TC002 - Validate Password Expiration Notification Start (Day 76) - ref. GEO-14886
-C24976,65849,GEO-TC-8484,8484,true,false,,Require 90 day password resets for the GeoWealth platform for GWAdmin users,Published,C24976 - TC003 - Validate Notification Continues Until Expiration - ref. GEO-14886
-C24977,65850,GEO-TC-8485,8485,true,false,,Require 90 day password resets for the GeoWealth platform for GWAdmin users,Published,C24977 - TC004 - Validate Forced Password Reset on Day 90 - ref. GEO-14886
-C24978,65851,GEO-TC-8486,8486,true,false,,Require 90 day password resets for the GeoWealth platform for GWAdmin users,Published,C24978 - TC005 - Validate Password Change Resets Timer - ref. GEO-14886
-C24979,65852,GEO-TC-8487,8487,true,false,,Require 90 day password resets for the GeoWealth platform for GWAdmin users,Published,C24979 - TC006 - Password Change Flow Validation - ref. GEO-14886
-C24980,65853,GEO-TC-8488,8488,true,false,,Require 90 day password resets for the GeoWealth platform for GWAdmin users,Published,C24980 - TC007 - Validate Password History Restriction - ref. GEO-14886
-C24981,65854,GEO-TC-8489,8489,true,false,,Require 90 day password resets for the GeoWealth platform for GWAdmin users,Published,C24981 - TC008 - Validate Linked Account Password Sync - ref. GEO-14886
-C24982,65855,GEO-TC-8490,8490,true,false,,Require 90 day password resets for the GeoWealth platform for GWAdmin users,Published,C24982 - TC009 - Validate Notification on Login - ref. GEO-14886
-C24983,65856,GEO-TC-8491,8491,true,false,,Require 90 day password resets for the GeoWealth platform for GWAdmin users,Published,C24983 - TC010 - Validate Notification Dismiss Option - ref. GEO-14886
-C24984,65857,GEO-TC-8492,8492,true,false,,Require 90 day password resets for the GeoWealth platform for GWAdmin users,Published,C24984 - TC011 - Validate Notification Cannot Be Ignored on Day 90 - ref. GEO-14886
-C24985,65858,GEO-TC-8493,8493,true,false,,Require 90 day password resets for the GeoWealth platform for GWAdmin users,Published,C24985 - TC012 - Validate Forgot Password Resets 90-Day Timer - ref. GEO-14886
-C24986,65859,GEO-TC-8494,8494,true,false,,Require 90 day password resets for the GeoWealth platform for GWAdmin users,Published,C24986 - TC013 - Password Change - Mismatched New Passwords - ref. GEO-14886
-C24987,65860,GEO-TC-8495,8495,true,false,,Require 90 day password resets for the GeoWealth platform for GWAdmin users,Published,C24987 - TC014 - Password Change - Wrong Current Password - ref. GEO-14886
-C24988,65861,GEO-TC-8496,8496,true,false,,Require 90 day password resets for the GeoWealth platform for GWAdmin users,Published,C24988 - TC015 - Password Change - Password Meets All Rules - ref. GEO-14886
-C26057,65971,GEO-TC-8497,8497,true,false,,Merge prospect Platform One,Published,"C26057 - Platform One - Merge prospect with empty client from Platform One with prospect with all data (MERGE PROSPECT permissions enabled) site 61 - ref. GEO-13610, GEO-22638"
-C26058,65972,GEO-TC-8498,8498,true,false,,Merge prospect Platform One,Published,"C26058 - Platform One - Merge prospect with client which has accounts and documents from Platform One with prospect with all data (MERGE PROSPECT permissions enabled) site 61 - ref. GEO-13610, GEO-22638"
-C26059,65973,GEO-TC-8499,8499,true,false,,Merge prospect Platform One,Published,"C26059 - Platform One - Merge prospect with client which has document with same name with prospect document from Platform One with prospect (MERGE PROSPECT permissions enabled) site 61 - ref. GEO-13610, GEO-22638"
-C26060,65974,GEO-TC-8500,8500,true,false,,Merge prospect Platform One,Published,C26060 - Platform One - Merge prospect with empty client from Platform One with empty prospect (MERGE PROSPECT permissions disabled by default) site 61 - ref. GEO-13610
-C26082,65982,GEO-TC-8501,8501,true,false,,Merge prospect Platform One,Published,"C26082 - Platform One - Merge prospect with empty client from Platform One with prospect with all data (MERGE PROSPECT permissions enabled) site 1 - ref. GEO-13610, GEO-22638"
-C26083,65983,GEO-TC-8502,8502,true,false,,Merge prospect Platform One,Published,"C26083 - Platform One - Merge prospect with client which has accounts and documents from Platform One with prospect with all data (MERGE PROSPECT permissions enabled) site 1 - ref. GEO-13610, GEO-22638"
-C26084,65984,GEO-TC-8503,8503,true,false,,Merge prospect Platform One,Published,"C26084 - Platform One - Merge prospect with client which has document with same name with prospect document from Platform One with prospect (MERGE PROSPECT permissions enabled) site 1 - ref. GEO-13610, GEO-22638"
-C26085,65985,GEO-TC-8504,8504,true,false,,Merge prospect Platform One,Published,C26085 - Platform One - Merge prospect with empty client from Platform One with empty prospect (MERGE PROSPECT permissions disabled by default) site 1 - ref. GEO-13610
-C26077,65978,GEO-TC-8505,8505,true,false,,Auto-lining users,Published,C26077 - Platform One - Auto-link new GW Admin user with matching Site 1 account - ref. GEO-21017
-C26078,65979,GEO-TC-8506,8506,true,false,,Auto-lining users,Published,C26078 - Platform One - Auto-link after admin email update to match Site 1 account - ref. GEO-21017
-C26079,65980,GEO-TC-8507,8507,true,false,,Auto-lining users,Published,C26079 - Platform One - Auto-link not allowed for non-GW Admin user to link with Site 1 account - ref. GEO-21017
-C26080,65981,GEO-TC-8508,8508,true,false,,Auto-lining users,Published,C26080 - Platform One - Auto-link new GW Admin user with non matching email from Site 1 account - ref. GEO-21017
-C26093,65986,GEO-TC-8509,8509,true,false,,Auto-lining users,Published,C26093 - Platform One - Auto-link new GW Admin user with Site 1 account both saved without email addresses - ref. GEO-21017
-C26094,65987,GEO-TC-8510,8510,true,false,,Auto-lining users,Published,C26094 - Platform One - Auto-link new GW Admin user with empty email with Site 1 account - ref. GEO-21017
-C26100,65991,GEO-TC-8511,8511,true,false,,Auto-lining users,Published,C26100 - Platform One - Auto-link new GW Admin user with matching Site 1 account Delink and Link again - ref. GEO-21017
-C26490,66048,GEO-TC-8688,8688,true,false,,UI Message in BO,Published,C26490 - Verify UI message on the Open account pages for deprecation of the back office page - ref. GEO-22328
-C24935,65843,GEO-TC-11831,11831,true,false,,Edit Billing Specification,Published,C24935 - Billing Specification - Edit Specification for a firm
-C25084,65882,GEO-TC-11837,11837,true,false,,Min/Max Fees,Published,C25084 - Billing Spec Grid Shows Account Min/Max Columns - ref. GEO-13918
-C25085,65883,GEO-TC-11838,11838,true,false,,Min/Max Fees,Published,C25085 - Billing Spec Upload/Download Includes Account Min/Max - ref. GEO-13918
-C25655,65961,GEO-TC-11888,11888,true,false,,Statement Charges UI and actions from firm 1,Published,C25655 - Statement Charges - Save new grid view as default - ref. https://geowealth.atlassian.net/browse/GEO-20451
-C25706,65962,GEO-TC-11889,11889,true,false,,Statement Charges UI and actions from firm 1,Published,C25706 - Statement Charges - default system view sort order for advisor/advisor group and start date - ref. https://geowealth.atlassian.net/browse/GEO-20451
-C25708,65963,GEO-TC-11890,11890,true,false,,Statement Charges UI and actions from firm 1,Published,C25708 - Statement Charges - save default view with custom filters - ref. https://geowealth.atlassian.net/browse/GEO-20451
-C26306,65998,GEO-TC-11905,11905,true,false,,Billing Setting & History,Published,C26306 - Copy a billing specification to another firm
-C26307,65999,GEO-TC-11906,11906,true,false,,Billing Setting & History,Published,C26307 - Export multiple billing specifications using bulk Export
-C26308,66000,GEO-TC-11907,11907,true,false,,Billing Setting & History,Published,C26308 - Bulk Delete where some specs are in use and some are not
-C26310,66001,GEO-TC-11908,11908,true,false,,Billing Setting & History,Published,C26310 - View billing spec update history with before/after details
-C26381,66018,GEO-TC-11909,11909,true,false,,Billing Setting & History,Published,C26381 - Verify “Create” record is shown in Unmanaged Assets history even when no subsequent update exists - ref. GEO-22458
-C40951,66091,GEO-TC-11910,11910,true,false,,Billing Setting & History,Published,C40951 - Advisor portal - Spec Active date when creating a new household - ref. GEO-27427
-C41496,66123,GEO-TC-11911,11911,true,false,,Billing Setting & History,Published,"C41496 - Verify that after changing the billing specs for an account, there is a history record - ref. GEO-28477"
-C25217,65900,GEO-TC-11914,11914,true,false,,Household,Published,C25217 - Household - Spec Name/Active Date - Admin and Non-Admin - ref. https://geowealth.atlassian.net/browse/GEO-11480
-C25218,65901,GEO-TC-11915,11915,true,false,,Household,Published,C25218 - Household - Exclude from billing - Admin and Non-Admin - ref. https://geowealth.atlassian.net/browse/GEO-11480
-C25219,65902,GEO-TC-11916,11916,true,false,,Household,Published,C25219 - Household - Adjustment/Expiration Date - Percent [%] - Admin and Non-Admin - ref. https://geowealth.atlassian.net/browse/GEO-11480
-C25221,65903,GEO-TC-11917,11917,true,false,,Household,Published,C25221 - Household - Adjustment/Expiration Date - Amount [$] - Admin and Non-Admin - ref. https://geowealth.atlassian.net/browse/GEO-11480
-C25243,65904,GEO-TC-11918,11918,true,false,,Client,Published,C25243 - Client - Spec Name/Active Date - Admin and Non-Admin - ref. https://geowealth.atlassian.net/browse/GEO-11480
-C25244,65905,GEO-TC-11919,11919,true,false,,Client,Published,C25244 - Client - Exclude from billing - Admin and Non-Admin - ref. https://geowealth.atlassian.net/browse/GEO-11480
-C25245,65906,GEO-TC-11920,11920,true,false,,Client,Published,C25245 - Client - Adjustment/Expiration Date - Percent [%] - Admin and Non-Admin - ref. https://geowealth.atlassian.net/browse/GEO-11480
-C25246,65907,GEO-TC-11921,11921,true,false,,Client,Published,C25246 - Client - Adjustment/Expiration Date - Amount [$] - Admin and Non-Admin - ref. https://geowealth.atlassian.net/browse/GEO-11480
-C25193,65885,GEO-TC-11922,11922,true,false,,Account,Published,C25193 - Account - Billing Inception Date - Admin and Non-Admin - ref. https://geowealth.atlassian.net/browse/GEO-11480
-C25194,65886,GEO-TC-11923,11923,true,false,,Account,Published,C25194 - Account - Billing method - Admin and Non-Admin - ref. https://geowealth.atlassian.net/browse/GEO-11480
-C25195,65887,GEO-TC-11924,11924,true,false,,Account,Published,C25195 - Account - Account for Billing - Admin and Non-Admin - ref. https://geowealth.atlassian.net/browse/GEO-11480
-C25196,65888,GEO-TC-11925,11925,true,false,,Account,Published,C25196 - Account - Spec Name/Active Date - Admin and Non-Admin - ref. https://geowealth.atlassian.net/browse/GEO-11480
-C25197,65889,GEO-TC-11926,11926,true,false,,Account,Published,C25197 - Account - Exclude from billing - Admin and Non-Admin - ref. https://geowealth.atlassian.net/browse/GEO-11480
-C25198,65890,GEO-TC-11927,11927,true,false,,Account,Published,C25198 - Account - Adjustment/Expiration Date - Percent [%] - Admin and Non-Admin - ref. https://geowealth.atlassian.net/browse/GEO-11480
-C25199,65891,GEO-TC-11928,11928,true,false,,Account,Published,C25199 - Account - Adjustment/Expiration Date - Amount [$] - Admin and Non-Admin - ref. https://geowealth.atlassian.net/browse/GEO-11480
-C25200,65892,GEO-TC-11929,11929,true,false,,Account,Published,C25200 - Account - Advisor Split/Inactive Date - Create -  Admin and Non-Admin - ref. https://geowealth.atlassian.net/browse/GEO-11480
-C25249,65908,GEO-TC-11930,11930,true,false,,Account,Published,C25249 - Account - Advisor Split/Inactive Date - Update -  Admin and Non-Admin - ref. https://geowealth.atlassian.net/browse/GEO-11480
-C25201,65893,GEO-TC-11931,11931,true,false,,Account,Published,C25201 - Account - Commission Fee- Admin and Non-Admin - ref. https://geowealth.atlassian.net/browse/GEO-11480
-C25206,65896,GEO-TC-11932,11932,true,false,,Account,Published,C25206 - Account - Unmanaged Assets - Create - Exclude from Performance - Admin and Non-Admin - ref. https://geowealth.atlassian.net/browse/GEO-20808
-C25207,65897,GEO-TC-11933,11933,true,false,,Account,Published,C25207 - Account - Unmanaged Assets - Update - Exclude from Performance - Admin and Non-Admin - ref. https://geowealth.atlassian.net/browse/GEO-20808
-C25208,65898,GEO-TC-11934,11934,true,false,,Account,Published,C25208 - Account - Unmanaged Assets - Create - Exclude from Billing - Admin and Non-Admin - ref. https://geowealth.atlassian.net/browse/GEO-20808
-C25209,65899,GEO-TC-11935,11935,true,false,,Account,Published,C25209 - Account - Unmanaged Assets - Update - Exclude from Billing - Admin and Non-Admin - ref. https://geowealth.atlassian.net/browse/GEO-20808
-C24941,65845,GEO-TC-12088,12088,true,false,,Open manual new accounts in Platform One,Published,C24941 - Open new account trough Platform One - UI elements
-C24940,65844,GEO-TC-12089,12089,true,false,,Open manual new accounts in Platform One,Published,C24940 - Create new account manually
-C24943,65846,GEO-TC-12090,12090,true,false,,Open manual new accounts in Platform One,Published,C24943 - Create new account using upload
-C24996,65862,GEO-TC-12091,12091,true,false,,Open manual new accounts in Platform One,Published,C24996 - Create new accounts with wrong data
-C25065,65874,GEO-TC-12092,12092,true,false,,Open manual new accounts in Platform One,Published,C25065 - Create new accounts using an upload file that contains missing data
-C24997,65863,GEO-TC-12093,12093,true,false,,Open manual new accounts in Platform One,Published,C24997 - Create new accounts using grid input and bulk upload functionalities
-C25102,65884,GEO-TC-12094,12094,true,false,,Open manual new accounts in Platform One,Published,C25102 - Create accounts using different CLIENT types
-C22296,,GEO-TC-11901,11901,true,false,,Filters,Published,C22296 - Billing Templates - Filters are saved per user
-C22297,,GEO-TC-11902,11902,true,false,,Filters,Published,C22297 - Billing Templates - Edit Saved Filters
-C22298,,GEO-TC-11903,11903,true,false,,Filters,Published,C22298 - Billing Templates - Default Filters
-C22299,,GEO-TC-11904,11904,true,false,,Filters,Published,C22299 - Billing Templates - Delete Filters
-C22317,,GEO-TC-11897,11897,true,false,,Filters,Published,C22317 - Statement Charges - Filter by 'End Date'
-C22318,,GEO-TC-11894,11894,true,false,,Filters,Published,C22318 - Statement Charges - Filter by 'Advisor(s)'
-C22319,,GEO-TC-11893,11893,true,false,,Filters,Published,C22319 - Statement Charges - Filter by 'Split Advisor(s)'
-C22320,,GEO-TC-11895,11895,true,false,,Filters,Published,C22320 - Statement Charges - Filter by 'Status'
-C22290,,GEO-TC-11892,11892,true,false,,Filters,Published,C22290 - Statement Charges - Filter by the  'Firm Name'  of an active firm
-C22307,,GEO-TC-11878,11878,true,false,,Statement Charges UI and actions from firm 1,Published,C22307 - Statement Charges - Edit a statement charge
-C22308,,GEO-TC-11879,11879,true,false,,Statement Charges UI and actions from firm 1,Published,C22308 - Statement Charges - Delete a single Statement Charge
-C22291,,GEO-TC-11896,11896,true,false,,Filters,Published,C22291 - Statement Charges - Filter by 'Start Date'
-C22284,,GEO-TC-11873,11873,true,false,,Statement Charges UI and actions from firm 1,Published,"C22284 - Statement Charges - Grid sorting, filtering and column availability"
-C22314,,GEO-TC-11883,11883,true,false,,Statement Charges UI and actions from firm 1,Published,C22314 - Statement Charges - Clear Selection
-C22315,,GEO-TC-11880,11880,true,false,,Statement Charges UI and actions from firm 1,Published,C22315 - Statement Charges - Bulk Delete
-C22316,,GEO-TC-11882,11882,true,false,,Statement Charges UI and actions from firm 1,Published,C22316 - Statement Charges - Copy a statement charge after editing all its data
-C22321,,GEO-TC-11884,11884,true,false,,Statement Charges UI and actions from firm 1,Published,C22321 - Statement Charges -  Mandatory fields in the 'Statement Charges | Create New Charge' dialog with Flat Charge Type
-C22322,,GEO-TC-11887,11887,true,false,,Statement Charges UI and actions from firm 1,Published,C22322 - Statement Charges - Create a statement charge from firm 1
-C22323,,GEO-TC-11885,11885,true,false,,Statement Charges UI and actions from firm 1,Published,C22323 - Statement Charges -  Mandatory fields in the 'Statement Charges | Create New Charge' dialog with AUM Charge Type
-C22324,,GEO-TC-11886,11886,true,false,,Statement Charges UI and actions from firm 1,Published,C22324 - Statement Charges -  Mandatory fields in the 'Statement Charges | Create New Charge' dialog with Revenue Charge Type
-C22310,,GEO-TC-11881,11881,true,false,,Statement Charges UI and actions from firm 1,Published,C22310 - Statement Charges - At least one field must have been updated to create a statement charge copy
-C22289,,GEO-TC-11891,11891,true,false,,Filters,Published,C22289 - Statement Charges - Filter by the  'Firm Name'  of an inactive firm
-C22293,,GEO-TC-11898,11898,true,false,,Filters,Published,C22293 - Billing Templates - Save Filters
+C41291,67133,GEO-TC-8195,8195,true,false,true,Users,Published,"C41291 - Edit User modal (GW_Admin): pre-loaded invalid stored email keeps form invalid until corrected - ref. GEO-27429,GEO-28299"
+C26424,66026,GEO-TC-8224,8224,true,false,true,User Impersonation,Published,C26424 - Impersonate menu visible for site 1 firms with enabled Impersonation permission(Positive) - ref. GEO-22320
+C26425,66027,GEO-TC-8225,8225,true,false,true,User Impersonation,Published,C26425 - Impersonate menu not visible for site 1 firms with disabled Impersonation permission(Negative) - ref. GEO-22320
+C26426,66028,GEO-TC-8226,8226,true,false,true,User Impersonation,Published,C26426 - Firm dropdown shows all firms for site 1 firms with enabled Impersonation permission(Positive) - ref. GEO-22320
+C26427,66029,GEO-TC-8227,8227,true,false,true,User Impersonation,Published,C26427 - Load user list when a firm is selected for site 1 firms with enabled Impersonation permission(Positive) - ref. GEO-22320
+C26436,66030,GEO-TC-8228,8228,true,false,true,User Impersonation,Published,C26436 - Switching firms reloads corresponding user list with enabled Impersonation permission(Positive) - ref. GEO-22320
+C26437,66031,GEO-TC-8229,8229,true,false,true,User Impersonation,Published,C26437 - Grid shows correct columns and user data with enabled Impersonation permission(Positive) - ref. GEO-22320
+C26438,66032,GEO-TC-8230,8230,true,false,true,User Impersonation,Published,C26438 - Grid supports sorting by Name with enabled Impersonation permission(Positive) - ref. GEO-22320
+C26445,66033,GEO-TC-8231,8231,true,false,true,User Impersonation,Published,C26445 - Search returns matching users with enabled Impersonation permission(Positive) - ref. GEO-22320
+C26446,66034,GEO-TC-8232,8232,true,false,true,User Impersonation,Published,C26446 - Search with no results with enabled Impersonation permission (Positive / Edge) - ref. GEO-22320
+C26447,66035,GEO-TC-8233,8233,true,false,true,User Impersonation,Published,C26447 - Search returns matching users with enabled Impersonation permission(Positive) - ref. GEO-22320
+C26448,66036,GEO-TC-8234,8234,true,false,true,User Impersonation,Published,C26448 - Advisor Portal button visible for employee users with enabled Impersonation permission(Positive) - ref. GEO-22320
+C26449,66037,GEO-TC-8235,8235,true,false,true,User Impersonation,Published,C26449 - Launch Advisor Portal impersonation with enabled Impersonation permission(Positive) - ref. GEO-22320
+C26450,66038,GEO-TC-8236,8236,true,false,true,User Impersonation,Published,C26450 - Terminate impersonation returns to P1 Impersonate page with enabled Impersonation permission(Positive) - ref. GEO-22320
+C26451,66039,GEO-TC-8237,8237,true,false,true,User Impersonation,Published,C26451 - Session & audit behaviour with enabled Impersonation permission(Positive) - ref. GEO-22320
+C26452,66040,GEO-TC-8238,8238,true,false,true,User Impersonation,Published,C26452 - Failure to create impersonated session with enabled Impersonation permission(Negative) - ref. GEO-22320
+C26453,66041,GEO-TC-8239,8239,true,false,true,User Impersonation,Published,C26453 - Check for impersonated user role/s with enabled Impersonation permission(Positive) - ref. GEO-22320
+C26477,66042,GEO-TC-8240,8240,true,false,true,User Impersonation,Published,C26477 - Check for impersonated user role/s is not affecting existing logic from Back Office - ref. GEO-22320
+C26479,66043,GEO-TC-8241,8241,true,false,true,User Impersonation,Published,C26479 - Direct URL access blocked for unauthorized user (Negative) - ref. GEO-22320
+C26480,66044,GEO-TC-8242,8242,true,false,true,User Impersonation,Published,C26480 - Load performance for large firms (Positive – Non‑functional) - ref. GEO-22320
+C26481,66045,GEO-TC-8243,8243,true,false,true,User Impersonation,Published,C26481 - Search/filter performance for large firm (Positive – Non‑functional) - ref. GEO-22320
+C26482,66046,GEO-TC-8244,8244,true,false,true,User Impersonation,Published,C26482 - Impersonated user from firm74 lands on the Manager portal -> Model Center - ref. GEO-21288
+C26483,66047,GEO-TC-8245,8245,true,false,true,User Impersonation,Published,C26483 - Impersonated user from any other firm lands on the Advisor Portal -> Dashboard - ref. GEO-21288
+C26597,66068,GEO-TC-8246,8246,true,false,true,User Impersonation,Published,C26597 - Advisor Portal button visible for employee users with enabled Impersonation permission from AP (Positive) - ref. GEO-22320
+C26596,66067,GEO-TC-8247,8247,true,false,true,User Impersonation,Published,C26596 - Launch Advisor Portal impersonation with enabled Impersonation permission from AP (Positive) - ref. GEO-22320
+C26598,66069,GEO-TC-8248,8248,true,false,true,User Impersonation,Published,C26598 - Terminate impersonation returns to P1 Impersonate page with enabled Impersonation permission from AP (Positive) - ref. GEO-22320
+C25441,65931,GEO-TC-8367,8367,true,false,true,Bulk upload tool Unmanaged Assets,Published,C25441 - Unmanaged Assets – the template can be downloaded added and uploaded via drag & drop - ref. GEO-19731
+C25445,65933,GEO-TC-8368,8368,true,false,true,Bulk upload tool Unmanaged Assets,Published,C25445 - Unmanaged Assets – a correctly filled template can be added and uploaded using file explorer - ref. GEO-19731
+C25446,65934,GEO-TC-8369,8369,true,false,true,Bulk upload tool Unmanaged Assets,Published,C25446 - Unmanaged Assets – validation is triggered when a template is incorrectly filled with invalid data - ref. GEO-19731
+C25447,65935,GEO-TC-8370,8370,true,false,true,Bulk upload tool Unmanaged Assets,Published,C25447 - Unmanaged Assets – validation is triggered when a template is with wrong file format - ref. GEO-19731
+C25448,65936,GEO-TC-8371,8371,true,false,true,Bulk upload tool Unmanaged Assets,Published,C25448 - Unmanaged Assets - Required Fields Validation - ref. GEO-19731
+C25449,65937,GEO-TC-8372,8372,true,false,true,Bulk upload tool Unmanaged Assets,Published,C25449 - Unmanaged Assets – Validation of Ignore Firm Values - ref. GEO-19731
+C25450,65938,GEO-TC-8373,8373,true,false,true,Bulk upload tool Unmanaged Assets,Published,C25450 - Unmanaged Assets – Consistency Validation for Ignore Firm per Account - ref. GEO-19731
+C25451,65939,GEO-TC-8374,8374,true,false,true,Bulk upload tool Unmanaged Assets,Published,C25451 - Unmanaged Assets – Validation of Action Values - ref. GEO-19731
+C26073,65975,GEO-TC-8375,8375,true,false,true,Bulk upload tool Unmanaged Assets,Published,C26073 - Unmanaged Assets [Update/Add action ]  verified that the user is able to create a new record using U action - ref. GEO-19731
+C26074,65976,GEO-TC-8376,8376,true,false,true,Bulk upload tool Unmanaged Assets,Published,C26074 - Unmanaged Assets [Delete action ] verified that the user is able to delete a record using D action - ref. GEO-19731
+C26075,65977,GEO-TC-8377,8377,true,false,true,Bulk upload tool Unmanaged Assets,Published,C26075 - Unmanaged Assets [Remove All action ] verified that the user is able to remove all records using RA action - ref. GEO-19731
+C25363,65921,GEO-TC-8378,8378,true,false,true,Bulk upload tool Bucket Exclusions,Published,C25363 - Bucket Exclusions – a correctly filled template can be added and uploaded via drag & drop - ref. GEO-15798
+C25364,65922,GEO-TC-8379,8379,true,false,true,Bulk upload tool Bucket Exclusions,Published,C25364 - Bucket Exclusions – Multiple templates can be added and uploaded via drag and drop - ref. GEO-15798
+C25377,65923,GEO-TC-8380,8380,true,false,true,Bulk upload tool Bucket Exclusions,Published,C25377 - Bucket Exclusions – a correctly filled template can be added and uploaded using file explorer - ref. GEO-15798
+C25378,65924,GEO-TC-8381,8381,true,false,true,Bulk upload tool Bucket Exclusions,Published,C25378 - Bucket Exclusions – validation is triggered when a template is incorrectly filled with invalid required fields - ref. GEO-15798
+C25379,65925,GEO-TC-8382,8382,true,false,true,Bulk upload tool Bucket Exclusions,Published,C25379 - Bucket Exclusions – validation is triggered when a template is with wrong file format - ref. GEO-15798
+C25380,65926,GEO-TC-8383,8383,true,false,true,Bulk upload tool Bucket Exclusions,Published,C25380 - Bucket Exclusions – validation is triggered when a template is with wrong Values - ref. GEO-15798
+C25381,65927,GEO-TC-8384,8384,true,false,true,Bulk upload tool Bucket Exclusions,Published,C25381 - Bucket Exclusions – the user is allowed to use all billing buckets and perform Y/N/I excluded actions. - ref. GEO-15798
+C25789,65966,GEO-TC-8385,8385,true,false,true,Bulk upload tool Bucket Exclusions,Published,C25789 - Bucket Exclusions - ‘Set All Accts to I = Y’ –  all accounts under hh/client inherit the setting - ref. GEO-20985
+C25790,65967,GEO-TC-8386,8386,true,false,true,Bulk upload tool Bucket Exclusions,Published,C25790 - Bucket Exclusions - ‘Set All Accts to I = N’ or blank  accounts retain their current settings - ref. GEO-20985
+C25791,65968,GEO-TC-8387,8387,true,false,true,Bulk upload tool Bucket Exclusions,Published,C25791 - Bucket Exclusions  - Verify that the ‘Set All Accts to I’ column is optional and defaults to N - ref. GEO-20985
+C25792,65969,GEO-TC-8388,8388,true,false,true,Bulk upload tool Bucket Exclusions,Published,C25792 - Bucket Exclusions - Verify that individual account UUID records can override the setting if included after hh/client record - ref. GEO-20985
+C25793,65970,GEO-TC-8389,8389,true,false,true,Bulk upload tool Bucket Exclusions,Published,C25793 - Bucket Exclusions - Verify appropriate error message for invalid combinations or missing data - ref. GEO-20985
+C24974,65847,GEO-TC-8481,8481,true,false,true,Require 90 day password resets for the GeoWealth platform for GWAdmin users,Published,C24974 - TC001 - Validate 90-Day Password Expiration - 0 days left - ref. GEO-14886
+C26551,66059,GEO-TC-8482,8482,true,false,true,Require 90 day password resets for the GeoWealth platform for GWAdmin users,Published,C26551 - Validate 90-Day Password Expiration -  logging in with a non-expired user after we tried logging in with an expired one - ref. GEO-14886
+C24975,65848,GEO-TC-8483,8483,true,false,true,Require 90 day password resets for the GeoWealth platform for GWAdmin users,Published,C24975 - TC002 - Validate Password Expiration Notification Start (Day 76) - ref. GEO-14886
+C24976,65849,GEO-TC-8484,8484,true,false,true,Require 90 day password resets for the GeoWealth platform for GWAdmin users,Published,C24976 - TC003 - Validate Notification Continues Until Expiration - ref. GEO-14886
+C24977,65850,GEO-TC-8485,8485,true,false,true,Require 90 day password resets for the GeoWealth platform for GWAdmin users,Published,C24977 - TC004 - Validate Forced Password Reset on Day 90 - ref. GEO-14886
+C24978,65851,GEO-TC-8486,8486,true,false,true,Require 90 day password resets for the GeoWealth platform for GWAdmin users,Published,C24978 - TC005 - Validate Password Change Resets Timer - ref. GEO-14886
+C24979,65852,GEO-TC-8487,8487,true,false,true,Require 90 day password resets for the GeoWealth platform for GWAdmin users,Published,C24979 - TC006 - Password Change Flow Validation - ref. GEO-14886
+C24980,65853,GEO-TC-8488,8488,true,false,true,Require 90 day password resets for the GeoWealth platform for GWAdmin users,Published,C24980 - TC007 - Validate Password History Restriction - ref. GEO-14886
+C24981,65854,GEO-TC-8489,8489,true,false,true,Require 90 day password resets for the GeoWealth platform for GWAdmin users,Published,C24981 - TC008 - Validate Linked Account Password Sync - ref. GEO-14886
+C24982,65855,GEO-TC-8490,8490,true,false,true,Require 90 day password resets for the GeoWealth platform for GWAdmin users,Published,C24982 - TC009 - Validate Notification on Login - ref. GEO-14886
+C24983,65856,GEO-TC-8491,8491,true,false,true,Require 90 day password resets for the GeoWealth platform for GWAdmin users,Published,C24983 - TC010 - Validate Notification Dismiss Option - ref. GEO-14886
+C24984,65857,GEO-TC-8492,8492,true,false,true,Require 90 day password resets for the GeoWealth platform for GWAdmin users,Published,C24984 - TC011 - Validate Notification Cannot Be Ignored on Day 90 - ref. GEO-14886
+C24985,65858,GEO-TC-8493,8493,true,false,true,Require 90 day password resets for the GeoWealth platform for GWAdmin users,Published,C24985 - TC012 - Validate Forgot Password Resets 90-Day Timer - ref. GEO-14886
+C24986,65859,GEO-TC-8494,8494,true,false,true,Require 90 day password resets for the GeoWealth platform for GWAdmin users,Published,C24986 - TC013 - Password Change - Mismatched New Passwords - ref. GEO-14886
+C24987,65860,GEO-TC-8495,8495,true,false,true,Require 90 day password resets for the GeoWealth platform for GWAdmin users,Published,C24987 - TC014 - Password Change - Wrong Current Password - ref. GEO-14886
+C24988,65861,GEO-TC-8496,8496,true,false,true,Require 90 day password resets for the GeoWealth platform for GWAdmin users,Published,C24988 - TC015 - Password Change - Password Meets All Rules - ref. GEO-14886
+C26057,65971,GEO-TC-8497,8497,true,false,true,Merge prospect Platform One,Published,"C26057 - Platform One - Merge prospect with empty client from Platform One with prospect with all data (MERGE PROSPECT permissions enabled) site 61 - ref. GEO-13610, GEO-22638"
+C26058,65972,GEO-TC-8498,8498,true,false,true,Merge prospect Platform One,Published,"C26058 - Platform One - Merge prospect with client which has accounts and documents from Platform One with prospect with all data (MERGE PROSPECT permissions enabled) site 61 - ref. GEO-13610, GEO-22638"
+C26059,65973,GEO-TC-8499,8499,true,false,true,Merge prospect Platform One,Published,"C26059 - Platform One - Merge prospect with client which has document with same name with prospect document from Platform One with prospect (MERGE PROSPECT permissions enabled) site 61 - ref. GEO-13610, GEO-22638"
+C26060,65974,GEO-TC-8500,8500,true,false,true,Merge prospect Platform One,Published,C26060 - Platform One - Merge prospect with empty client from Platform One with empty prospect (MERGE PROSPECT permissions disabled by default) site 61 - ref. GEO-13610
+C26082,65982,GEO-TC-8501,8501,true,false,true,Merge prospect Platform One,Published,"C26082 - Platform One - Merge prospect with empty client from Platform One with prospect with all data (MERGE PROSPECT permissions enabled) site 1 - ref. GEO-13610, GEO-22638"
+C26083,65983,GEO-TC-8502,8502,true,false,true,Merge prospect Platform One,Published,"C26083 - Platform One - Merge prospect with client which has accounts and documents from Platform One with prospect with all data (MERGE PROSPECT permissions enabled) site 1 - ref. GEO-13610, GEO-22638"
+C26084,65984,GEO-TC-8503,8503,true,false,true,Merge prospect Platform One,Published,"C26084 - Platform One - Merge prospect with client which has document with same name with prospect document from Platform One with prospect (MERGE PROSPECT permissions enabled) site 1 - ref. GEO-13610, GEO-22638"
+C26085,65985,GEO-TC-8504,8504,true,false,true,Merge prospect Platform One,Published,C26085 - Platform One - Merge prospect with empty client from Platform One with empty prospect (MERGE PROSPECT permissions disabled by default) site 1 - ref. GEO-13610
+C26077,65978,GEO-TC-8505,8505,true,false,true,Auto-lining users,Published,C26077 - Platform One - Auto-link new GW Admin user with matching Site 1 account - ref. GEO-21017
+C26078,65979,GEO-TC-8506,8506,true,false,true,Auto-lining users,Published,C26078 - Platform One - Auto-link after admin email update to match Site 1 account - ref. GEO-21017
+C26079,65980,GEO-TC-8507,8507,true,false,true,Auto-lining users,Published,C26079 - Platform One - Auto-link not allowed for non-GW Admin user to link with Site 1 account - ref. GEO-21017
+C26080,65981,GEO-TC-8508,8508,true,false,true,Auto-lining users,Published,C26080 - Platform One - Auto-link new GW Admin user with non matching email from Site 1 account - ref. GEO-21017
+C26093,65986,GEO-TC-8509,8509,true,false,true,Auto-lining users,Published,C26093 - Platform One - Auto-link new GW Admin user with Site 1 account both saved without email addresses - ref. GEO-21017
+C26094,65987,GEO-TC-8510,8510,true,false,true,Auto-lining users,Published,C26094 - Platform One - Auto-link new GW Admin user with empty email with Site 1 account - ref. GEO-21017
+C26100,65991,GEO-TC-8511,8511,true,false,true,Auto-lining users,Published,C26100 - Platform One - Auto-link new GW Admin user with matching Site 1 account Delink and Link again - ref. GEO-21017
+C26490,66048,GEO-TC-8688,8688,true,false,true,UI Message in BO,Published,C26490 - Verify UI message on the Open account pages for deprecation of the back office page - ref. GEO-22328
+C24935,65843,GEO-TC-11831,11831,true,false,true,Edit Billing Specification,Published,C24935 - Billing Specification - Edit Specification for a firm
+C25084,65882,GEO-TC-11837,11837,true,false,true,Min/Max Fees,Published,C25084 - Billing Spec Grid Shows Account Min/Max Columns - ref. GEO-13918
+C25085,65883,GEO-TC-11838,11838,true,false,true,Min/Max Fees,Published,C25085 - Billing Spec Upload/Download Includes Account Min/Max - ref. GEO-13918
+C25655,65961,GEO-TC-11888,11888,true,false,true,Statement Charges UI and actions from firm 1,Published,C25655 - Statement Charges - Save new grid view as default - ref. https://geowealth.atlassian.net/browse/GEO-20451
+C25706,65962,GEO-TC-11889,11889,true,false,true,Statement Charges UI and actions from firm 1,Published,C25706 - Statement Charges - default system view sort order for advisor/advisor group and start date - ref. https://geowealth.atlassian.net/browse/GEO-20451
+C25708,65963,GEO-TC-11890,11890,true,false,true,Statement Charges UI and actions from firm 1,Published,C25708 - Statement Charges - save default view with custom filters - ref. https://geowealth.atlassian.net/browse/GEO-20451
+C26306,65998,GEO-TC-11905,11905,true,false,true,Billing Setting & History,Published,C26306 - Copy a billing specification to another firm
+C26307,65999,GEO-TC-11906,11906,true,false,true,Billing Setting & History,Published,C26307 - Export multiple billing specifications using bulk Export
+C26308,66000,GEO-TC-11907,11907,true,false,true,Billing Setting & History,Published,C26308 - Bulk Delete where some specs are in use and some are not
+C26310,66001,GEO-TC-11908,11908,true,false,true,Billing Setting & History,Published,C26310 - View billing spec update history with before/after details
+C26381,66018,GEO-TC-11909,11909,true,false,true,Billing Setting & History,Published,C26381 - Verify “Create” record is shown in Unmanaged Assets history even when no subsequent update exists - ref. GEO-22458
+C40951,66091,GEO-TC-11910,11910,true,false,true,Billing Setting & History,Published,C40951 - Advisor portal - Spec Active date when creating a new household - ref. GEO-27427
+C41496,66123,GEO-TC-11911,11911,true,false,true,Billing Setting & History,Published,"C41496 - Verify that after changing the billing specs for an account, there is a history record - ref. GEO-28477"
+C25217,65900,GEO-TC-11914,11914,true,false,true,Household,Published,C25217 - Household - Spec Name/Active Date - Admin and Non-Admin - ref. https://geowealth.atlassian.net/browse/GEO-11480
+C25218,65901,GEO-TC-11915,11915,true,false,true,Household,Published,C25218 - Household - Exclude from billing - Admin and Non-Admin - ref. https://geowealth.atlassian.net/browse/GEO-11480
+C25219,65902,GEO-TC-11916,11916,true,false,true,Household,Published,C25219 - Household - Adjustment/Expiration Date - Percent [%] - Admin and Non-Admin - ref. https://geowealth.atlassian.net/browse/GEO-11480
+C25221,65903,GEO-TC-11917,11917,true,false,true,Household,Published,C25221 - Household - Adjustment/Expiration Date - Amount [$] - Admin and Non-Admin - ref. https://geowealth.atlassian.net/browse/GEO-11480
+C25243,65904,GEO-TC-11918,11918,true,false,true,Client,Published,C25243 - Client - Spec Name/Active Date - Admin and Non-Admin - ref. https://geowealth.atlassian.net/browse/GEO-11480
+C25244,65905,GEO-TC-11919,11919,true,false,true,Client,Published,C25244 - Client - Exclude from billing - Admin and Non-Admin - ref. https://geowealth.atlassian.net/browse/GEO-11480
+C25245,65906,GEO-TC-11920,11920,true,false,true,Client,Published,C25245 - Client - Adjustment/Expiration Date - Percent [%] - Admin and Non-Admin - ref. https://geowealth.atlassian.net/browse/GEO-11480
+C25246,65907,GEO-TC-11921,11921,true,false,true,Client,Published,C25246 - Client - Adjustment/Expiration Date - Amount [$] - Admin and Non-Admin - ref. https://geowealth.atlassian.net/browse/GEO-11480
+C25193,65885,GEO-TC-11922,11922,true,false,true,Account,Published,C25193 - Account - Billing Inception Date - Admin and Non-Admin - ref. https://geowealth.atlassian.net/browse/GEO-11480
+C25194,65886,GEO-TC-11923,11923,true,false,true,Account,Published,C25194 - Account - Billing method - Admin and Non-Admin - ref. https://geowealth.atlassian.net/browse/GEO-11480
+C25195,65887,GEO-TC-11924,11924,true,false,true,Account,Published,C25195 - Account - Account for Billing - Admin and Non-Admin - ref. https://geowealth.atlassian.net/browse/GEO-11480
+C25196,65888,GEO-TC-11925,11925,true,false,true,Account,Published,C25196 - Account - Spec Name/Active Date - Admin and Non-Admin - ref. https://geowealth.atlassian.net/browse/GEO-11480
+C25197,65889,GEO-TC-11926,11926,true,false,true,Account,Published,C25197 - Account - Exclude from billing - Admin and Non-Admin - ref. https://geowealth.atlassian.net/browse/GEO-11480
+C25198,65890,GEO-TC-11927,11927,true,false,true,Account,Published,C25198 - Account - Adjustment/Expiration Date - Percent [%] - Admin and Non-Admin - ref. https://geowealth.atlassian.net/browse/GEO-11480
+C25199,65891,GEO-TC-11928,11928,true,false,true,Account,Published,C25199 - Account - Adjustment/Expiration Date - Amount [$] - Admin and Non-Admin - ref. https://geowealth.atlassian.net/browse/GEO-11480
+C25200,65892,GEO-TC-11929,11929,true,false,true,Account,Published,C25200 - Account - Advisor Split/Inactive Date - Create -  Admin and Non-Admin - ref. https://geowealth.atlassian.net/browse/GEO-11480
+C25249,65908,GEO-TC-11930,11930,true,false,true,Account,Published,C25249 - Account - Advisor Split/Inactive Date - Update -  Admin and Non-Admin - ref. https://geowealth.atlassian.net/browse/GEO-11480
+C25201,65893,GEO-TC-11931,11931,true,false,true,Account,Published,C25201 - Account - Commission Fee- Admin and Non-Admin - ref. https://geowealth.atlassian.net/browse/GEO-11480
+C25206,65896,GEO-TC-11932,11932,true,false,true,Account,Published,C25206 - Account - Unmanaged Assets - Create - Exclude from Performance - Admin and Non-Admin - ref. https://geowealth.atlassian.net/browse/GEO-20808
+C25207,65897,GEO-TC-11933,11933,true,false,true,Account,Published,C25207 - Account - Unmanaged Assets - Update - Exclude from Performance - Admin and Non-Admin - ref. https://geowealth.atlassian.net/browse/GEO-20808
+C25208,65898,GEO-TC-11934,11934,true,false,true,Account,Published,C25208 - Account - Unmanaged Assets - Create - Exclude from Billing - Admin and Non-Admin - ref. https://geowealth.atlassian.net/browse/GEO-20808
+C25209,65899,GEO-TC-11935,11935,true,false,true,Account,Published,C25209 - Account - Unmanaged Assets - Update - Exclude from Billing - Admin and Non-Admin - ref. https://geowealth.atlassian.net/browse/GEO-20808
+C24941,65845,GEO-TC-12088,12088,true,false,true,Open manual new accounts in Platform One,Published,C24941 - Open new account trough Platform One - UI elements
+C24940,65844,GEO-TC-12089,12089,true,false,true,Open manual new accounts in Platform One,Published,C24940 - Create new account manually
+C24943,65846,GEO-TC-12090,12090,true,false,false,Open manual new accounts in Platform One,Published,C24943 - Create new account using upload
+C24996,65862,GEO-TC-12091,12091,true,false,true,Open manual new accounts in Platform One,Published,C24996 - Create new accounts with wrong data
+C25065,65874,GEO-TC-12092,12092,true,false,true,Open manual new accounts in Platform One,Published,C25065 - Create new accounts using an upload file that contains missing data
+C24997,65863,GEO-TC-12093,12093,true,false,false,Open manual new accounts in Platform One,Published,C24997 - Create new accounts using grid input and bulk upload functionalities
+C25102,65884,GEO-TC-12094,12094,true,false,true,Open manual new accounts in Platform One,Published,C25102 - Create accounts using different CLIENT types
+C22296,,GEO-TC-11901,11901,true,false,true,Filters,Published,C22296 - Billing Templates - Filters are saved per user
+C22297,,GEO-TC-11902,11902,true,false,true,Filters,Published,C22297 - Billing Templates - Edit Saved Filters
+C22298,,GEO-TC-11903,11903,true,false,true,Filters,Published,C22298 - Billing Templates - Default Filters
+C22299,,GEO-TC-11904,11904,true,false,true,Filters,Published,C22299 - Billing Templates - Delete Filters
+C22317,,GEO-TC-11897,11897,true,false,true,Filters,Published,C22317 - Statement Charges - Filter by 'End Date'
+C22318,,GEO-TC-11894,11894,true,false,true,Filters,Published,C22318 - Statement Charges - Filter by 'Advisor(s)'
+C22319,,GEO-TC-11893,11893,true,false,true,Filters,Published,C22319 - Statement Charges - Filter by 'Split Advisor(s)'
+C22320,,GEO-TC-11895,11895,true,false,true,Filters,Published,C22320 - Statement Charges - Filter by 'Status'
+C22290,,GEO-TC-11892,11892,true,false,true,Filters,Published,C22290 - Statement Charges - Filter by the  'Firm Name'  of an active firm
+C22307,,GEO-TC-11878,11878,true,false,true,Statement Charges UI and actions from firm 1,Published,C22307 - Statement Charges - Edit a statement charge
+C22308,,GEO-TC-11879,11879,true,false,true,Statement Charges UI and actions from firm 1,Published,C22308 - Statement Charges - Delete a single Statement Charge
+C22291,,GEO-TC-11896,11896,true,false,true,Filters,Published,C22291 - Statement Charges - Filter by 'Start Date'
+C22284,,GEO-TC-11873,11873,true,false,true,Statement Charges UI and actions from firm 1,Published,"C22284 - Statement Charges - Grid sorting, filtering and column availability"
+C22314,,GEO-TC-11883,11883,true,false,true,Statement Charges UI and actions from firm 1,Published,C22314 - Statement Charges - Clear Selection
+C22315,,GEO-TC-11880,11880,true,false,true,Statement Charges UI and actions from firm 1,Published,C22315 - Statement Charges - Bulk Delete
+C22316,,GEO-TC-11882,11882,true,false,true,Statement Charges UI and actions from firm 1,Published,C22316 - Statement Charges - Copy a statement charge after editing all its data
+C22321,,GEO-TC-11884,11884,true,false,true,Statement Charges UI and actions from firm 1,Published,C22321 - Statement Charges -  Mandatory fields in the 'Statement Charges | Create New Charge' dialog with Flat Charge Type
+C22322,,GEO-TC-11887,11887,true,false,true,Statement Charges UI and actions from firm 1,Published,C22322 - Statement Charges - Create a statement charge from firm 1
+C22323,,GEO-TC-11885,11885,true,false,true,Statement Charges UI and actions from firm 1,Published,C22323 - Statement Charges -  Mandatory fields in the 'Statement Charges | Create New Charge' dialog with AUM Charge Type
+C22324,,GEO-TC-11886,11886,true,false,true,Statement Charges UI and actions from firm 1,Published,C22324 - Statement Charges -  Mandatory fields in the 'Statement Charges | Create New Charge' dialog with Revenue Charge Type
+C22310,,GEO-TC-11881,11881,true,false,true,Statement Charges UI and actions from firm 1,Published,C22310 - Statement Charges - At least one field must have been updated to create a statement charge copy
+C22289,,GEO-TC-11891,11891,true,false,true,Filters,Published,C22289 - Statement Charges - Filter by the  'Firm Name'  of an inactive firm
+C22293,,GEO-TC-11898,11898,true,false,true,Filters,Published,C22293 - Billing Templates - Save Filters
+C26629,,GEO-TC-8679,8679,true,false,true,Access Sets,Published,C26629 - Employee Access Set cannot be removed from the list
+C25013,,GEO-TC-11707,11707,true,false,true,Billing re-runs,Published,C25013 - Partial Re-run Action Visibility for Eligible Billings - ref. https://geowealth.atlassian.net/browse/GEO-12914
+C25014,,GEO-TC-11708,11708,true,false,true,Billing re-runs,Published,C25014 - Correct Firm Target Types Displayed by Billing Type - ref. https://geowealth.atlassian.net/browse/GEO-12914
+C25017,,GEO-TC-11714,11714,true,false,true,Billing re-runs,Published,C25017 - Run Button Activation Upon Valid Selection - ref. https://geowealth.atlassian.net/browse/GEO-12914
+C25018,,GEO-TC-11715,11715,true,false,true,Billing re-runs,Published,C25018 - Billing Status Progression - ref. https://geowealth.atlassian.net/browse/GEO-12914
+C25019,,GEO-TC-11716,11716,true,false,true,Billing re-runs,Published,C25019 - Billing History Replacement for Target Accounts - ref. https://geowealth.atlassian.net/browse/GEO-12914
+C25020,,GEO-TC-11717,11717,true,false,true,Billing re-runs,Published,C25020 - Totals Update for Full Billing Run - ref. https://geowealth.atlassian.net/browse/GEO-12914
+C25021,,GEO-TC-11718,11718,true,false,true,Billing re-runs,Published,C25021 - Timestamp Superscript for Partial Re-run - ref. https://geowealth.atlassian.net/browse/GEO-12914
+C25023,,GEO-TC-11713,11713,true,false,true,Billing re-runs,Published,C25023 - Partial Re-run Action Not Available for Ineligible Billings - ref. https://geowealth.atlassian.net/browse/GEO-12914
+C25041,,GEO-TC-11710,11710,true,false,true,Billing re-runs,Published,C25041 - Correct Advisor Target Types Displayed by Billing Type - ref. https://geowealth.atlassian.net/browse/GEO-12914
+C25048,,GEO-TC-11709,11709,true,false,true,Billing re-runs,Published,C25048 - Correct Household Target Types Displayed by Billing Type - ref. https://geowealth.atlassian.net/browse/GEO-12914
+C25066,,GEO-TC-11711,11711,true,false,true,Billing re-runs,Published,C25066 - Correct Account Target Type Displayed by Billing Type - ref. GEO-12914
+C25067,,GEO-TC-11712,11712,true,false,true,Billing re-runs,Published,C25067 - Correct Client Target Type Displayed by Billing Type - ref. https://geowealth.atlassian.net/browse/GEO-12914
+C26330,,GEO-TC-11742,11742,false,false,true,Billing Others,Published,C26330 - Billing Run with no targets shows explanatory message in Progress status (run remains In Progress) - ref. GEO-22412
+C26398,,GEO-TC-11746,11746,false,false,false,Manager Fees,Published,C26398 - Billing Runs UI: Post / Unpost Mgr Fees actions + Mgr Fees Posted column - ref. GEO-15882
+C35120,,GEO-TC-11842,11842,false,false,true,Min/Max Fees,Published,C35120 - Regression: Verify Min/Max fee fields retain full functionality after label update - ref. GEO-26096
+C25652,,GEO-TC-11575,11575,true,false,true,Billing,Published,C25652 - Statement Templates - Save new grid view as default
+C25711,,GEO-TC-11576,11576,true,false,true,Billing,Published,C25711 - Statement Templates - save default view with custom filters - ref. https://geowealth.atlassian.net/browse/GEO-20452
+C25594,,GEO-TC-8183,8183,false,false,true,Users,Published,C25594 - Impersonalize newly created user
+C25783,,GEO-TC-8170,8170,false,false,true,User Management,Published,C25783 - Verify edit user from User Management and check in Access Sets - Modify Entity Roles association in BE - ref. GEO-21861
+C26254,,GEO-TC-8107,8107,false,false,true,Contact Management,Published,C26254 - Non-deactivated Client remains logged in Advisor Portal after deactivate/Disable different Client from Platform One - ref. GEO-22184
+C26273,,GEO-TC-8172,8172,false,false,true,User Management,Published,C26273 - Non-deactivated NCC Employee remains logged in Advisor Portal after deactivate/Disable different NCC from Platform One - ref. GEO-22184
+C26274,,GEO-TC-8173,8173,false,false,true,User Management,Published,C26274 - Failed deactivation does not logout the NCC Employee (error handling) from Platform One - ref. GEO-22184
+C26276,,GEO-TC-8175,8175,false,false,true,User Management,Published,C26276 - Direct URL access after deactivation NCC Employee from Platform One -> NCC tab Portal Activity - Deactivate NCC Employee - ref. GEO-22184
+C26277,,GEO-TC-8108,8108,false,false,true,Contact Management,Published,C26277 - Failed deactivation does not logout the Client (error handling) from Platform One - ref. GEO-22184
+C26555,,GEO-TC-8176,8176,false,false,true,User Management,Published,C26555 - Verify edit user from User Management and check in NCC grid in Advisor Portal + Access Set in BO were updated - ref. GEO-21728
+C41284,,GEO-TC-8188,8188,false,false,true,Users,Published,"C41284 - Edit User modal (GW_Admin): malformed email shows GW error and blocks Save - ref. GEO-27429,GEO-28299"
+C41285,,GEO-TC-8189,8189,false,false,false,Users,Published,"C41285 - Edit User modal (GW_Admin): valid @geowealth.com email allows Save and shows confirmation - ref. GEO-27429,GEO-28299"
+C41286,,GEO-TC-8190,8190,false,false,false,Users,Published,"C41286 - Edit User modal (GW_Admin): mixed-case @GeoWealth.COM is accepted - ref. GEO-27429,GEO-28299"
+C41287,,GEO-TC-8191,8191,false,false,false,Users,Published,"C41287 - Edit User modal (GW_Admin): non-@geowealth.com email shows GW error and blocks Save - ref. GEO-27429,GEO-28299"
+C41288,,GEO-TC-8192,8192,false,false,false,Users,Published,"C41288 - Edit User modal (GW_Admin): suffix-spoof guard rejects @evilgeowealth.com - ref. GEO-27429,GEO-28299"
+C41289,,GEO-TC-8193,8193,false,false,false,Users,Published,"C41289 - Edit User modal (GW_Admin): suffix-spoof guard rejects @geowealth.com.evil - ref. GEO-27429,GEO-28299"
+C41290,,GEO-TC-8194,8194,false,false,false,Users,Published,"C41290 - Edit User modal (Non-GW_Admin): domain is not restricted and existing validation behavior is unchanged - ref. GEO-27429,GEO-28299"
+C41292,,GEO-TC-8196,8196,false,false,false,Users,Published,"C41292 - Edit User modal (GW_Admin): update email from valid → another valid @geowealth.com persists after save - ref. GEO-27429,GEO-28299"
+C41293,,GEO-TC-8197,8197,false,false,false,Users,Published,"C41293 - Edit User modal (GW_Admin): inline error copy matches exact required text - ref. GEO-27429,GEO-28299"
+C41294,,GEO-TC-8198,8198,false,false,false,Users,Published,"C41294 - Edit User modal (GW_Admin): invalid email blocks save (no confirmation modal) - ref. GEO-27429,GEO-28299"
+C41295,,GEO-TC-8199,8199,false,false,false,Users,Published,"C41295 - Edit User modal (GW_Admin): update email from valid → invalid domain is blocked and not persisted - ref. GEO-27429,GEO-28299"
+C18114,,GEO-TC-7942,7942,true,false,true,Custom CRM Fields - Navigation/Custom Field List,Published,C18114 - Custom CRM Fields - “Custom Fields” page availability
+C17806,,GEO-TC-8103,8103,true,false,true,Contact Management,Published,C17806 - Contact Management - 'Manage Contacts' page availability
+C18080,,GEO-TC-8063,8063,true,false,true,Edit Contacts (Contact Management),Published,C18080 - Reset  Editing Household
+C18083,,GEO-TC-8066,8066,true,false,true,Edit Contacts (Contact Management),Published,C18083 - Cancel Editing Hpusehold
+C18084,,GEO-TC-8067,8067,true,false,true,Edit Contacts (Contact Management),Published,C18084 - Cancel Editing Client
+C18085,,GEO-TC-8068,8068,true,false,true,Edit Contacts (Contact Management),Published,C18085 - Cancel Editing Prospect
+C35117,,GEO-TC-11840,11840,true,false,true,Min/Max Fees,Published,"C35117 - Verify Min/Max fee fields display """"per billing period"""" hint label on Create New Billing Spec - ref. GEO-26096"
+C35119,,GEO-TC-11841,11841,true,false,true,Min/Max Fees,Published,"C35119 - Verify Min/Max """"per billing period"""" hint label is consistent across all billing bucket types - ref. GEO-26096"
+C18986,,GEO-TC-11791,11791,true,false,true,Billing Specifications,Published,C18986 - Billing Specification - Bulk Export
+C19066,,GEO-TC-11949,11949,true,false,true,Default Fee Rate Management - Platform One,Published,"C19066 - Fee Rate - Only active firms should appear in """"Proposal Fee Rate"""" dropdown"
+C19068,,GEO-TC-11953,11953,true,false,true,Default Fee Rate Management - Platform One,Published,"C19068 - Fee Rate - """"Requires Permission to Edit"""" checkbox is not selected"
