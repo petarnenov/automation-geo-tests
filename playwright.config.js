@@ -93,7 +93,6 @@ module.exports = defineConfig({
   reporter: [
     ['list'],
     ['html', { open: 'never' }],
-    ['./reporters/testrail-reporter.js'],
     ['./reporters/aio-reporter.js'],
   ],
   use: {

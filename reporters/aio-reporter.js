@@ -80,7 +80,7 @@ class AioReporter {
   }
 
   /**
-   * Deliberately technology-agnostic, matching testrail-reporter.js: the comment
+   * Deliberately technology-agnostic: the comment
    * must read as a manual verification and must not reveal the automation stack.
    */
   _comment(status) {

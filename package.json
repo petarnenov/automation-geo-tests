@@ -2,11 +2,14 @@
   "name": "automation-geo-tests",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": ">=24 <25"
+  },
   "description": "GeoWealth Playwright automation, scoped to TestRail Run 175 cases tagged @pepi",
   "scripts": {
     "test": "playwright test",
     "test:pepi": "playwright test --grep @pepi",
-    "test:pepi:dry": "TESTRAIL_REPORT_RESULTS=0 playwright test --grep @pepi",
+    "test:pepi:dry": "AIO_REPORT_RESULTS=0 playwright test --grep @pepi",
     "report": "playwright show-report",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
@@ -15,7 +18,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
-    "@playwright/test": "^1.47.0",
+    "@playwright/test": "^1.63.0",
     "eslint": "^10.2.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-playwright": "^2.10.1",
