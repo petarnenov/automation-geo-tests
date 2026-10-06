@@ -49,6 +49,7 @@
  */
 
 const { test, expect } = require('@playwright/test');
+const { acquireFileLock } = require('../_helpers/file-lock');
 const { loginPlatformOneTim1Fresh } = require('../_helpers/qa3');
 
 const BILLING_TEMPLATES_URL = '/react/indexReact.do#platformOne/billingCenter/templates';
@@ -136,6 +137,17 @@ async function openBillingTemplates(page) {
   await expect(page.locator('.ag-header-cell[col-id]').first()).toBeVisible({ timeout: 30_000 });
 }
 
+// Both Billing Templates filter specs mutate tim1's saved filters and assert
+// "exactly one Default"; serialise them across workers.
+/** @type {(() => void) | null} */
+let releaseFiltersLock = null;
+test.beforeEach(async () => {
+  releaseFiltersLock = await acquireFileLock('billing-templates-filters');
+});
+test.afterEach(() => {
+  releaseFiltersLock?.();
+});
+
 test('@pepi C22298 Billing Templates - Default Filters', async ({ page }) => {
   test.setTimeout(180_000);
 
@@ -153,9 +165,11 @@ test('@pepi C22298 Billing Templates - Default Filters', async ({ page }) => {
     // tim1 may already own a default from another case; demote it so this run
     // controls the single-default invariant, and restore it during cleanup.
     const existing = await getFilters(page);
-    const prior = existing.find((f) => f.isDefault);
-    if (prior) {
-      preExistingDefault = { id: prior.id, name: prior.name };
+    // Demote EVERY current default: stale runs can leave tim1 with more than
+    // one (seen on qabis1). Only the first is restored during cleanup.
+    const priors = existing.filter((f) => f.isDefault);
+    if (priors.length) preExistingDefault = { id: priors[0].id, name: priors[0].name };
+    for (const prior of priors) {
       await updateFilter(page, { id: prior.id, name: prior.name, isDefault: false });
     }
 

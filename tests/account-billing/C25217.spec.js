@@ -41,7 +41,9 @@ const {
   openHistory,
   closeHistory,
   setComboBoxValue,
+  submitClientBillingSettings,
 } = require('./_helpers');
+const { listComboBoxOptions, pickBillingSpec } = require('../_helpers/ui');
 
 const HOUSEHOLD_UUID = '6E09DE2BFBBC48EAAD91B5B5D98B6CE8';
 const HOUSEHOLD_BILLING_URL = `/react/indexReact.do#/client/5/${HOUSEHOLD_UUID}/detailsActivity/balanceSettings`;
@@ -141,14 +143,7 @@ async function saveEditHouseholdBillingSettings(page) {
   const submit = page.locator('button[data-role="formSubmitButton"]').first();
   await expect(submit).toBeVisible({ timeout: 10_000 });
   await expect(submit).not.toHaveClass(/disabled/i, { timeout: 15_000 });
-  await submit.click();
-  await expect(page.getByText(/Billing Details are Updated/i).first()).toBeVisible({
-    timeout: 60_000,
-  });
-  await page.getByRole('button', { name: 'Close', exact: true }).click();
-  await expect(page.getByText(/Billing Details are Updated/i)).toBeHidden({
-    timeout: 5000,
-  });
+  await submitClientBillingSettings(page, submit);
 }
 
 async function setDateViaSpinbuttons(page, sectionId, mmddyyyy) {
@@ -176,7 +171,7 @@ test('@pepi C25217 Household Spec Name/Active Date - Admin and Non-Admin', async
   page,
   context,
 }) => {
-  test.setTimeout(600_000);
+  test.setTimeout(1_800_000);
 
   await test.step('Phase 1.1: flip spec + active date for all 6 buckets, one save per bucket', async () => {
     await loginAsAdmin(context, page);
@@ -187,7 +182,12 @@ test('@pepi C25217 Household Spec Name/Active Date - Admin and Non-Admin', async
 
       const taSel = `#${b.bucketKey}BillingSpecification_typeAhead`;
       const currentSpec = (await page.locator(taSel).inputValue()).trim();
-      const specAfter = currentSpec === b.specA ? b.specB : b.specA;
+      const specAfter = pickBillingSpec(
+        await listComboBoxOptions(page, `${b.bucketKey}BillingSpecification`),
+        currentSpec,
+        b.specA,
+        b.specB
+      );
       const dateBefore = await page
         .locator(`#${b.bucketKey}BillingActiveDate`)
         .evaluate((sec) => {

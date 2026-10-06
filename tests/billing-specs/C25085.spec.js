@@ -163,7 +163,14 @@ test('@pepi C25085 Billing Spec Upload/Download Includes Account Min/Max', async
   await test.step('Ensure Account Min and Account Max columns are enabled', async () => {
     // Open Customize Columns panel.
     await page.locator('span#customizeColumns').click();
-    const overlay = page.locator('[class*="showGridOverlay"]').first();
+    // The overlay's CSS-module class differs per build (`showGridOverlay` on
+    // qa4, something else on qabis1); anchor on its heading + a known field.
+    // DOM order puts ancestors first, so .last() is the innermost match.
+    const overlay = page
+      .locator('div, section')
+      .filter({ has: page.getByText('Customize Columns', { exact: true }) })
+      .filter({ has: page.locator('label[for="applyMinFeesOnAccountLevelFlagField"]') })
+      .last();
     await expect(page.getByText('Customize Columns', { exact: true }).first()).toBeVisible({
       timeout: 5_000,
     });

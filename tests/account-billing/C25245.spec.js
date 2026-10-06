@@ -40,6 +40,7 @@ const {
   closeHistory,
   setComboBoxValue,
   setReactNumericInput,
+  submitClientBillingSettings,
 } = require('./_helpers');
 
 const CLIENT_BILLING_URL = `/react/indexReact.do#/client/1/${CLIENT_UUID}/detailsActivity/balanceSettings`;
@@ -67,14 +68,7 @@ async function openEditClientBillingSettings(page) {
 }
 
 async function saveEditClientBillingSettings(page) {
-  await page.locator('button[data-role="formSubmitButton"]').first().click();
-  await expect(page.getByText(/Billing Details are Updated/i).first()).toBeVisible({
-    timeout: 60_000,
-  });
-  await page.getByRole('button', { name: 'Close', exact: true }).click();
-  await expect(page.getByText(/Billing Details are Updated/i)).toBeHidden({
-    timeout: 5000,
-  });
+  await submitClientBillingSettings(page, page.locator('button[data-role="formSubmitButton"]').first());
 }
 
 /**
@@ -104,7 +98,7 @@ test('@pepi C25245 Client Adjustment/Expiration Date - Percent', async ({
   page,
   context,
 }) => {
-  test.setTimeout(360_000);
+  test.setTimeout(900_000);
 
   // Alternate between two values per run so we ALWAYS produce a real
   // change (the form's onChange is no-op when the new value equals the

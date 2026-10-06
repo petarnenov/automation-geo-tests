@@ -390,7 +390,59 @@ async function pickFirstAgGridRichSelect(page, rowIndex, colId) {
   return text;
 }
 
+
+/**
+ * Read every option of a FormBuilder typeAhead comboBox (list items render in
+ * a portal at page scope). Leaves the typeAhead cleared and the list closed —
+ * callers set the new value right after (setComboBoxValue).
+ * @param {import('@playwright/test').Page} page
+ * @param {string} fieldKey  e.g. 'adviserBillingSpecification'
+ * @returns {Promise<string[]>}
+ */
+async function listComboBoxOptions(page, fieldKey) {
+  const typeAhead = page.locator(`#${fieldKey}_typeAhead`);
+  await typeAhead.evaluate((el) => {
+    /** @type {HTMLInputElement} */ (el).focus();
+    /** @type {HTMLInputElement} */ (el).select();
+  });
+  for (let i = 0; i < 80; i++) await typeAhead.press('Backspace');
+  const items = page.locator('[role="combo-box-list-item"]');
+  // An already-empty typeAhead doesn't reopen on Backspace; nudge it open.
+  const openers = [
+    () => typeAhead.press('ArrowDown'),
+    () => page.locator(`#${fieldKey}Div [data-type="icon"], #${fieldKey}Div svg`).first().click(),
+  ];
+  for (const open of openers) {
+    if (await items.first().isVisible().catch(() => false)) break;
+    await open().catch(() => {});
+    await items.first().waitFor({ state: 'visible', timeout: 3000 }).catch(() => {});
+  }
+  await expect(items.first()).toBeVisible({ timeout: 10_000 });
+  const texts = (await items.allInnerTexts()).map((t) => t.trim()).filter(Boolean);
+  await typeAhead.press('Escape');
+  return texts;
+}
+
+/**
+ * Choose the spec to flip a billing bucket to: the preferred A/B pair when the
+ * env has it (qa4 seed data), otherwise any real spec on offer that differs
+ * from the current one (envs such as qabis1 carry different spec names).
+ * @param {string[]} options
+ * @param {string} current
+ * @param {string} specA
+ * @param {string} specB
+ */
+function pickBillingSpec(options, current, specA, specB) {
+  const preferred = current === specA ? specB : specA;
+  if (options.includes(preferred)) return preferred;
+  const fallback = options.find((o) => o !== current && !/^Inherit from/i.test(o));
+  if (!fallback) throw new Error(`no alternative billing spec to "${current}" in [${options.join(', ')}]`);
+  return fallback;
+}
+
 module.exports = {
+  listComboBoxOptions,
+  pickBillingSpec,
   setReactDatePicker,
   setComboBoxValue,
   setReactNumericInput,

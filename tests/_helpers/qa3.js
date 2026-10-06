@@ -31,8 +31,13 @@ function resolveDbDsn() {
       return '';
     }
   })();
+  // qabis1 (and its legacy -eol alias) sits in the OCI VCN; the PDB is only
+  // reachable through a tunnel, but never fall back to qa4's DB for it.
+  const bis = (host.match(/^(qabis\d+)(-eol)?\./i) || [])[1];
+  if (bis) return `qadb.datasn.qa.oraclevcn.com:1521/${bis.toLowerCase()}pdb.datasn.qa.oraclevcn.com`;
   const env = (host.match(/^(qa\d+)\./i) || [])[1];
-  if (!env || /^qa4$/i.test(env)) return '192.168.1.42:1521/ORCL12VM';
+  if (/^qa4$/i.test(env || '')) return '192.168.1.42:1521/ORCL12VM';
+  if (!env) throw new Error(`resolveDbDsn: unknown env host "${host}" — set GEO_DB_DSN explicitly`);
   return `${env.toLowerCase()}db.geowealth.int:1521/orcl12vm`;
 }
 

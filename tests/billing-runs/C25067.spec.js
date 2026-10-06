@@ -27,6 +27,7 @@
  */
 
 const { test, expect } = require('@playwright/test');
+const { ensureBillingRunsColumn } = require('./_helpers');
 const { loginPlatformOneTim1Fresh } = require('../_helpers/qa3');
 const { seedBillingRun } = require('../_helpers/billing-seed');
 
@@ -57,6 +58,7 @@ test('@pepi C25067 Correct Client Target Type Displayed by Billing Type', async 
     await expect(
       page.locator('.ag-header-cell[col-id="firmName"]').first()
     ).toBeVisible({ timeout: 60_000 });
+    await ensureBillingRunsColumn(page, 'publishedRuns', 'Published');
   });
 
   await test.step(`Filter the grid to the seeded run "${SEED_NAME}"`, async () => {

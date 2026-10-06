@@ -30,7 +30,7 @@
 
 const { test, expect } = require('@playwright/test');
 const { loginAsAdmin } = require('./_helpers');
-const { setComboBoxValue } = require('../_helpers/ui');
+const { setComboBoxValue, listComboBoxOptions, pickBillingSpec } = require('../_helpers/ui');
 
 const HOUSEHOLD_NAME = `Pepi_C40951_${Date.now()}`;
 const CREATE_HOUSEHOLD_URL = '/react/indexReact.do#/directories/households/create';
@@ -120,8 +120,16 @@ test('@pepi C40951 Spec Active date when creating a new household', async ({
   await test.step('Pick a non-Inherit spec for each of the 6 buckets', async () => {
     for (const b of BUCKETS) {
       // eslint-disable-next-line no-console
-      console.log(`[C40951] setting ${b.bucketKey} spec → ${JSON.stringify(b.spec)}`);
-      await setComboBoxValue(page, `${b.bucketKey}BillingSpecification`, b.spec);
+      // Prefer the qa4 seed spec; other envs (qabis1) name their specs
+      // differently, so fall back to any real spec the bucket offers.
+      const spec = pickBillingSpec(
+        await listComboBoxOptions(page, `${b.bucketKey}BillingSpecification`),
+        '',
+        b.spec,
+        b.spec
+      );
+      console.log(`[C40951] setting ${b.bucketKey} spec → ${JSON.stringify(spec)}`);
+      await setComboBoxValue(page, `${b.bucketKey}BillingSpecification`, spec);
     }
   });
 

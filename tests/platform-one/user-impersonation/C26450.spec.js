@@ -27,7 +27,9 @@ test('@pepi C26450 Platform One Terminate impersonation returns to P1 Impersonat
   await impersonateFirstNonSelfEmployee(page, []);
 
   // Confirm we're really in the impersonated session before terminating.
-  await expect(page.getByText(/Impersonated By/i).first()).toBeVisible({ timeout: 30_000 });
+  // The impersonated portal can sit on "taking a bit longer than usual" for
+  // over a minute on slower envs (qabis1).
+  await expect(page.getByText(/Impersonated By/i).first()).toBeVisible({ timeout: 120_000 });
 
   await terminateImpersonationFromUserMenu(page);
 
@@ -36,6 +38,6 @@ test('@pepi C26450 Platform One Terminate impersonation returns to P1 Impersonat
   // sibling P1 page — the case description says "P1 → Impersonate screen",
   // but in practice the redirect target depends on the legacy BO action;
   // we accept any P1 hash as the recovery state).
-  await expect(page.getByText(/Impersonated By/i)).toHaveCount(0, { timeout: 30_000 });
+  await expect(page.getByText(/Impersonated By/i)).toHaveCount(0, { timeout: 120_000 });
   await expect(page).toHaveURL(/#platformOne|#dashboard|backOffice/, { timeout: 30_000 });
 });

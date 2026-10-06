@@ -37,7 +37,9 @@ test('@pepi C26449 Platform One Launch Advisor Portal impersonation (Positive)',
   // is still rendered there by the ExtJS shell, so it's a usable signal.
   await expect(page).not.toHaveURL(/firmAdmin\/userImpersonation/, { timeout: 30_000 });
   await expect(page).toHaveURL(/portal\/portalIndex\.do/, { timeout: 30_000 });
-  await expect(page.getByText(/Impersonated By/i).first()).toBeVisible({ timeout: 30_000 });
+  // The impersonated portal can sit on "taking a bit longer than usual" for
+  // over a minute on slower envs (qabis1).
+  await expect(page.getByText(/Impersonated By/i).first()).toBeVisible({ timeout: 120_000 });
 
   // Cleanup: terminate so the next test in this worker is not left
   // impersonating. Uses the same `/logout.do?reactRequest=true` endpoint the

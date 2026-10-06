@@ -54,7 +54,14 @@ test('@pepi C25084 Billing Spec Grid Shows Account Min/Max Columns', async ({ pa
   });
 
   await test.step('Tick Account Min and Account Max, then Confirm & Reload', async () => {
-    const overlay = page.locator('[class*="showGridOverlay"]').first();
+    // The overlay's CSS-module class differs per build (`showGridOverlay` on
+    // qa4, something else on qabis1); anchor on its heading + a known field.
+    // DOM order puts ancestors first, so .last() is the innermost match.
+    const overlay = page
+      .locator('div, section')
+      .filter({ has: page.getByText('Customize Columns', { exact: true }) })
+      .filter({ has: page.locator('label[for="applyMinFeesOnAccountLevelFlagField"]') })
+      .last();
     // Headless races the FormBuilder Checkbox mount: a label click that lands
     // before React's onChange is attached toggles the DOM checkbox visually
     // but never enters React state, so Confirm & Reload submits no diff. Poll

@@ -38,15 +38,26 @@ function loadToken() {
  * @param {any} [body]
  */
 async function request(token, method, endpoint, body) {
-  const res = await fetch(`${BASE}${endpoint}`, {
-    method,
-    headers: {
-      Authorization: `AioAuth ${token}`,
-      Accept: 'application/json',
-      ...(body === undefined ? {} : { 'Content-Type': 'application/json' }),
-    },
-    ...(body === undefined ? {} : { body: JSON.stringify(body) }),
-  });
+  const send = () =>
+    fetch(`${BASE}${endpoint}`, {
+      method,
+      headers: {
+        Authorization: `AioAuth ${token}`,
+        Accept: 'application/json',
+        ...(body === undefined ? {} : { 'Content-Type': 'application/json' }),
+      },
+      ...(body === undefined ? {} : { body: JSON.stringify(body) }),
+    });
+
+  // AIO rate-limits bursts (429). Back off and retry instead of failing a
+  // full-project walk halfway through.
+  let res = await send();
+  for (const waitMs of [5000, 15000, 30000, 60000]) {
+    if (res.status !== 429) break;
+    await res.text();
+    await new Promise((r) => setTimeout(r, waitMs));
+    res = await send();
+  }
 
   if (!res.ok) {
     const detail = (await res.text()).slice(0, 500);
@@ -74,15 +85,37 @@ async function request(token, method, endpoint, body) {
 async function paginate(token, method, endpoint, body) {
   /** @type {any[]} */
   const all = [];
+  const sep = endpoint.includes('?') ? '&' : '?';
+  const fetchPage = (startAt, size) =>
+    request(token, method, `${endpoint}${sep}startAt=${startAt}&maxResults=${size}`, body);
   let startAt = 0;
   for (;;) {
-    const sep = endpoint.includes('?') ? '&' : '?';
-    const page = await request(
-      token,
-      method,
-      `${endpoint}${sep}startAt=${startAt}&maxResults=${PAGE_SIZE}`,
-      body
-    );
+    let page;
+    try {
+      page = await fetchPage(startAt, PAGE_SIZE);
+    } catch (err) {
+      // AIO 500s a whole page when a single record in it is corrupt (seen on
+      // GEO testcase/search at startAt=5600). Walk that window one record at a
+      // time and skip only the records that still fail.
+      if (!/failed: 500/.test(String(err.message))) throw err;
+      let last = false;
+      for (let i = 0; i < PAGE_SIZE; i += 1) {
+        try {
+          const one = await fetchPage(startAt + i, 1);
+          all.push(...((one && one.items) || []));
+          if (!one || one.isLast) {
+            last = true;
+            break;
+          }
+        } catch (inner) {
+          if (!/failed: 500/.test(String(inner.message))) throw inner;
+          console.warn(`[aio-client] skipped unreadable record at ${endpoint} #${startAt + i}`);
+        }
+      }
+      if (last) return all;
+      startAt += PAGE_SIZE;
+      continue;
+    }
     const items = (page && page.items) || [];
     all.push(...items);
     if (!page || page.isLast || items.length === 0) return all;

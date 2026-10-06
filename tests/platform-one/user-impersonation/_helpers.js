@@ -376,11 +376,14 @@ function countTim1ImpersonationEventsSince(sinceIsoUtc) {
   const { execSync } = require('child_process');
   const py = `
 import oracledb
-from datetime import datetime
+from datetime import datetime, timedelta
 c = oracledb.connect(user='gp', password='gp123', dsn='${DB_DSN}')
 cur = c.cursor()
-# Oracle DB column is DATE (no tz). Use UTC-naive parse + cast.
-since = datetime.fromisoformat('${sinceIsoUtc.replace('Z', '+00:00')}').replace(tzinfo=None)
+# Oracle DB column is DATE (no tz) written in the app server's local zone,
+# which differs per env (qa4 UTC-ish, qabis1 ET = UTC-4). Widen the lower
+# bound by a day: callers diff against a baseline taken with the same bound,
+# so the delta still counts only new rows, whatever the zone.
+since = datetime.fromisoformat('${sinceIsoUtc.replace('Z', '+00:00')}').replace(tzinfo=None) - timedelta(days=1)
 cur.execute('''
   select count(*) from login_history_tbl
    where impersonated_by = :1

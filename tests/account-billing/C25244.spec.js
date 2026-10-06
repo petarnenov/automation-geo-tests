@@ -37,6 +37,7 @@ const {
   loginAsNonAdmin,
   openHistory,
   closeHistory,
+  submitClientBillingSettings,
 } = require('./_helpers');
 
 const CLIENT_BILLING_URL = `/react/indexReact.do#/client/1/${CLIENT_UUID}/detailsActivity/balanceSettings`;
@@ -113,14 +114,7 @@ async function openEditClientBillingSettings(page) {
 async function saveEditClientBillingSettings(page) {
   // Scope to the FormBuilder submit; co-existing sub-modal Save buttons
   // share the name "Save".
-  await page.locator('button[data-role="formSubmitButton"]').first().click();
-  await expect(page.getByText(/Billing Details are Updated/i).first()).toBeVisible({
-    timeout: 60_000,
-  });
-  await page.getByRole('button', { name: 'Close', exact: true }).click();
-  await expect(page.getByText(/Billing Details are Updated/i)).toBeHidden({
-    timeout: 5000,
-  });
+  await submitClientBillingSettings(page, page.locator('button[data-role="formSubmitButton"]').first());
 }
 
 /**
@@ -201,7 +195,7 @@ test('@pepi C25244 Client Exclude from billing - Admin and Non-Admin', async ({
   page,
   context,
 }) => {
-  test.setTimeout(600_000);
+  test.setTimeout(1_800_000);
 
   /** @type {Record<string, { excludeBefore: string|null, excludeAfter: string }>} */
   const expectations = {};

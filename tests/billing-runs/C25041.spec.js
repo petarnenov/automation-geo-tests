@@ -27,8 +27,10 @@
  */
 
 const { test, expect } = require('@playwright/test');
+const { ensureBillingRunsColumn, seedTargetRun, filterRunsGrid } = require('./_helpers');
 const { loginPlatformOneTim1Fresh } = require('../_helpers/qa3');
 
+const SEED_NAME = 'C25041 Advisor Seed';
 const BILLING_RUNS_URL = '/react/indexReact.do#platformOne/billingCenter/runs';
 
 test('@pepi C25041 Correct Advisor Target Types Displayed by Billing Type', async ({ page }) => {
@@ -37,6 +39,8 @@ test('@pepi C25041 Correct Advisor Target Types Displayed by Billing Type', asyn
   // tim1 (role Admins), not the worker GW Admin (role 529 "All Employees"):
   // the advisor-target Completed/Unpublished runs live on other firms, so only
   // a full admin with cross-firm visibility sees them in the grid at all.
+  // Pre-condition row, seeded so the case doesn't depend on env history.
+  seedTargetRun(SEED_NAME, 'advisor');
   await loginPlatformOneTim1Fresh(page);
 
   await test.step('Navigate to Operations > Billing > Billing Runs', async () => {
@@ -45,6 +49,8 @@ test('@pepi C25041 Correct Advisor Target Types Displayed by Billing Type', asyn
     await expect(
       page.locator('.ag-header-cell[col-id="firmName"]').first()
     ).toBeVisible({ timeout: 60_000 });
+    await ensureBillingRunsColumn(page, 'publishedRuns', 'Published');
+    await filterRunsGrid(page, SEED_NAME);
   });
 
   // The default window holds hundreds of rows and ag-grid virtualizes the DOM,

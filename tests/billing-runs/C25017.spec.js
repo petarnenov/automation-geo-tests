@@ -32,13 +32,17 @@
  */
 
 const { test, expect } = require('@playwright/test');
+const { ensureBillingRunsColumn, seedTargetRun, filterRunsGrid } = require('./_helpers');
 const { loginPlatformOneAdmin } = require('../_helpers/qa3');
 
+const SEED_NAME = 'C25017 Household Seed';
 const BILLING_RUNS_URL = '/react/indexReact.do#platformOne/billingCenter/runs';
 
 test('@pepi C25017 Run Button Activation Upon Valid Selection', async ({ page }) => {
   test.setTimeout(180_000);
 
+  // Pre-condition row, seeded so the case doesn't depend on env history.
+  seedTargetRun(SEED_NAME, 'household');
   await loginPlatformOneAdmin(page);
 
   await test.step('Navigate to Operations > Billing > Billing Runs', async () => {
@@ -47,6 +51,8 @@ test('@pepi C25017 Run Button Activation Upon Valid Selection', async ({ page })
     await expect(
       page.locator('.ag-header-cell[col-id="firmName"]').first()
     ).toBeVisible({ timeout: 60_000 });
+    await ensureBillingRunsColumn(page, 'publishedRuns', 'Published');
+    await filterRunsGrid(page, SEED_NAME);
   });
 
   /** Household-target Completed Unpublished row from the BillingRuns grid. */

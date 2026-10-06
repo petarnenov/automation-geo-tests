@@ -1,7 +1,7 @@
 {
   "run_id": 206,
   "label": "pepi",
-  "count": 146,
+  "count": 183,
   "cases": [
     {
       "test_id": 67133,
@@ -1316,6 +1316,376 @@
       "labels": [
         "Pepi"
       ]
+    },
+    {
+      "test_id": null,
+      "case_id": 26629,
+      "title": "Employee Access Set cannot be removed from the list",
+      "status_id": null,
+      "labels": [
+        "Pepi"
+      ],
+      "source": "repo-@pepi (TestRail API unavailable 2026-10-05)"
+    },
+    {
+      "test_id": null,
+      "case_id": 25013,
+      "title": "Partial Re-run Action Visibility for Eligible Billings",
+      "status_id": null,
+      "labels": [
+        "Pepi"
+      ],
+      "source": "repo-@pepi (TestRail API unavailable 2026-10-05)"
+    },
+    {
+      "test_id": null,
+      "case_id": 25014,
+      "title": "Correct Firm Target Types Displayed by Billing Type",
+      "status_id": null,
+      "labels": [
+        "Pepi"
+      ],
+      "source": "repo-@pepi (TestRail API unavailable 2026-10-05)"
+    },
+    {
+      "test_id": null,
+      "case_id": 25017,
+      "title": "Run Button Activation Upon Valid Selection",
+      "status_id": null,
+      "labels": [
+        "Pepi"
+      ],
+      "source": "repo-@pepi (TestRail API unavailable 2026-10-05)"
+    },
+    {
+      "test_id": null,
+      "case_id": 25018,
+      "title": "Billing Status Progression",
+      "status_id": null,
+      "labels": [
+        "Pepi"
+      ],
+      "source": "repo-@pepi (TestRail API unavailable 2026-10-05)"
+    },
+    {
+      "test_id": null,
+      "case_id": 25019,
+      "title": "Billing History Replacement for Target Accounts",
+      "status_id": null,
+      "labels": [
+        "Pepi"
+      ],
+      "source": "repo-@pepi (TestRail API unavailable 2026-10-05)"
+    },
+    {
+      "test_id": null,
+      "case_id": 25020,
+      "title": "Totals Update for Full Billing Run",
+      "status_id": null,
+      "labels": [
+        "Pepi"
+      ],
+      "source": "repo-@pepi (TestRail API unavailable 2026-10-05)"
+    },
+    {
+      "test_id": null,
+      "case_id": 25021,
+      "title": "Timestamp Superscript for Partial Re-run",
+      "status_id": null,
+      "labels": [
+        "Pepi"
+      ],
+      "source": "repo-@pepi (TestRail API unavailable 2026-10-05)"
+    },
+    {
+      "test_id": null,
+      "case_id": 25023,
+      "title": "Partial Re-run Action Not Available for Ineligible Billings",
+      "status_id": null,
+      "labels": [
+        "Pepi"
+      ],
+      "source": "repo-@pepi (TestRail API unavailable 2026-10-05)"
+    },
+    {
+      "test_id": null,
+      "case_id": 25041,
+      "title": "Correct Advisor Target Types Displayed by Billing Type",
+      "status_id": null,
+      "labels": [
+        "Pepi"
+      ],
+      "source": "repo-@pepi (TestRail API unavailable 2026-10-05)"
+    },
+    {
+      "test_id": null,
+      "case_id": 25048,
+      "title": "Correct Household Target Types Displayed by Billing Type",
+      "status_id": null,
+      "labels": [
+        "Pepi"
+      ],
+      "source": "repo-@pepi (TestRail API unavailable 2026-10-05)"
+    },
+    {
+      "test_id": null,
+      "case_id": 25066,
+      "title": "Correct Account Target Type Displayed by Billing Type",
+      "status_id": null,
+      "labels": [
+        "Pepi"
+      ],
+      "source": "repo-@pepi (TestRail API unavailable 2026-10-05)"
+    },
+    {
+      "test_id": null,
+      "case_id": 25067,
+      "title": "Correct Client Target Type Displayed by Billing Type",
+      "status_id": null,
+      "labels": [
+        "Pepi"
+      ],
+      "source": "repo-@pepi (TestRail API unavailable 2026-10-05)"
+    },
+    {
+      "test_id": null,
+      "case_id": 26330,
+      "title": "Billing Run with no targets shows explanatory message in Progress status",
+      "status_id": null,
+      "labels": [
+        "Pepi"
+      ],
+      "source": "repo-@pepi (TestRail API unavailable 2026-10-05)"
+    },
+    {
+      "test_id": null,
+      "case_id": 26398,
+      "title": "Billing Runs UI Post/Unpost Mgr Fees actions and Mgr Fees Posted column",
+      "status_id": null,
+      "labels": [
+        "Pepi"
+      ],
+      "source": "repo-@pepi (TestRail API unavailable 2026-10-05)"
+    },
+    {
+      "test_id": null,
+      "case_id": 35120,
+      "title": "Regression: Min/Max fee fields retain functionality after label update",
+      "status_id": null,
+      "labels": [
+        "Pepi"
+      ],
+      "source": "repo-@pepi (TestRail API unavailable 2026-10-05)"
+    },
+    {
+      "test_id": null,
+      "case_id": 25652,
+      "title": "Statement Templates - Save new grid view as default",
+      "status_id": null,
+      "labels": [
+        "Pepi"
+      ],
+      "source": "repo-@pepi (TestRail API unavailable 2026-10-05)"
+    },
+    {
+      "test_id": null,
+      "case_id": 25711,
+      "title": "Statement Templates - save default view with custom filters",
+      "status_id": null,
+      "labels": [
+        "Pepi"
+      ],
+      "source": "repo-@pepi (TestRail API unavailable 2026-10-05)"
+    },
+    {
+      "test_id": null,
+      "case_id": 25594,
+      "title": "Impersonate newly created user",
+      "status_id": null,
+      "labels": [
+        "Pepi"
+      ],
+      "source": "repo-@pepi (TestRail API unavailable 2026-10-05)"
+    },
+    {
+      "test_id": null,
+      "case_id": 25783,
+      "title": "Edit user name propagates to Platform One Impersonate grid",
+      "status_id": null,
+      "labels": [
+        "Pepi"
+      ],
+      "source": "repo-@pepi (TestRail API unavailable 2026-10-05)"
+    },
+    {
+      "test_id": null,
+      "case_id": 26254,
+      "title": "Non-deactivated Client remains logged in Advisor Portal after another Client is disabled",
+      "status_id": null,
+      "labels": [
+        "Pepi"
+      ],
+      "source": "repo-@pepi (TestRail API unavailable 2026-10-05)"
+    },
+    {
+      "test_id": null,
+      "case_id": 26273,
+      "title": "Non-deactivated portal user stays logged in after another user is deactivated",
+      "status_id": null,
+      "labels": [
+        "Pepi"
+      ],
+      "source": "repo-@pepi (TestRail API unavailable 2026-10-05)"
+    },
+    {
+      "test_id": null,
+      "case_id": 26274,
+      "title": "Failed deactivation does not log out the User from Platform One",
+      "status_id": null,
+      "labels": [
+        "Pepi"
+      ],
+      "source": "repo-@pepi (TestRail API unavailable 2026-10-05)"
+    },
+    {
+      "test_id": null,
+      "case_id": 26276,
+      "title": "Direct URL access after deactivation redirects deactivated user to login",
+      "status_id": null,
+      "labels": [
+        "Pepi"
+      ],
+      "source": "repo-@pepi (TestRail API unavailable 2026-10-05)"
+    },
+    {
+      "test_id": null,
+      "case_id": 26277,
+      "title": "Failed deactivation does not log out the Client from Platform One",
+      "status_id": null,
+      "labels": [
+        "Pepi"
+      ],
+      "source": "repo-@pepi (TestRail API unavailable 2026-10-05)"
+    },
+    {
+      "test_id": null,
+      "case_id": 26555,
+      "title": "Edit user name propagates to NCC grid in Advisor Portal",
+      "status_id": null,
+      "labels": [
+        "Pepi"
+      ],
+      "source": "repo-@pepi (TestRail API unavailable 2026-10-05)"
+    },
+    {
+      "test_id": null,
+      "case_id": 41284,
+      "title": "Edit User modal GW Admin - malformed email blocks Save",
+      "status_id": null,
+      "labels": [
+        "Pepi"
+      ],
+      "source": "repo-@pepi (TestRail API unavailable 2026-10-05)"
+    },
+    {
+      "test_id": null,
+      "case_id": 41285,
+      "title": "Edit User modal GW Admin - valid @geowealth.com email allows Save (UI smoke)",
+      "status_id": null,
+      "labels": [
+        "Pepi"
+      ],
+      "source": "repo-@pepi (TestRail API unavailable 2026-10-05)"
+    },
+    {
+      "test_id": null,
+      "case_id": 41286,
+      "title": "Edit User modal GW Admin - mixed-case @GeoWealth.COM is accepted (UI smoke)",
+      "status_id": null,
+      "labels": [
+        "Pepi"
+      ],
+      "source": "repo-@pepi (TestRail API unavailable 2026-10-05)"
+    },
+    {
+      "test_id": null,
+      "case_id": 41287,
+      "title": "Edit User modal GW Admin - non-@geowealth.com email blocks Save (UI smoke)",
+      "status_id": null,
+      "labels": [
+        "Pepi"
+      ],
+      "source": "repo-@pepi (TestRail API unavailable 2026-10-05)"
+    },
+    {
+      "test_id": null,
+      "case_id": 41288,
+      "title": "Edit User modal GW Admin - @evilgeowealth.com suffix-spoof blocks Save (UI smoke)",
+      "status_id": null,
+      "labels": [
+        "Pepi"
+      ],
+      "source": "repo-@pepi (TestRail API unavailable 2026-10-05)"
+    },
+    {
+      "test_id": null,
+      "case_id": 41289,
+      "title": "Edit User modal GW Admin - @geowealth.com.evil suffix-spoof blocks Save (UI smoke)",
+      "status_id": null,
+      "labels": [
+        "Pepi"
+      ],
+      "source": "repo-@pepi (TestRail API unavailable 2026-10-05)"
+    },
+    {
+      "test_id": null,
+      "case_id": 41290,
+      "title": "Edit User modal non-GW Admin - any valid email allows Save (UI smoke)",
+      "status_id": null,
+      "labels": [
+        "Pepi"
+      ],
+      "source": "repo-@pepi (TestRail API unavailable 2026-10-05)"
+    },
+    {
+      "test_id": null,
+      "case_id": 41292,
+      "title": "Edit User modal GW Admin - valid email update persists after save (UI smoke + DB)",
+      "status_id": null,
+      "labels": [
+        "Pepi"
+      ],
+      "source": "repo-@pepi (TestRail API unavailable 2026-10-05)"
+    },
+    {
+      "test_id": null,
+      "case_id": 41293,
+      "title": "Edit User modal GW Admin - inline error copy matches exact text (UI smoke)",
+      "status_id": null,
+      "labels": [
+        "Pepi"
+      ],
+      "source": "repo-@pepi (TestRail API unavailable 2026-10-05)"
+    },
+    {
+      "test_id": null,
+      "case_id": 41294,
+      "title": "Edit User modal GW Admin - invalid email blocks save no confirmation (UI smoke)",
+      "status_id": null,
+      "labels": [
+        "Pepi"
+      ],
+      "source": "repo-@pepi (TestRail API unavailable 2026-10-05)"
+    },
+    {
+      "test_id": null,
+      "case_id": 41295,
+      "title": "Edit User modal GW Admin - valid → invalid email is blocked and not persisted (UI smoke)",
+      "status_id": null,
+      "labels": [
+        "Pepi"
+      ],
+      "source": "repo-@pepi (TestRail API unavailable 2026-10-05)"
     }
   ]
 }

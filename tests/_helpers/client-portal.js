@@ -120,10 +120,11 @@ async function provisionClientPortalAccess(
   // ── Step 3: set initial password ────────────────────────────────────────
   const setPwForm = new URLSearchParams();
   setPwForm.append('q', JSON.stringify({ invitationId, password }));
+  // setInitialPassword.do can take well over 30s on slower envs (qabis1).
   const setPwRes = await adminPage.request.post(`${baseURL}platformOne/setInitialPassword.do`, {
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     data: setPwForm.toString(),
-    timeout: 30_000,
+    timeout: 120_000,
   });
   const setPwBody = await setPwRes.json();
   if (setPwBody?.success !== true) {

@@ -144,9 +144,27 @@ async function openRowCellEditor(page, rowIndex, colId) {
  * either scroll the list or limit assertions to options near the top.
  */
 async function getVisibleRichSelectOptions(page) {
-  return await page
-    .locator('.ag-rich-select-virtual-list-viewport .ag-virtual-list-item')
-    .allInnerTexts();
+  // The rich-select list is virtualized: only the rows in view are in the DOM.
+  // Envs with more custodians (qabis1) push expected names below the fold, so
+  // scroll the viewport top→bottom and collect every row that renders.
+  const viewport = page.locator('.ag-rich-select-virtual-list-viewport').first();
+  const items = viewport.locator('.ag-virtual-list-item');
+  await expect(items.first()).toBeVisible({ timeout: 10_000 });
+  const seen = new Set(await items.allInnerTexts());
+  for (let i = 0; i < 50; i += 1) {
+    const atEnd = await viewport.evaluate((el) => {
+      const end = el.scrollTop + el.clientHeight >= el.scrollHeight - 1;
+      el.scrollTop += el.clientHeight;
+      return end;
+    });
+    await page.waitForTimeout(100);
+    for (const t of await items.allInnerTexts()) seen.add(t);
+    if (atEnd) break;
+  }
+  await viewport.evaluate((el) => {
+    el.scrollTop = 0;
+  });
+  return [...seen].map((t) => t.trim());
 }
 
 test('@pepi C24941 Open Account UI elements', async ({ page }) => {

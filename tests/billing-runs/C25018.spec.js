@@ -38,6 +38,7 @@
  */
 
 const { test, expect } = require('@playwright/test');
+const { ensureBillingRunsColumn } = require('./_helpers');
 const { loginPlatformOneAdmin } = require('../_helpers/qa3');
 
 const BILLING_RUNS_URL = '/react/indexReact.do#platformOne/billingCenter/runs';
@@ -133,6 +134,7 @@ test('@pepi C25018 Billing Status Progression', async ({ page }) => {
     await expect(
       page.locator('.ag-header-cell[col-id="firmName"]').first()
     ).toBeVisible({ timeout: 60_000 });
+    await ensureBillingRunsColumn(page, 'publishedRuns', 'Published');
   });
 
   /** Find first Household-target Completed Unpublished row in the BillingRuns grid. */
@@ -239,6 +241,7 @@ test('@pepi C25018 Billing Status Progression', async ({ page }) => {
     await expect(
       page.locator('.ag-header-cell[col-id="firmName"]').first()
     ).toBeVisible({ timeout: 60_000 });
+    await ensureBillingRunsColumn(page, 'publishedRuns', 'Published');
     await page
       .locator(`.ag-center-cols-container > .ag-row[row-id="${state.targetBillingId}"]`)
       .first()

@@ -40,6 +40,7 @@
  */
 
 const { test, expect } = require('@playwright/test');
+const { ensureBillingRunsColumn } = require('./_helpers');
 const { loginPlatformOneAdmin } = require('../_helpers/qa3');
 const { seedBillingRun } = require('../_helpers/billing-seed');
 
@@ -67,6 +68,7 @@ test('@pepi C25014 Correct Firm Target Types Displayed by Billing Type', async (
     await expect(
       page.locator('.ag-header-cell[col-id="firmName"]').first()
     ).toBeVisible({ timeout: 60_000 });
+    await ensureBillingRunsColumn(page, 'publishedRuns', 'Published');
   });
 
   await test.step(`Narrow grid via Search box to "${SEED_TEMPLATE_NAME}"`, async () => {

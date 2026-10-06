@@ -43,6 +43,35 @@ c = oracledb.connect(user='gp', password='gp123', dsn=dsn)
 cur = c.cursor()
 
 
+def resolve_sources():
+    """Return (billing, run, history) ids to clone.
+
+    The hardcoded SRC_* ids are qa4 rows; on any other env (qabis1, fresh
+    clones) they don't exist and the INSERT ... SELECT would silently clone
+    nothing. Fall back to any single-run template billing (BILLINGS_VW, the
+    grid's source, only shows tmplt_id IS NOT NULL) plus any history row --
+    the history clone gets its run id overridden, so its origin is irrelevant.
+    """
+    cur.execute("SELECT COUNT(*) FROM billing_tbl WHERE billing_id=:1", [SRC_BILLING])
+    if cur.fetchone()[0]:
+        return SRC_BILLING, SRC_RUN, SRC_HIST
+    cur.execute(
+        """SELECT br.billing_id, br.billing_run_id
+             FROM billing_run_tbl br
+             JOIN billing_tbl b ON b.billing_id=br.billing_id
+            WHERE b.tmplt_id IS NOT NULL
+              AND br.billing_id IN (SELECT billing_id FROM billing_run_tbl
+                                     GROUP BY billing_id HAVING COUNT(*)=1)
+              AND ROWNUM=1"""
+    )
+    row = cur.fetchone()
+    if not row:
+        raise SystemExit('seed_billing_run: no single-run template billing to clone')
+    cur.execute("SELECT billing_history_id FROM billing_history_tbl WHERE ROWNUM=1")
+    hist = cur.fetchone()
+    return row[0], row[1], hist[0] if hist else None
+
+
 def newid():
     cur.execute("SELECT RAWTOHEX(SYS_GUID()) FROM dual")
     return cur.fetchone()[0]
@@ -64,6 +93,7 @@ cur.execute(
 cur.execute("DELETE FROM billing_tbl WHERE tmplt_name=:1", [name])
 c.commit()
 
+SRC_BILLING, SRC_RUN, SRC_HIST = resolve_sources()
 nb, nr = newid(), newid()
 
 cur.execute(

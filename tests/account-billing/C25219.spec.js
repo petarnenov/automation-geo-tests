@@ -28,6 +28,7 @@ const {
   closeHistory,
   setComboBoxValue,
   setReactNumericInput,
+  submitClientBillingSettings,
 } = require('./_helpers');
 
 const PERCENT_A = '7';
@@ -57,14 +58,7 @@ async function openEditHouseholdBillingSettings(page) {
 }
 
 async function saveEditHouseholdBillingSettings(page) {
-  await page.locator('button[data-role="formSubmitButton"]').first().click();
-  await expect(page.getByText(/Billing Details are Updated/i).first()).toBeVisible({
-    timeout: 60_000,
-  });
-  await page.getByRole('button', { name: 'Close', exact: true }).click();
-  await expect(page.getByText(/Billing Details are Updated/i)).toBeHidden({
-    timeout: 5000,
-  });
+  await submitClientBillingSettings(page, page.locator('button[data-role="formSubmitButton"]').first());
 }
 
 async function setDateViaSpinbuttons(page, sectionId, mmddyyyy) {
@@ -85,7 +79,7 @@ test('@pepi C25219 Household Adjustment/Expiration Date - Percent', async ({
   context,
   workerFirm,
 }) => {
-  test.setTimeout(360_000);
+  test.setTimeout(900_000);
   const householdUuid = workerFirm.household.uuid;
 
   await test.step('Phase 1: set Advisor adjustment to Percent + value + expiration', async () => {

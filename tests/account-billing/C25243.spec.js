@@ -53,7 +53,9 @@ const {
   historyRow,
   setReactDatePicker,
   setComboBoxValue,
+  submitClientBillingSettings,
 } = require('./_helpers');
+const { listComboBoxOptions, pickBillingSpec } = require('../_helpers/ui');
 
 const CLIENT_BILLING_URL = `/react/indexReact.do#/client/1/${CLIENT_UUID}/detailsActivity/balanceSettings`;
 
@@ -180,17 +182,10 @@ async function saveEditClientBillingSettings(page) {
   // The Edit Client Billing Settings form's submit button uses the
   // FormBuilder `data-role="formSubmitButton"` attribute. Scope by that
   // rather than role+name: the override sub-modal also renders a "Save".
-  await page.locator('button[data-role="formSubmitButton"]').first().click();
   // Client-level success modal (per EditBillingSettingsCompany.js) says
   // "Billing Details are Updated!" — different wording than the account
   // variant ("Account Billing Successfully Updated!").
-  await expect(page.getByText(/Billing Details are Updated/i).first()).toBeVisible({
-    timeout: 60_000,
-  });
-  await page.getByRole('button', { name: 'Close', exact: true }).click();
-  await expect(page.getByText(/Billing Details are Updated/i)).toBeHidden({
-    timeout: 5000,
-  });
+  await submitClientBillingSettings(page, page.locator('button[data-role="formSubmitButton"]').first());
 }
 
 // Same race window as C25196: firm 106 mutations from sibling specs can flip
@@ -201,7 +196,7 @@ test('@pepi C25243 Client Spec Name/Active Date - Admin and Non-Admin', async ({
   page,
   context,
 }) => {
-  test.setTimeout(600_000);
+  test.setTimeout(1_800_000);
 
   /** @type {Record<string, { specBefore: string, specAfter: string, dateAfter: string }>} */
   const expectations = {};
@@ -232,7 +227,12 @@ test('@pepi C25243 Client Spec Name/Active Date - Admin and Non-Admin', async ({
 
       const taSel = `#${b.bucketKey}BillingSpecification_typeAhead`;
       const currentSpec = (await page.locator(taSel).inputValue()).trim();
-      const specAfter = currentSpec === b.specA ? b.specB : b.specA;
+      const specAfter = pickBillingSpec(
+        await listComboBoxOptions(page, `${b.bucketKey}BillingSpecification`),
+        currentSpec,
+        b.specA,
+        b.specB
+      );
       const dateBefore = await page
         .locator(`#${b.bucketKey}BillingActiveDate`)
         .evaluate((sec) => {

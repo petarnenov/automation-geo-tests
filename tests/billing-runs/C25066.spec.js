@@ -29,8 +29,10 @@
  */
 
 const { test, expect } = require('@playwright/test');
+const { ensureBillingRunsColumn, seedTargetRun, filterRunsGrid } = require('./_helpers');
 const { loginPlatformOneTim1Fresh } = require('../_helpers/qa3');
 
+const SEED_NAME = 'C25066 Account Seed';
 const BILLING_RUNS_URL = '/react/indexReact.do#platformOne/billingCenter/runs';
 const WARNING_RX =
   /Billing will be re-run for all accounts in the household and the history updated for all of the household.?s accounts\./i;
@@ -41,6 +43,8 @@ test('@pepi C25066 Correct Account Target Type Displayed by Billing Type', async
   // tim1 (role Admins), not the worker GW Admin (role 529 "All Employees"):
   // the account-target Completed/Unpublished runs live on other firms, so only
   // a full admin with cross-firm visibility sees them in the grid at all.
+  // Pre-condition row, seeded so the case doesn't depend on env history.
+  seedTargetRun(SEED_NAME, 'account');
   await loginPlatformOneTim1Fresh(page);
 
   await test.step('Navigate to Operations > Billing > Billing Runs', async () => {
@@ -49,6 +53,8 @@ test('@pepi C25066 Correct Account Target Type Displayed by Billing Type', async
     await expect(
       page.locator('.ag-header-cell[col-id="firmName"]').first()
     ).toBeVisible({ timeout: 60_000 });
+    await ensureBillingRunsColumn(page, 'publishedRuns', 'Published');
+    await filterRunsGrid(page, SEED_NAME);
   });
 
   // The default window holds hundreds of rows and ag-grid virtualizes the DOM,
@@ -111,8 +117,10 @@ test('@pepi C25066 Correct Account Target Type Displayed by Billing Type', async
   );
 
   await test.step('Step 1: Select the Account-target master row checkbox', async () => {
-    const checkbox = masterRow
-      .locator('.ag-selection-checkbox .ag-checkbox-input')
+    // The selection column may be pinned left, outside .ag-center-cols-container;
+    // look the checkbox up by row-id across the whole grid.
+    const checkbox = page
+      .locator(`.ag-row[row-id="${rowId}"] .ag-selection-checkbox .ag-checkbox-input`)
       .first();
     await checkbox.scrollIntoViewIfNeeded();
     await checkbox.click();

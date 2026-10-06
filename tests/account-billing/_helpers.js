@@ -30,8 +30,15 @@ const { login } = require('../_helpers/qa3');
 const { setReactDatePicker, setComboBoxValue, setReactNumericInput } = require('../_helpers/ui');
 
 const ADMIN_USERNAME = 'tim106';
-const NON_ADMIN_USERNAME = 'tyler@plimsollfp.com';
-const SHARED_PASSWORD = 'c0w&ch1k3n';
+const appUnderTest = require('../../testrail.config.json').appUnderTest;
+// Tyler (firm 106, advisor of the "Arnold, Delaney" client, no BILLING_SETTINGS
+// 64_5 permission). Anonymized envs rename him — qabis1 has the same entity
+// 04BA4FD68D7B44FA8D0FC9CEFAE0D9CB as `37352@geowealth.com` — so allow a
+// per-env override via appUnderTest.accountBillingNonAdmin.
+const NON_ADMIN_USERNAME = appUnderTest.accountBillingNonAdmin || 'tyler@plimsollfp.com';
+// Same password as tim1 on every env — read it from config so a per-env
+// password change doesn't silently break Phase 2 logins.
+const SHARED_PASSWORD = appUnderTest.password;
 
 const CLIENT_UUID = 'A80D472B04874979AAA3D8C3FFE9BD3A';
 const ACCOUNT_UUID = '5588D454741342FBB9AABA8FF17A85EE';
@@ -127,6 +134,76 @@ async function saveEditBillingSettings(page) {
   });
 }
 
+/** Rows in ENTITY_BILLING_DATA_HIST_TBL for an entity — grows by one per committed save. */
+function billingHistCount(entityId) {
+  const { execFileSync } = require('child_process');
+  const { DB_DSN } = require('../_helpers/qa3');
+  const out = execFileSync(
+    'python3',
+    [
+      '-c',
+      `import oracledb,sys
+c=oracledb.connect(user='gp',password='gp123',dsn='${DB_DSN}')
+cur=c.cursor()
+cur.execute("SELECT COUNT(*) FROM entity_billing_data_hist_tbl WHERE entity_id=:1",[sys.argv[1]])
+print(cur.fetchone()[0])`,
+      entityId,
+    ],
+    { timeout: 60_000 }
+  );
+  return Number(String(out).trim());
+}
+
+/**
+ * Submit the Edit Household/Client Billing Settings form and wait until the
+ * change is committed.
+ *
+ * On firm 106 (qabis1) `editBillingClientSettings.do` runs ~90s server-side,
+ * longer than the load balancer's 60s idle timeout: the browser gets a 504
+ * and the SPA shows "Communication to Server lost" although the save does
+ * commit. Treat the 504 as "still running": dismiss the error, poll the
+ * entity's billing history table until a new row lands, then reload so the
+ * page reflects the persisted state. A 200 keeps the original toast path.
+ *
+ * @param {import('@playwright/test').Page} page
+ * @param {import('@playwright/test').Locator} submit
+ */
+async function submitClientBillingSettings(page, submit) {
+  const entityId = (page.url().match(/#\/?client\/\d+\/([0-9A-F]{32})/i) || [])[1];
+  const before = entityId ? billingHistCount(entityId) : null;
+  const responseP = page.waitForResponse((r) => r.url().includes('/editBillingClientSettings.do'), {
+    timeout: 180_000,
+  });
+  await submit.click();
+  const response = await responseP;
+
+  if (response.status() !== 504) {
+    await expect(page.getByText(/Billing Details are Updated/i).first()).toBeVisible({
+      timeout: 60_000,
+    });
+    await page.getByRole('button', { name: 'Close', exact: true }).click();
+    await expect(page.getByText(/Billing Details are Updated/i)).toBeHidden({ timeout: 5000 });
+    return;
+  }
+
+  if (!entityId) throw new Error(`editBillingClientSettings 504 and no entity id in URL ${page.url()}`);
+  const lostDialog = page.getByText(/Communication to Server lost/i).first();
+  if (await lostDialog.isVisible().catch(() => false)) {
+    await page.getByRole('button', { name: 'Close', exact: true }).last().click();
+  }
+  await expect
+    .poll(() => billingHistCount(entityId), {
+      message: `editBillingClientSettings 504: waiting for ${entityId} save to commit`,
+      timeout: 240_000,
+      intervals: [5000],
+    })
+    .toBeGreaterThan(before);
+  await page.reload();
+  await expect(page.getByRole('button', { name: 'History', exact: true })).toBeVisible({
+    timeout: 60_000,
+  });
+}
+
 async function openHistory(page) {
   await page.getByRole('button', { name: 'History', exact: true }).click();
   await expect(page.getByText(/Billing Settings History/i).first()).toBeVisible({
@@ -189,6 +266,7 @@ module.exports = {
   gotoWorkerFirmAccountBilling,
   openEditBillingSettings,
   saveEditBillingSettings,
+  submitClientBillingSettings,
   openHistory,
   closeHistory,
   historyRow,

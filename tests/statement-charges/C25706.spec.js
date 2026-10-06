@@ -146,8 +146,10 @@ test('@pepi C25706 Statement Charges - default system view sort order', async ({
     );
     await expect(sysDefault).toBeVisible({ timeout: 10_000 });
     await sysDefault.click();
+    // Some builds (qabis1) render the "View:" caption outside #savedViewsList,
+    // so the prefix is optional; the unsuffixed name is what proves selection.
     await expect(page.locator('#savedViewsList')).toContainText(
-      `View: ${SYSTEM_VIEW_LABEL}`,
+      new RegExp(`(View:\\s*)?${SYSTEM_VIEW_LABEL}(?! - default)`),
       { timeout: 10_000 }
     );
   });

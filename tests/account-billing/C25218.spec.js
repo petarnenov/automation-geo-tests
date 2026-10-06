@@ -38,6 +38,7 @@ const {
   gotoAccountBilling,
   openHistory,
   closeHistory,
+  submitClientBillingSettings,
 } = require('./_helpers');
 
 const VALUE_LABELS = { 0: 'No', 1: 'Yes', 2: 'Inherit' };
@@ -103,14 +104,7 @@ async function openEditHouseholdBillingSettings(page) {
 }
 
 async function saveEditHouseholdBillingSettings(page) {
-  await page.locator('button[data-role="formSubmitButton"]').first().click();
-  await expect(page.getByText(/Billing Details are Updated/i).first()).toBeVisible({
-    timeout: 60_000,
-  });
-  await page.getByRole('button', { name: 'Close', exact: true }).click();
-  await expect(page.getByText(/Billing Details are Updated/i)).toBeHidden({
-    timeout: 5000,
-  });
+  await submitClientBillingSettings(page, page.locator('button[data-role="formSubmitButton"]').first());
 }
 
 async function readExcludeValue(page, formKey) {
@@ -162,7 +156,7 @@ test('@pepi C25218 Household Exclude from billing - Admin and Non-Admin', async 
   context,
   workerFirm,
 }) => {
-  test.setTimeout(600_000);
+  test.setTimeout(1_800_000);
   const householdUuid = workerFirm.household.uuid;
 
   await test.step('Phase 1.1: flip exclude for all 6 buckets, one save per bucket', async () => {
