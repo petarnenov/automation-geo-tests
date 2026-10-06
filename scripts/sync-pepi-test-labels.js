@@ -30,7 +30,7 @@ const PEPI_LABEL_ID = 22;
 const PROJECT_ID = 2;
 const DRY_RUN = process.env.DRY_RUN === '1';
 
-const cfg = JSON.parse(fs.readFileSync(path.join(REPO_ROOT, 'testrail.config.json'), 'utf8'));
+const { cfg } = require('../tests/_helpers/config');
 const runArg = process.argv.indexOf('--run');
 const runId = runArg !== -1 ? Number(process.argv[runArg + 1]) : Number(cfg.testrail.focusedRun.runId);
 

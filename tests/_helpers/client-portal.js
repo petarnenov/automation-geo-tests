@@ -30,14 +30,11 @@
  * on `#clientPortal/dashboard`.
  */
 
-const fs = require('fs');
-const path = require('path');
 const { execSync } = require('child_process');
 const { DB_DSN } = require('./qa3');
 
-const cfg = JSON.parse(
-  fs.readFileSync(path.join(__dirname, '..', '..', 'testrail.config.json'), 'utf8')
-);
+const { cfg } = require('./config');
+const { requireEnv } = require('./env');
 
 /**
  * Provision a Client Portal-enabled client in `firmCd`.
@@ -48,13 +45,13 @@ const cfg = JSON.parse(
  * @param {number} opts.firmCd
  * @param {string} [opts.namePrefix='pepiCli']  first name + username prefix
  * @param {string} [opts.lastName='PortalCli']
- * @param {string} [opts.password='C0w&ch1k3n']
+ * @param {string} [opts.password] defaults to GEO_TEST_USER_PASSWORD
  * @param {string} [opts.emailDomain='geowealth.com']
  * @returns {Promise<{clientUUID:string, email:string, password:string, firstName:string, lastName:string, firmCd:number}>}
  */
 async function provisionClientPortalAccess(
   adminPage,
-  { firmCd, namePrefix = 'pepiCli', lastName = 'PortalCli', password = 'C0w&ch1k3n', emailDomain = 'geowealth.com' }
+  { firmCd, namePrefix = 'pepiCli', lastName = 'PortalCli', password = requireEnv('GEO_TEST_USER_PASSWORD'), emailDomain = 'geowealth.com' }
 ) {
   const baseURL = cfg.appUnderTest.url;
   const username = `${namePrefix}_${Date.now()}_${Math.floor(Math.random() * 1e6)}`;
@@ -144,8 +141,8 @@ async function provisionClientPortalAccess(
   // entity_active_flag is already 1 and the hash is already set.
   execSync(
     `python3 -c "
-import oracledb
-c = oracledb.connect(user='gp', password='gp123', dsn='${DB_DSN}')
+import os, oracledb
+c = oracledb.connect(user=os.environ['GEO_DB_USER'], password=os.environ['GEO_DB_PASSWORD'], dsn='${DB_DSN}')
 cur = c.cursor()
 cur.execute('UPDATE entity_tbl SET ldap_uid = :1, login_inactivated_flag = 0 WHERE entity_id = :2', ['${email}', '${clientUUID}'])
 c.commit()

@@ -1,9 +1,9 @@
 {
   "appUnderTest": {
-    "url": "https://qa4.geowealth.com/",
+    "url": "https://qabis1-eol.geowealth.com/",
     "username": "tim1",
-    "password": "c0w&ch1k3n",
-    "note": "Това е приложението, върху което се изпълняват автоматизираните тестове."
+    "note": "Това е приложението, върху което се изпълняват автоматизираните тестове.",
+    "accountBillingNonAdmin": "37352@geowealth.com"
   },
   "testrail": {
     "focusedRun": {

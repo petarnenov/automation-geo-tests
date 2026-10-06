@@ -11,7 +11,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const cfg = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'testrail.config.json'), 'utf8'));
+const { cfg } = require('../tests/_helpers/config');
 
 const runId = cfg.testrail.focusedRun.runId;
 const labelName = (cfg.testrail.filter.label || '').toLowerCase();

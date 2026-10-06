@@ -8,9 +8,8 @@ const { expect } = require('@playwright/test');
 const fs = require('fs');
 const path = require('path');
 
-const cfg = JSON.parse(
-  fs.readFileSync(path.join(__dirname, '..', '..', 'testrail.config.json'), 'utf8')
-);
+const { cfg } = require('./config');
+const { requireEnv } = require('./env');
 
 // Oracle DSN for the direct-DB helpers (MFA disable, password-expiry seeding,
 // audit probes). A wrong DSN makes the UPDATEs silently no-op — see
@@ -496,7 +495,8 @@ async function createGwAdmin(name) {
 
   const base = cfg.appUnderTest.url.replace(/\/$/, '');
   const username = `${name}_${Date.now()}`;
-  const password = 'C0w&ch1k3n'; // meets uppercase+lowercase+digit+special requirement
+  // GEO_TEST_USER_PASSWORD must meet the uppercase+lowercase+digit+special rule.
+  const password = requireEnv('GEO_TEST_USER_PASSWORD');
 
   const payload = {
     firmCd: 1,
@@ -542,8 +542,8 @@ async function createGwAdmin(name) {
   const { execSync } = require('child_process');
   execSync(
     `python3 -c "
-import oracledb
-c = oracledb.connect(user='gp', password='gp123', dsn='${DB_DSN}')
+import os, oracledb
+c = oracledb.connect(user=os.environ['GEO_DB_USER'], password=os.environ['GEO_DB_PASSWORD'], dsn='${DB_DSN}')
 cur = c.cursor()
 cur.execute('UPDATE entity_tbl SET mfa_required_flag = 0 WHERE entity_id = :1', ['${userId}'])
 c.commit()
@@ -583,8 +583,8 @@ function expireUserPassword(entityId, daysAgo = 91) {
   const { execSync } = require('child_process');
   execSync(
     `python3 -c "
-import oracledb
-c = oracledb.connect(user='gp', password='gp123', dsn='${DB_DSN}')
+import os, oracledb
+c = oracledb.connect(user=os.environ['GEO_DB_USER'], password=os.environ['GEO_DB_PASSWORD'], dsn='${DB_DSN}')
 cur = c.cursor()
 # Use MERGE so the same call works whether or not a row already exists.
 cur.execute('''
@@ -619,8 +619,8 @@ function getLastPasswordChangeMs(entityId) {
   const { execSync } = require('child_process');
   const out = execSync(
     `python3 -c "
-import oracledb, sys
-c = oracledb.connect(user='gp', password='gp123', dsn='${DB_DSN}')
+import os, oracledb, sys
+c = oracledb.connect(user=os.environ['GEO_DB_USER'], password=os.environ['GEO_DB_PASSWORD'], dsn='${DB_DSN}')
 cur = c.cursor()
 cur.execute('SELECT MAX(change_date) FROM entity_pswd_change_tbl WHERE entity_id = :1', ['${entityId}'])
 row = cur.fetchone()
@@ -654,8 +654,8 @@ function linkUserTo(linkedEntityId, parentEntityId) {
   const { execSync } = require('child_process');
   execSync(
     `python3 -c "
-import oracledb
-c = oracledb.connect(user='gp', password='gp123', dsn='${DB_DSN}')
+import os, oracledb
+c = oracledb.connect(user=os.environ['GEO_DB_USER'], password=os.environ['GEO_DB_PASSWORD'], dsn='${DB_DSN}')
 cur = c.cursor()
 cur.execute('UPDATE entity_tbl SET linked_gw_user = :1 WHERE entity_id = :2', ['${parentEntityId}', '${linkedEntityId}'])
 c.commit()
@@ -691,7 +691,7 @@ async function createFirmUser({ name, gwAdminFlag = false, firmCd = 1, emailAddr
 
   const base = cfg.appUnderTest.url.replace(/\/$/, '');
   const username = `${name}_${Date.now()}`;
-  const password = 'C0w&ch1k3n';
+  const password = requireEnv('GEO_TEST_USER_PASSWORD');
   const email = emailAddress || `${username}@geowealth.com`;
 
   const firstName = name;
@@ -737,8 +737,8 @@ async function createFirmUser({ name, gwAdminFlag = false, firmCd = 1, emailAddr
     const { execSync } = require('child_process');
     execSync(
       `python3 -c "
-import oracledb
-c = oracledb.connect(user='gp', password='gp123', dsn='${DB_DSN}')
+import os, oracledb
+c = oracledb.connect(user=os.environ['GEO_DB_USER'], password=os.environ['GEO_DB_PASSWORD'], dsn='${DB_DSN}')
 cur = c.cursor()
 cur.execute('UPDATE entity_tbl SET mfa_required_flag = 0 WHERE entity_id = :1', ['${userId}'])
 c.commit()
@@ -763,8 +763,8 @@ function getUserPrimaryEmail(entityId) {
   const { execSync } = require('child_process');
   const out = execSync(
     `python3 -c "
-import oracledb
-c = oracledb.connect(user='gp', password='gp123', dsn='${DB_DSN}')
+import os, oracledb
+c = oracledb.connect(user=os.environ['GEO_DB_USER'], password=os.environ['GEO_DB_PASSWORD'], dsn='${DB_DSN}')
 cur = c.cursor()
 cur.execute('SELECT email FROM entity_email_tbl WHERE entity_id = :1 AND primary_email_flag = 1', ['${entityId}'])
 row = cur.fetchone()
@@ -794,8 +794,8 @@ function patchUserPrimaryEmail(entityId, email) {
   const { execSync } = require('child_process');
   execSync(
     `python3 -c "
-import oracledb
-c = oracledb.connect(user='gp', password='gp123', dsn='${DB_DSN}')
+import os, oracledb
+c = oracledb.connect(user=os.environ['GEO_DB_USER'], password=os.environ['GEO_DB_PASSWORD'], dsn='${DB_DSN}')
 cur = c.cursor()
 cur.execute('UPDATE entity_email_tbl SET email = :1 WHERE entity_id = :2 AND primary_email_flag = 1', ['${email}', '${entityId}'])
 c.commit()
@@ -825,8 +825,8 @@ function createLostPasswordLink(entityId) {
   const { execSync } = require('child_process');
   execSync(
     `python3 -c "
-import oracledb
-c = oracledb.connect(user='gp', password='gp123', dsn='${DB_DSN}')
+import os, oracledb
+c = oracledb.connect(user=os.environ['GEO_DB_USER'], password=os.environ['GEO_DB_PASSWORD'], dsn='${DB_DSN}')
 cur = c.cursor()
 cur.execute('INSERT INTO user_link_tbl (link_id, user_id) VALUES (:1, :2)', ['${linkId}', '${entityId}'])
 c.commit()

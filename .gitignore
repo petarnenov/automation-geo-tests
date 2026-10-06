@@ -30,3 +30,6 @@ npm-debug.log*
 .claude/scheduled_tasks.lock
 # Separate repo (petarnenov/fullstack)
 fullstack/
+
+# Python bytecode cache
+__pycache__/

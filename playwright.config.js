@@ -2,7 +2,6 @@
 const playwrightTest = require('@playwright/test');
 const { defineConfig, devices } = playwrightTest;
 const fs = require('fs');
-const path = require('path');
 const { STORAGE_STATE_PATH, GW_ADMINS_PATH } = require('./tests/_helpers/global-setup');
 const { setupWorkerFirm } = require('./tests/_helpers/worker-firm');
 
@@ -68,7 +67,7 @@ playwrightTest.test = baseTest.extend({
   ],
 });
 
-const cfg = JSON.parse(fs.readFileSync(path.join(__dirname, 'testrail.config.json'), 'utf8'));
+const { cfg } = require('./tests/_helpers/config');
 
 const labelTag = `@${cfg.playwright.labelFilter}`; // "@pepi"
 

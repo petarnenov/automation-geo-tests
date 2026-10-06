@@ -17,10 +17,9 @@
 
 const { chromium } = require('@playwright/test');
 const path = require('path');
-const fs = require('fs');
 const { setupWorkerFirm } = require('../tests/_helpers/worker-firm');
 
-const cfg = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'testrail.config.json'), 'utf8'));
+const { cfg } = require('../tests/_helpers/config');
 const STORAGE = path.join(__dirname, '..', 'tests', '.auth', 'tim1.json');
 const PASSWORD = cfg.appUnderTest.password;
 

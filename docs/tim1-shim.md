@@ -55,7 +55,7 @@ If any check fails, `globalSetup` falls back to the real GW Admin provisioning, 
     {
       "userId": "fake-0",
       "username": "tim1",
-      "password": "c0w&ch1k3n",
+      "password": "<TIM1_PASSWORD>",
       "emailAddress": "tim1@geowealth.com",
       "firstName": "tim1",
       "lastName": "GWAdmin",

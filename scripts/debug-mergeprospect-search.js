@@ -7,14 +7,13 @@
  *
  * Run:  node scripts/debug-mergeprospect-search.js <firmCd> <clientLastName>
  */
-const fs = require('fs');
 const path = require('path');
 const { chromium } = require('playwright');
 
 const firmCd = Number(process.argv[2] || 1238);
 const clientLastName = process.argv[3] || 'clSR-20260603155728-1';
 
-const cfg = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'testrail.config.json'), 'utf8'));
+const { cfg } = require('../tests/_helpers/config');
 const baseUrl = cfg.appUnderTest.url;
 const tim1State = path.join(__dirname, '..', 'tests', '.auth', 'tim1.json');
 

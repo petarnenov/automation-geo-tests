@@ -39,7 +39,7 @@ error_json = os.environ.get('SEED_ERROR_JSON') or None
 target_json = os.environ.get('SEED_TARGET_JSON') or None
 partial = os.environ.get('SEED_PARTIAL', '0') == '1'
 
-c = oracledb.connect(user='gp', password='gp123', dsn=dsn)
+c = oracledb.connect(user=os.environ['GEO_DB_USER'], password=os.environ['GEO_DB_PASSWORD'], dsn=dsn)
 cur = c.cursor()
 
 

@@ -6,23 +6,21 @@
  * Usage: node scripts/debug-noperm-advisor.js <firmCd> <advisorLoginName> <clientLastNamePrefix>
  */
 const { execSync } = require('child_process');
-const fs = require('fs');
-const path = require('path');
 const { chromium } = require('playwright');
 
 const firmCd = Number(process.argv[2] || 1246);
 const advisorLogin = process.argv[3] || 'adv_1246_2';
 const clientLastNamePrefix = process.argv[4] || 'clSR-';
 
-const cfg = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'testrail.config.json'), 'utf8'));
+const { cfg } = require('../tests/_helpers/config');
 const baseUrl = cfg.appUnderTest.url;
 const PASSWORD = cfg.appUnderTest.password;
 
 function setGwAdminFlag(loginName, flag) {
   execSync(
     `python3 -c "
-import oracledb
-c = oracledb.connect(user='gp', password='gp123', dsn='dbhost:1521/ORCL12VM')
+import os, oracledb
+c = oracledb.connect(user=os.environ['GEO_DB_USER'], password=os.environ['GEO_DB_PASSWORD'], dsn='dbhost:1521/ORCL12VM')
 cur = c.cursor()
 cur.execute('UPDATE entity_tbl SET gw_admin_flag = :1 WHERE ldap_uid = :2', [${flag}, '${loginName}'])
 c.commit()

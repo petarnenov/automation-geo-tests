@@ -30,15 +30,12 @@ const { login } = require('../_helpers/qa3');
 const { setReactDatePicker, setComboBoxValue, setReactNumericInput } = require('../_helpers/ui');
 
 const ADMIN_USERNAME = 'tim106';
-const appUnderTest = require('../../testrail.config.json').appUnderTest;
+const { appUnderTest } = require('../_helpers/config').cfg;
 // Tyler (firm 106, advisor of the "Arnold, Delaney" client, no BILLING_SETTINGS
 // 64_5 permission). Anonymized envs rename him — qabis1 has the same entity
 // 04BA4FD68D7B44FA8D0FC9CEFAE0D9CB as `37352@geowealth.com` — so allow a
 // per-env override via appUnderTest.accountBillingNonAdmin.
 const NON_ADMIN_USERNAME = appUnderTest.accountBillingNonAdmin || 'tyler@plimsollfp.com';
-// Same password as tim1 on every env — read it from config so a per-env
-// password change doesn't silently break Phase 2 logins.
-const SHARED_PASSWORD = appUnderTest.password;
 
 const CLIENT_UUID = 'A80D472B04874979AAA3D8C3FFE9BD3A';
 const ACCOUNT_UUID = '5588D454741342FBB9AABA8FF17A85EE';
@@ -53,7 +50,8 @@ const ACCOUNT_BILLING_URL = `/react/indexReact.do#/client/1/${CLIENT_UUID}/accou
  */
 async function loginAs(context, page, username, expectedLandingUrl) {
   await context.clearCookies();
-  await login(page, username, SHARED_PASSWORD);
+  // Same password as tim1 on every env (TIM1_PASSWORD).
+  await login(page, username, appUnderTest.password);
   await expect(page).toHaveURL(expectedLandingUrl, { timeout: 30_000 });
 }
 
@@ -142,8 +140,8 @@ function billingHistCount(entityId) {
     'python3',
     [
       '-c',
-      `import oracledb,sys
-c=oracledb.connect(user='gp',password='gp123',dsn='${DB_DSN}')
+      `import os, oracledb,sys
+c=oracledb.connect(user=os.environ['GEO_DB_USER'],password=os.environ['GEO_DB_PASSWORD'],dsn='${DB_DSN}')
 cur=c.cursor()
 cur.execute("SELECT COUNT(*) FROM entity_billing_data_hist_tbl WHERE entity_id=:1",[sys.argv[1]])
 print(cur.fetchone()[0])`,
@@ -255,7 +253,6 @@ async function getDisplayedBillingInceptionDate(page) {
 module.exports = {
   ADMIN_USERNAME,
   NON_ADMIN_USERNAME,
-  SHARED_PASSWORD,
   CLIENT_UUID,
   ACCOUNT_UUID,
   ACCOUNT_BILLING_URL,

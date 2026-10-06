@@ -375,9 +375,9 @@ const TIM1_ENTITY_ID = '4502746CD9044636A78C804DBF3F70BF';
 function countTim1ImpersonationEventsSince(sinceIsoUtc) {
   const { execSync } = require('child_process');
   const py = `
-import oracledb
+import os, oracledb
 from datetime import datetime, timedelta
-c = oracledb.connect(user='gp', password='gp123', dsn='${DB_DSN}')
+c = oracledb.connect(user=os.environ['GEO_DB_USER'], password=os.environ['GEO_DB_PASSWORD'], dsn='${DB_DSN}')
 cur = c.cursor()
 # Oracle DB column is DATE (no tz) written in the app server's local zone,
 # which differs per env (qa4 UTC-ish, qabis1 ET = UTC-4). Widen the lower

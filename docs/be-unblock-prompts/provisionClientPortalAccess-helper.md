@@ -19,7 +19,7 @@ Add a single async helper in `tests/_helpers/qa3.js` (or a new `tests/_helpers/c
  * @param {object} opts
  * @param {number} opts.firmCd
  * @param {string} [opts.namePrefix='pepiCli']
- * @param {string} [opts.password='C0w&ch1k3n']
+ * @param {string} [opts.password] defaults to GEO_TEST_USER_PASSWORD
  * @returns {Promise<{clientUUID, email, password, username, firstName, lastName, firmCd}>}
  */
 async function provisionClientPortalAccess(page, opts) { ... }

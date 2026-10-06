@@ -26,9 +26,7 @@ const { chromium } = require('@playwright/test');
 const fs = require('fs');
 const path = require('path');
 
-const cfg = JSON.parse(
-  fs.readFileSync(path.join(__dirname, '..', '..', 'testrail.config.json'), 'utf8')
-);
+const { cfg } = require('./config');
 
 const AUTH_DIR = path.join(__dirname, '..', '.auth');
 const STORAGE_STATE_PATH = path.join(AUTH_DIR, 'tim1.json');

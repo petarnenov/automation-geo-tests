@@ -22,12 +22,9 @@ const fs = require('fs');
 const path = require('path');
 const { setComboBoxValue } = require('./ui');
 
-const cfg = JSON.parse(
-  fs.readFileSync(path.join(__dirname, '..', '..', 'testrail.config.json'), 'utf8')
-);
+const { cfg } = require('./config');
 const STORAGE = path.join(__dirname, '..', '.auth', 'tim1.json');
 const BASE = cfg.appUnderTest.url.replace(/\/$/, '');
-const PASSWORD = cfg.appUnderTest.password;
 
 const ENDPOINT = '/qa/createDummyFirm.do';
 // Variant of /qa/createDummyFirm.do that also seeds 2 prospects + 3 custom
@@ -171,7 +168,7 @@ async function setupWorkerFirm({ extended = false } = {}) {
   return {
     firmCd: raw.firm.firmCd,
     firmName: raw.firm.firmName,
-    password: PASSWORD,
+    password: cfg.appUnderTest.password,
     admin: {
       loginName: raw.adminUser.loginName,
       entityId: raw.adminUser.entityId,
@@ -259,7 +256,7 @@ async function provisionProspectInPlace(page, context, workerFirm, opts = {}) {
   const usernameInput = page.getByPlaceholder(/email|username/i);
   await usernameInput.waitFor({ timeout: 30_000, state: 'visible' });
   await usernameInput.fill(workerFirm.admin.loginName);
-  await page.getByPlaceholder(/password/i).fill(PASSWORD);
+  await page.getByPlaceholder(/password/i).fill(cfg.appUnderTest.password);
   await page.getByRole('button', { name: 'Login' }).click();
   await page.waitForURL(/#(dashboard|platformOne)/, { timeout: 30_000 });
 
