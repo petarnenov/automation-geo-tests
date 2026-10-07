@@ -99,6 +99,9 @@ module.exports = defineConfig({
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
+    // Cap every click/fill/press so a missing element fails fast instead of
+    // pinning the worker until the (sometimes 30-minute) test timeout.
+    actionTimeout: 30_000,
     // Default storageState — overridden per worker by the storageState
     // fixture above. Kept here as fallback for edge cases.
     storageState: STORAGE_STATE_PATH,

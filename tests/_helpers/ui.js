@@ -410,7 +410,11 @@ async function listComboBoxOptions(page, fieldKey) {
   // An already-empty typeAhead doesn't reopen on Backspace; nudge it open.
   const openers = [
     () => typeAhead.press('ArrowDown'),
-    () => page.locator(`#${fieldKey}Div [data-type="icon"], #${fieldKey}Div svg`).first().click(),
+    () =>
+      page
+        .locator(`#${fieldKey}Div [data-type="icon"], #${fieldKey}Div svg`)
+        .first()
+        .click({ timeout: 5000 }),
   ];
   for (const open of openers) {
     if (await items.first().isVisible().catch(() => false)) break;
