@@ -88,6 +88,12 @@ async function printConfig() {
       mapping ? `${path.relative(REPO_ROOT, aio.mappingFile)} (${mapping.size} cases)` : 'MISSING',
     ],
     ['Reported', process.env.AIO_REPORT_ALL === '1' ? 'all results' : 'green results only'],
+    [
+      'Assignee',
+      aio.assignee.accountId
+        ? `${aio.assignee.name} (label @${aio.assignee.label}, ${aio.assignee.accountId})`
+        : `NONE: no entry for label "${aio.assignee.label}" in aio.config.json`,
+    ],
     ['Green status', aio.statusNames.passed],
     ['Green comment', commentFor('passed')],
     ['AIO posting', posting],
@@ -125,15 +131,50 @@ async function confirm(question, defaultYes) {
     console.log(`${question} ${hint} → ${defaultYes ? 'Yes' : 'No'} (no terminal, default)`);
     return defaultYes;
   }
-  const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
-  const answer = await new Promise((resolve) => rl.question(`${bold(question)} ${hint} `, resolve));
-  rl.close();
-  const a = String(answer).trim().toLowerCase();
+  const a = (await ask(`${bold(question)} ${hint} `)).toLowerCase();
   if (!a) return defaultYes;
   return ['y', 'yes', 'д', 'да'].includes(a);
 }
 
+/** @param {string} prompt */
+async function ask(prompt) {
+  const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
+  const answer = await new Promise((resolve) => rl.question(prompt, resolve));
+  rl.close();
+  return String(answer).trim();
+}
+
+/**
+ * Pick whose name the run goes out under: the assignee and the comment of
+ * every reported result follow the choice. Defaults to the label filter's
+ * owner; AIO_ASSIGNEE_LABEL (make test RUNAS=...) skips the question.
+ */
+async function chooseAssignee() {
+  if (process.env.AIO_ASSIGNEE_LABEL) return;
+  const { assignee } = loadAioConfig();
+  const raw = JSON.parse(fs.readFileSync(path.join(REPO_ROOT, 'aio.config.json'), 'utf8'));
+  const labels = Object.keys(raw.aio.assignees || {});
+  if (labels.length < 2 || !process.stdin.isTTY) return;
+
+  const def = Math.max(0, labels.indexOf(assignee.label));
+  console.log(bold('\nRun as'));
+  labels.forEach((label, i) => {
+    const mark = i === def ? '*' : ' ';
+    console.log(`  ${mark}${i + 1}) ${raw.aio.assignees[label].name.padEnd(22)} @${label}`);
+  });
+  for (;;) {
+    const a = await ask(`${bold('Choose')} [1-${labels.length}, Enter = ${def + 1}] `);
+    const n = a ? Number(a) : def + 1;
+    if (Number.isInteger(n) && n >= 1 && n <= labels.length) {
+      process.env.AIO_ASSIGNEE_LABEL = labels[n - 1];
+      return;
+    }
+    console.log(`  Enter a number from 1 to ${labels.length}.`);
+  }
+}
+
 async function run(args) {
+  await chooseAssignee();
   console.log(bold('\nConfiguration'));
   const { aio, mapping } = await printConfig();
 
@@ -145,8 +186,9 @@ async function run(args) {
   console.log(`  AIO-mapped    ${mapped} of ${unique.length} case ids`);
   console.log(`  Args          ${args.length ? args.join(' ') : '(none)'}`);
   console.log(
-    `  Greens get    ${aio.statusNames.passed} + "${commentFor('passed')}" in ${aio.cycleKey}\n`
+    `  Greens get    ${aio.statusNames.passed} + "${commentFor('passed')}" in ${aio.cycleKey}`
   );
+  console.log(`  Assigned to   ${aio.assignee.name || '(unchanged)'}\n`);
 
   if (listed.tests === 0) {
     console.log('Nothing to run.');
@@ -196,7 +238,8 @@ async function run(args) {
     .join(', ');
   console.log(bold('\nAIO'));
   console.log(`  Ready         ${summary} → ${pending.cycleKey}`);
-  console.log(`  Comment       "${commentFor('passed')}"\n`);
+  console.log(`  Comment       "${pending.testRuns[0].comments[0]}"`);
+  console.log(`  Assigned to   ${aio.assignee.name || '(unchanged)'}\n`);
 
   if (await confirm(`Post ${pending.testRuns.length} result(s) to ${pending.cycleKey}?`, true)) {
     await postTestRuns(pending.testRuns, {

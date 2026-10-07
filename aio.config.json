@@ -7,6 +7,25 @@
       "passed": "Passed",
       "failed": "Failed",
       "blocked": "Blocked"
-    }
+    },
+    "assignees": {
+      "pepi": {
+        "name": "Petar Nenov Petrov",
+        "accountId": "61ee87251bda70006eea01e1"
+      },
+      "grish": {
+        "name": "Grigor Tassev",
+        "accountId": "712020:1f57c029-4a42-47e6-a9f4-f24653a434bc"
+      },
+      "mitito": {
+        "name": "Dimitar Stoev",
+        "accountId": "712020:2318cd6a-5d68-4385-abb3-9157e613d775"
+      },
+      "badValue": {
+        "name": "Valentin Bosilkov",
+        "accountId": "5e78aac91e65980c429a5408"
+      }
+    },
+    "assigneesNote": "Label filter (testrail.config.json playwright.labelFilter) -> AIO user that every reported run is assigned to and named in the comment. AIO_ASSIGNEE_LABEL overrides the label."
   }
 }

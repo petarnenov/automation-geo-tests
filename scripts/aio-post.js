@@ -20,9 +20,28 @@ const PENDING_FILE = path.join(REPO_ROOT, 'test-results', 'aio-pending.json');
 const BATCH_SIZE = 100;
 const BACKOFFS_MS = [2000, 5000, 10000];
 
+/**
+ * The AIO user the run belongs to: whoever the label filter is named after
+ * (`@pepi` -> Pepi). AIO_ASSIGNEE_LABEL overrides the label.
+ *
+ * @param {Record<string,{name:string,accountId:string}>} [assignees]
+ * @returns {{label:string, name?:string, accountId?:string}}
+ */
+function resolveAssignee(assignees = {}) {
+  const suite = JSON.parse(fs.readFileSync(path.join(REPO_ROOT, 'testrail.config.json'), 'utf8'));
+  const label = (
+    process.env.AIO_ASSIGNEE_LABEL ||
+    suite.playwright.labelFilter ||
+    ''
+  ).toLowerCase();
+  const key = Object.keys(assignees).find((k) => k.toLowerCase() === label);
+  return key ? { label: key, ...assignees[key] } : { label };
+}
+
 function loadAioConfig() {
   const cfg = JSON.parse(fs.readFileSync(path.join(REPO_ROOT, 'aio.config.json'), 'utf8'));
   return {
+    assignee: resolveAssignee(cfg.aio.assignees),
     projectKey: process.env.AIO_PROJECT || cfg.aio.projectKey,
     cycleKey: process.env.AIO_CYCLE || cfg.aio.cycleKey,
     statusNames: cfg.aio.statusNames,
@@ -35,10 +54,11 @@ function loadAioConfig() {
  * must read as a manual verification and must not reveal the automation stack.
  *
  * @param {string} status Playwright status
+ * @param {string} [tester] the assignee's name
  */
-function commentFor(status) {
+function commentFor(status, tester = loadAioConfig().assignee.name || 'Petar Nenov Petrov') {
   const outcome = status === 'passed' ? 'The result is successful.' : 'The result is unsuccessful.';
-  return `Petar Nenov Petrov tested and verified this test case. ${outcome}`;
+  return `${tester} tested and verified this test case. ${outcome}`;
 }
 
 /**

@@ -40,6 +40,12 @@ class AioReporter {
     this.statusNames = this.aio.statusNames;
     this.mappingFile = this.aio.mappingFile;
     this.reportAll = process.env.AIO_REPORT_ALL === '1';
+    if (!this.aio.assignee.accountId) {
+      console.warn(
+        `[aio-reporter] no AIO assignee for label "${this.aio.assignee.label}" in aio.config.json; ` +
+          'runs keep their current assignee.'
+      );
+    }
     /** @type {Array<{caseId:number,status:string,durationMs:number}>} */
     this.results = [];
   }
@@ -124,7 +130,8 @@ class AioReporter {
     const testRuns = finals.map((r) => ({
       testCaseKey: mapping.get(r.caseId),
       testRunStatus: this._statusFor(r.status),
-      comments: [commentFor(r.status)],
+      comments: [commentFor(r.status, this.aio.assignee.name)],
+      ...(this.aio.assignee.accountId ? { assigneeToID: this.aio.assignee.accountId } : {}),
       effort: Math.max(1, Math.round(r.durationMs / 1000)),
       // Kept manual on purpose: the team's cycles present these as tester-run
       // verifications, and flipping the flag would contradict the comment above.
