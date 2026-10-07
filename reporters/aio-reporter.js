@@ -23,24 +23,22 @@
  *   AIO_CYCLE=GEO-CY-9     override the cycle from aio.config.json
  *   AIO_PROJECT=GEO        override the project key
  *   AIO_REPORT_ALL=1       also report failed / timedOut / interrupted
+ *
+ * A dry run writes the would-be payload to test-results/aio-pending.json
+ * (AIO_PENDING_FILE overrides), so `make test` can post it once the operator
+ * confirms (scripts/aio-post.js).
  */
 
 const fs = require('fs');
 const path = require('path');
-const { loadToken, request, paginate } = require('../scripts/aio-client');
-
-const REPO_ROOT = path.join(__dirname, '..');
-/** AIO rejects oversized payloads; the same cap the case search uses. */
-const BATCH_SIZE = 100;
-const BACKOFFS_MS = [2000, 5000, 10000];
+const { PENDING_FILE, loadAioConfig, commentFor, postTestRuns } = require('../scripts/aio-post');
 
 class AioReporter {
   constructor() {
-    const cfg = JSON.parse(fs.readFileSync(path.join(REPO_ROOT, 'aio.config.json'), 'utf8'));
-    this.projectKey = process.env.AIO_PROJECT || cfg.aio.projectKey;
-    this.cycleKey = process.env.AIO_CYCLE || cfg.aio.cycleKey;
-    this.statusNames = cfg.aio.statusNames;
-    this.mappingFile = path.join(REPO_ROOT, cfg.aio.mappingFile);
+    this.aio = loadAioConfig();
+    this.cycleKey = this.aio.cycleKey;
+    this.statusNames = this.aio.statusNames;
+    this.mappingFile = this.aio.mappingFile;
     this.reportAll = process.env.AIO_REPORT_ALL === '1';
     /** @type {Array<{caseId:number,status:string,durationMs:number}>} */
     this.results = [];
@@ -77,54 +75,6 @@ class AioReporter {
     if (playwrightStatus === 'passed') return this.statusNames.passed;
     if (playwrightStatus === 'skipped') return this.statusNames.blocked;
     return this.statusNames.failed;
-  }
-
-  /**
-   * Deliberately technology-agnostic: the comment
-   * must read as a manual verification and must not reveal the automation stack.
-   */
-  _comment(status) {
-    const outcome =
-      status === 'passed' ? 'The result is successful.' : 'The result is unsuccessful.';
-    return `Petar Nenov Petrov tested and verified this test case. ${outcome}`;
-  }
-
-  async _cycleCaseKeys(token) {
-    try {
-      const runs = await paginate(
-        token,
-        'GET',
-        `/project/${this.projectKey}/testcycle/${this.cycleKey}/testcase`
-      );
-      return new Set(runs.map((r) => r.testCase && r.testCase.key).filter(Boolean));
-    } catch (err) {
-      console.warn(
-        `[aio-reporter] could not list cycle ${this.cycleKey}: ${err.message}; posting unfiltered.`
-      );
-      return null;
-    }
-  }
-
-  async _post(token, testRuns) {
-    // createNewRun=false updates the run already sitting in the cycle rather than
-    // stacking a second one on top of it.
-    const endpoint =
-      `/project/${this.projectKey}/testcycle/${this.cycleKey}` +
-      '/bulk/testrun/update?createNewRun=false';
-
-    for (let i = 0; i <= BACKOFFS_MS.length; i += 1) {
-      try {
-        return await request(token, 'POST', endpoint, { testRuns });
-      } catch (err) {
-        const transient = / 5\d\d /.test(err.message);
-        if (!transient || i === BACKOFFS_MS.length) throw err;
-        console.warn(
-          `[aio-reporter] ${err.message.split('\n')[0]}, retrying in ${BACKOFFS_MS[i] / 1000}s...`
-        );
-        await new Promise((r) => setTimeout(r, BACKOFFS_MS[i]));
-      }
-    }
-    return null;
   }
 
   async onEnd() {
@@ -171,10 +121,10 @@ class AioReporter {
       );
     }
 
-    let testRuns = finals.map((r) => ({
+    const testRuns = finals.map((r) => ({
       testCaseKey: mapping.get(r.caseId),
       testRunStatus: this._statusFor(r.status),
-      comments: [this._comment(r.status)],
+      comments: [commentFor(r.status)],
       effort: Math.max(1, Math.round(r.durationMs / 1000)),
       // Kept manual on purpose: the team's cycles present these as tester-run
       // verifications, and flipping the flag would contradict the comment above.
@@ -182,9 +132,19 @@ class AioReporter {
     }));
 
     if (process.env.AIO_REPORT_RESULTS !== '1') {
+      const pendingFile = process.env.AIO_PENDING_FILE || PENDING_FILE;
+      fs.mkdirSync(path.dirname(pendingFile), { recursive: true });
+      fs.writeFileSync(
+        pendingFile,
+        JSON.stringify(
+          { projectKey: this.aio.projectKey, cycleKey: this.cycleKey, testRuns },
+          null,
+          2
+        )
+      );
       console.log(
         `[aio-reporter] AIO_REPORT_RESULTS is not 1, skipping POST. ` +
-          `Would post ${testRuns.length} result(s) to ${this.cycleKey}:`
+          `Would post ${testRuns.length} result(s) to ${this.cycleKey} (saved to ${pendingFile}):`
       );
       for (const run of testRuns) {
         console.log(`  ${run.testCaseKey}  ${run.testRunStatus}  ${run.effort}s`);
@@ -192,45 +152,7 @@ class AioReporter {
       return;
     }
 
-    let token;
-    try {
-      token = loadToken();
-    } catch (err) {
-      console.warn(`[aio-reporter] ${err.message} Skipping POST.`);
-      return;
-    }
-
-    // A case that is not in the cycle would be rejected, so drop those first.
-    const cycleKeys = await this._cycleCaseKeys(token);
-    if (cycleKeys) {
-      const outside = testRuns.filter((r) => !cycleKeys.has(r.testCaseKey));
-      testRuns = testRuns.filter((r) => cycleKeys.has(r.testCaseKey));
-      if (outside.length) {
-        console.warn(
-          `[aio-reporter] ${outside.length} result(s) not in cycle ${this.cycleKey}, dropped: ` +
-            outside.map((r) => r.testCaseKey).join(', ')
-        );
-      }
-      if (testRuns.length === 0) {
-        console.log(`[aio-reporter] nothing left after filtering to ${this.cycleKey}.`);
-        return;
-      }
-    }
-
-    let posted = 0;
-    for (let i = 0; i < testRuns.length; i += BATCH_SIZE) {
-      const batch = testRuns.slice(i, i + BATCH_SIZE);
-      const resp = (await this._post(token, batch)) || {};
-      posted += resp.successCount ?? batch.length;
-      if (resp.errorCount) {
-        console.warn(
-          `[aio-reporter] ${resp.errorCount} error(s) in batch: ${JSON.stringify(resp.errors).slice(0, 500)}`
-        );
-      }
-    }
-    console.log(
-      `[aio-reporter] posted ${posted}/${testRuns.length} result(s) to ${this.cycleKey}.`
-    );
+    await postTestRuns(testRuns, this.aio);
   }
 }
 
