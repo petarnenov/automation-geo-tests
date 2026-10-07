@@ -19,7 +19,6 @@ const { spawnSync } = require('child_process');
 
 const REPO_ROOT = path.join(__dirname, '..');
 const ENV_LOCAL = path.join(REPO_ROOT, '.env.local');
-const AIO_TOKEN_FILE = path.join(os.homedir(), '.aio-tests-token');
 /** Credentials every run needs; the rest of .env.example is optional. */
 const REQUIRED_ENV = [
   'TIM1_USERNAME',
@@ -138,14 +137,11 @@ function checkEnvLocal() {
 
 /** @returns {Result} */
 function checkAioToken() {
-  if ((process.env.AIO_TOKEN || '').trim()) return { ok: true, detail: 'AIO_TOKEN' };
-  if (fs.existsSync(AIO_TOKEN_FILE) && fs.readFileSync(AIO_TOKEN_FILE, 'utf8').trim()) {
-    return { ok: true, detail: AIO_TOKEN_FILE };
-  }
+  if ((process.env.AIO_TOKEN || '').trim()) return { ok: true, detail: 'AIO_TOKEN (.env.local)' };
   return {
     ok: false,
-    detail: 'no AIO_TOKEN and no ~/.aio-tests-token',
-    fix: `generate an AIO Tests API token and write it to ${AIO_TOKEN_FILE}`,
+    detail: 'no AIO_TOKEN in .env.local',
+    fix: 'generate a token in Jira (AIO Tests -> My Settings -> API Token), set AIO_TOKEN=<token> in .env.local',
   };
 }
 

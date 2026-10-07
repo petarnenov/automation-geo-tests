@@ -3,31 +3,25 @@
 /**
  * Minimal client for the AIO Tests REST API.
  *
- * Auth: AIO_TOKEN env var, else a token file at ~/.aio-tests-token.
+ * Auth: AIO_TOKEN from .env.local (a variable exported in the shell wins).
  * The token is generated in Jira under AIO Tests -> My Settings -> API Token.
  *
  * Spec: https://tcms.aiojiraapps.com/aio-tcms/api/v1/openapi.json
  */
 
-const fs = require('fs');
-const os = require('os');
-const path = require('path');
+const { loadEnv } = require('../tests/_helpers/env');
 
 const BASE = 'https://tcms.aiojiraapps.com/aio-tcms/api/v1';
 const PAGE_SIZE = 100;
-const TOKEN_FILE = path.join(os.homedir(), '.aio-tests-token');
 
 function loadToken() {
+  loadEnv();
   if (process.env.AIO_TOKEN && process.env.AIO_TOKEN.trim()) {
     return process.env.AIO_TOKEN.trim();
   }
-  if (fs.existsSync(TOKEN_FILE)) {
-    const token = fs.readFileSync(TOKEN_FILE, 'utf8').trim();
-    if (token) return token;
-  }
   throw new Error(
     'No AIO token. Generate one in Jira under AIO Tests -> My Settings -> API Token, ' +
-      `then write it to ${TOKEN_FILE} or export AIO_TOKEN.`
+      'then set AIO_TOKEN=<token> in .env.local.'
   );
 }
 
@@ -123,4 +117,4 @@ async function paginate(token, method, endpoint, body) {
   }
 }
 
-module.exports = { BASE, PAGE_SIZE, TOKEN_FILE, loadToken, request, paginate };
+module.exports = { BASE, PAGE_SIZE, loadToken, request, paginate };

@@ -41,13 +41,12 @@ Gitignored, never committed. Fill in at least:
 
 ### AIO token
 
-Generate an API token in AIO Tests and save it:
+Generate an API token in Jira under AIO Tests → My Settings → API Token and
+put it in `.env.local`:
 
 ```bash
-echo '<token>' > ~/.aio-tests-token
+AIO_TOKEN=<token>
 ```
-
-(or set `AIO_TOKEN` in `.env.local`).
 
 ### Database access (OCI envs only)
 
@@ -84,7 +83,7 @@ Doctor
   ✔ Playwright browser   ~/.cache/ms-playwright/chromium-1243/chrome-linux64/chrome
   ✔ Oracle driver        oracledb 7.0.1, thick, client 23.26.2.0.0
   ✔ .env.local           5 required credentials set
-  ✔ AIO token            ~/.aio-tests-token
+  ✔ AIO token            AIO_TOKEN (.env.local)
   ✔ Oracle client        ~/oracle/instantclient_23_26
   ✔ DB tunnel            ssh ok, key files present
   all good

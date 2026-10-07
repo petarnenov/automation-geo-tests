@@ -7,7 +7,7 @@
  * to also push failures.
  *
  * - Reads project, cycle and status names from aio.config.json.
- * - Authenticates with AIO_TOKEN, or a token file at ~/.aio-tests-token.
+ * - Authenticates with AIO_TOKEN from .env.local.
  *   Token is generated in Jira under AIO Tests -> My Settings -> API Token.
  * - Posting is OPT-IN: without AIO_REPORT_RESULTS=1 the reporter logs the payload
  *   it would send and stops. A reporter that writes into a shared regression

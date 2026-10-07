@@ -23,7 +23,7 @@ const { spawn, spawnSync } = require('child_process');
 
 const { cfg } = require('../tests/_helpers/config');
 const { resolveDbDsn } = require('../tests/_helpers/db-dsn');
-const { loadToken, request, TOKEN_FILE } = require('./aio-client');
+const { loadToken, request } = require('./aio-client');
 const { PENDING_FILE, loadAioConfig, commentFor, postTestRuns } = require('./aio-post');
 const { tunnelStatus, ensureTunnel } = require('./db-tunnel');
 
@@ -65,11 +65,7 @@ function loadMapping(aio) {
 async function printConfig() {
   const aio = loadAioConfig();
   const mapping = loadMapping(aio);
-  const tokenSource = process.env.AIO_TOKEN
-    ? 'AIO_TOKEN'
-    : fs.existsSync(TOKEN_FILE)
-      ? TOKEN_FILE
-      : 'MISSING';
+  const tokenSource = process.env.AIO_TOKEN ? 'AIO_TOKEN (.env.local)' : 'MISSING';
   const posting =
     process.env.AIO_REPORT_RESULTS === '1' ? 'auto (AIO_REPORT_RESULTS=1)' : 'ask after run';
 
