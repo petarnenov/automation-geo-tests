@@ -89,13 +89,13 @@ async function printConfig() {
     ],
     ['Reported', process.env.AIO_REPORT_ALL === '1' ? 'all results' : 'green results only'],
     [
-      'Assignee',
+      'Run as',
       aio.assignee.accountId
-        ? `${aio.assignee.name} (label @${aio.assignee.label}, ${aio.assignee.accountId})`
-        : `NONE: no entry for label "${aio.assignee.label}" in aio.config.json`,
+        ? `${aio.assignee.name} (${aio.assignee.key}, ${aio.assignee.accountId})`
+        : `chosen at make test from: ${Object.keys(aio.assignees).join(', ')}`,
     ],
     ['Green status', aio.statusNames.passed],
-    ['Green comment', commentFor('passed')],
+    ['Green comment', commentFor('passed', aio.assignee.name || '<Run as>')],
     ['AIO posting', posting],
     ['Label filter', `@${cfg.playwright.labelFilter}`],
   ];
@@ -145,36 +145,42 @@ async function ask(prompt) {
 }
 
 /**
- * Pick whose name the run goes out under: the assignee and the comment of
- * every reported result follow the choice. Defaults to the label filter's
- * owner; AIO_ASSIGNEE_LABEL (make test RUNAS=...) skips the question.
+ * Who the run is for: the assignee and the name in the comment of every
+ * reported result. There is no default — the operator picks from
+ * aio.config.json `assignees`, or passes RUN_AS (make test RUNAS=...).
+ *
+ * @returns {Promise<boolean>} false when nobody valid was chosen
  */
-async function chooseAssignee() {
-  if (process.env.AIO_ASSIGNEE_LABEL) return;
-  const { assignee } = loadAioConfig();
-  const raw = JSON.parse(fs.readFileSync(path.join(REPO_ROOT, 'aio.config.json'), 'utf8'));
-  const labels = Object.keys(raw.aio.assignees || {});
-  if (labels.length < 2 || !process.stdin.isTTY) return;
+async function chooseRunAs() {
+  const { assignees, assignee } = loadAioConfig();
+  const keys = Object.keys(assignees);
+  if (assignee.accountId) {
+    process.env.RUN_AS = assignee.key;
+    return true;
+  }
+  if (process.env.RUN_AS) {
+    console.error(`RUN_AS "${process.env.RUN_AS}" is not in aio.config.json (${keys.join(', ')}).`);
+    return false;
+  }
+  if (!process.stdin.isTTY) {
+    console.error(`No terminal to ask who runs the suite. Pass RUNAS=<${keys.join('|')}>.`);
+    return false;
+  }
 
-  const def = Math.max(0, labels.indexOf(assignee.label));
   console.log(bold('\nRun as'));
-  labels.forEach((label, i) => {
-    const mark = i === def ? '*' : ' ';
-    console.log(`  ${mark}${i + 1}) ${raw.aio.assignees[label].name.padEnd(22)} @${label}`);
-  });
+  keys.forEach((k, i) => console.log(`  ${i + 1}) ${assignees[k].name.padEnd(22)} ${k}`));
   for (;;) {
-    const a = await ask(`${bold('Choose')} [1-${labels.length}, Enter = ${def + 1}] `);
-    const n = a ? Number(a) : def + 1;
-    if (Number.isInteger(n) && n >= 1 && n <= labels.length) {
-      process.env.AIO_ASSIGNEE_LABEL = labels[n - 1];
-      return;
+    const n = Number(await ask(`${bold('Choose')} [1-${keys.length}] `));
+    if (Number.isInteger(n) && n >= 1 && n <= keys.length) {
+      process.env.RUN_AS = keys[n - 1];
+      return true;
     }
-    console.log(`  Enter a number from 1 to ${labels.length}.`);
+    console.log(`  Enter a number from 1 to ${keys.length}.`);
   }
 }
 
 async function run(args) {
-  await chooseAssignee();
+  if (!(await chooseRunAs())) return 1;
   console.log(bold('\nConfiguration'));
   const { aio, mapping } = await printConfig();
 
@@ -186,9 +192,9 @@ async function run(args) {
   console.log(`  AIO-mapped    ${mapped} of ${unique.length} case ids`);
   console.log(`  Args          ${args.length ? args.join(' ') : '(none)'}`);
   console.log(
-    `  Greens get    ${aio.statusNames.passed} + "${commentFor('passed')}" in ${aio.cycleKey}`
+    `  Greens get    ${aio.statusNames.passed} + "${commentFor('passed', aio.assignee.name)}" in ${aio.cycleKey}`
   );
-  console.log(`  Assigned to   ${aio.assignee.name || '(unchanged)'}\n`);
+  console.log(`  Assigned to   ${aio.assignee.name}\n`);
 
   if (listed.tests === 0) {
     console.log('Nothing to run.');
@@ -239,7 +245,7 @@ async function run(args) {
   console.log(bold('\nAIO'));
   console.log(`  Ready         ${summary} → ${pending.cycleKey}`);
   console.log(`  Comment       "${pending.testRuns[0].comments[0]}"`);
-  console.log(`  Assigned to   ${aio.assignee.name || '(unchanged)'}\n`);
+  console.log(`  Assigned to   ${aio.assignee.name}\n`);
 
   if (await confirm(`Post ${pending.testRuns.length} result(s) to ${pending.cycleKey}?`, true)) {
     await postTestRuns(pending.testRuns, {

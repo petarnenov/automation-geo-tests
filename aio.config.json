@@ -26,6 +26,6 @@
         "accountId": "5e78aac91e65980c429a5408"
       }
     },
-    "assigneesNote": "Label filter (testrail.config.json playwright.labelFilter) -> AIO user that every reported run is assigned to and named in the comment. AIO_ASSIGNEE_LABEL overrides the label."
+    "assigneesNote": "People who can run the suite. make test asks who the run is for (or RUNAS=<key>); every reported result is assigned to that person and the comment names them. No default."
   }
 }

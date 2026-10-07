@@ -21,26 +21,23 @@ const BATCH_SIZE = 100;
 const BACKOFFS_MS = [2000, 5000, 10000];
 
 /**
- * The AIO user the run belongs to: whoever the label filter is named after
- * (`@pepi` -> Pepi). AIO_ASSIGNEE_LABEL overrides the label.
+ * The person the run is made for: RUN_AS names a key of aio.config.json
+ * `assignees` (case-insensitive). There is no default — anyone on the list
+ * can run the suite, so nobody is assumed.
  *
  * @param {Record<string,{name:string,accountId:string}>} [assignees]
- * @returns {{label:string, name?:string, accountId?:string}}
+ * @returns {{key:string, name?:string, accountId?:string}}
  */
 function resolveAssignee(assignees = {}) {
-  const suite = JSON.parse(fs.readFileSync(path.join(REPO_ROOT, 'testrail.config.json'), 'utf8'));
-  const label = (
-    process.env.AIO_ASSIGNEE_LABEL ||
-    suite.playwright.labelFilter ||
-    ''
-  ).toLowerCase();
-  const key = Object.keys(assignees).find((k) => k.toLowerCase() === label);
-  return key ? { label: key, ...assignees[key] } : { label };
+  const wanted = (process.env.RUN_AS || '').toLowerCase();
+  const key = wanted && Object.keys(assignees).find((k) => k.toLowerCase() === wanted);
+  return key ? { key, ...assignees[key] } : { key: process.env.RUN_AS || '' };
 }
 
 function loadAioConfig() {
   const cfg = JSON.parse(fs.readFileSync(path.join(REPO_ROOT, 'aio.config.json'), 'utf8'));
   return {
+    assignees: cfg.aio.assignees || {},
     assignee: resolveAssignee(cfg.aio.assignees),
     projectKey: process.env.AIO_PROJECT || cfg.aio.projectKey,
     cycleKey: process.env.AIO_CYCLE || cfg.aio.cycleKey,
@@ -54,9 +51,9 @@ function loadAioConfig() {
  * must read as a manual verification and must not reveal the automation stack.
  *
  * @param {string} status Playwright status
- * @param {string} [tester] the assignee's name
+ * @param {string} tester the assignee's name
  */
-function commentFor(status, tester = loadAioConfig().assignee.name || 'Petar Nenov Petrov') {
+function commentFor(status, tester) {
   const outcome = status === 'passed' ? 'The result is successful.' : 'The result is unsuccessful.';
   return `${tester} tested and verified this test case. ${outcome}`;
 }

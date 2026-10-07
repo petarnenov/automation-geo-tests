@@ -23,6 +23,8 @@
  *   AIO_CYCLE=GEO-CY-9     override the cycle from aio.config.json
  *   AIO_PROJECT=GEO        override the project key
  *   AIO_REPORT_ALL=1       also report failed / timedOut / interrupted
+ *   RUN_AS=grish           who the run is for: assignee + name in the comment
+ *                          (aio.config.json assignees). Required to report.
  *
  * A dry run writes the would-be payload to test-results/aio-pending.json
  * (AIO_PENDING_FILE overrides), so `make test` can post it once the operator
@@ -40,12 +42,6 @@ class AioReporter {
     this.statusNames = this.aio.statusNames;
     this.mappingFile = this.aio.mappingFile;
     this.reportAll = process.env.AIO_REPORT_ALL === '1';
-    if (!this.aio.assignee.accountId) {
-      console.warn(
-        `[aio-reporter] no AIO assignee for label "${this.aio.assignee.label}" in aio.config.json; ` +
-          'runs keep their current assignee.'
-      );
-    }
     /** @type {Array<{caseId:number,status:string,durationMs:number}>} */
     this.results = [];
   }
@@ -115,6 +111,17 @@ class AioReporter {
       return;
     }
 
+    // Results go out in one person's name; without one there is nothing
+    // honest to write in the comment, so report nothing.
+    if (!this.aio.assignee.accountId) {
+      const known = Object.keys(this.aio.assignees).join(', ');
+      console.warn(
+        `[aio-reporter] RUN_AS ${this.aio.assignee.key ? `"${this.aio.assignee.key}" is unknown` : 'is not set'}` +
+          ` (one of: ${known}); nothing reported.`
+      );
+      return;
+    }
+
     const mapping = this._loadMapping();
     if (!mapping) return;
 
@@ -131,7 +138,7 @@ class AioReporter {
       testCaseKey: mapping.get(r.caseId),
       testRunStatus: this._statusFor(r.status),
       comments: [commentFor(r.status, this.aio.assignee.name)],
-      ...(this.aio.assignee.accountId ? { assigneeToID: this.aio.assignee.accountId } : {}),
+      assigneeToID: this.aio.assignee.accountId,
       effort: Math.max(1, Math.round(r.durationMs / 1000)),
       // Kept manual on purpose: the team's cycles present these as tester-run
       // verifications, and flipping the flag would contradict the comment above.
