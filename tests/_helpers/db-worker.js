@@ -34,6 +34,9 @@ async function main() {
   for await (const chunk of process.stdin) chunks.push(chunk);
   const { dsn, task, args } = JSON.parse(Buffer.concat(chunks).toString('utf8'));
 
+  if (!process.env.GEO_DB_USER || !process.env.GEO_DB_PASSWORD) {
+    throw new Error('GEO_DB_USER / GEO_DB_PASSWORD are not set');
+  }
   if (process.env.ORACLE_CLIENT_LIB) {
     oracledb.initOracleClient(
       process.platform === 'linux' ? {} : { libDir: process.env.ORACLE_CLIENT_LIB }

@@ -23,6 +23,7 @@ const { spawn, spawnSync } = require('child_process');
 
 const { cfg } = require('../tests/_helpers/config');
 const { resolveDbDsn } = require('../tests/_helpers/db-dsn');
+const { dbPing } = require('../tests/_helpers/db');
 const { loadToken, request } = require('./aio-client');
 const { PENDING_FILE, loadAioConfig, commentFor, postTestRuns } = require('./aio-post');
 const { tunnelStatus, ensureTunnel } = require('./db-tunnel');
@@ -258,6 +259,11 @@ async function run(argv) {
 
   if (!(await ensureTunnel())) {
     console.error('DB tunnel is down, not running. Check DB_TUNNEL_* in .env.local.');
+    return 1;
+  }
+  const dbError = dbPing();
+  if (dbError) {
+    console.error(`DB not usable, not running.\n${dbError}`);
     return 1;
   }
 

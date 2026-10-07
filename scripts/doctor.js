@@ -176,10 +176,31 @@ function checkTunnel() {
     : { ok: true, detail: `ssh ok, key files present (${process.env.DB_TUNNEL_HOST})` };
 }
 
-function main() {
+/**
+ * Real connection with SELECT 1, so a broken DB setup fails here and not in
+ * globalSetup. Skipped while the tunnel is down — make test starts it, then
+ * pings again before Playwright runs.
+ *
+ * @returns {Promise<Result|null>}
+ */
+async function checkDbConnection() {
+  const { tunnelConfig, isPortOpen } = require('./db-tunnel');
+  const t = tunnelConfig();
+  if (t && !(await isPortOpen(t.localPort))) {
+    return { ok: true, detail: 'skipped, tunnel is down (make test starts it, then checks)' };
+  }
+  const { dbPing } = require('../tests/_helpers/db');
+  const { resolveDbDsn } = require('../tests/_helpers/db-dsn');
+  const err = dbPing();
+  if (!err) return { ok: true, detail: `SELECT 1 on ${resolveDbDsn()}` };
+  const [detail, hint] = err.split('\n  → ');
+  return { ok: false, detail, fix: hint || 'see the error; make tunnel, GEO_DB_* in .env.local' };
+}
+
+async function main() {
   require('../tests/_helpers/env').loadEnv();
 
-  /** @type {[string, () => Result|null][]} */
+  /** @type {[string, () => Result|null|Promise<Result|null>][]} */
   const checks = [
     ['Node', checkNode],
     ['npm packages', checkPackages],
@@ -189,12 +210,15 @@ function main() {
     ['AIO token', checkAioToken],
     ['Oracle client', checkOracleClient],
     ['DB tunnel', checkTunnel],
+    ['DB connection', checkDbConnection],
   ];
 
   const failed = [];
   console.log(bold('Doctor'));
   for (const [name, check] of checks) {
-    const res = check();
+    // The DB ping needs a working driver and credentials; skip it after a failure.
+    if (check === checkDbConnection && failed.length) continue;
+    const res = await check();
     if (!res) continue;
     console.log(`  ${res.ok ? green('✔') : red('✘')} ${name.padEnd(20)} ${res.detail}`);
     if (!res.ok) failed.push({ name, ...res });
@@ -210,4 +234,6 @@ function main() {
   return 1;
 }
 
-process.exitCode = main();
+main().then((code) => {
+  process.exitCode = code;
+});

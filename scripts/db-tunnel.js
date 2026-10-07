@@ -108,7 +108,7 @@ async function ensureTunnel() {
   return false;
 }
 
-module.exports = { tunnelConfig, tunnelStatus, ensureTunnel };
+module.exports = { tunnelConfig, tunnelStatus, ensureTunnel, isPortOpen };
 
 if (require.main === module) {
   ensureTunnel().then((ok) => process.exit(ok ? 0 : 1));
