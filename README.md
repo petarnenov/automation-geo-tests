@@ -11,8 +11,11 @@ make help
 
 ## 1. First-time setup
 
-You need **Node 24** (`nvm install 24`) and, for the OCI databases
+You need **Node 24** (the version in `.nvmrc`) and, for the OCI databases
 (qabis1 and friends), **Oracle Instant Client** — see _Database access_ below.
+Without Node, or with the wrong version, `make setup` / `make doctor` stop
+and print the install commands for your OS (nvm, Homebrew on macOS,
+NodeSource on Debian/Ubuntu and Fedora/RHEL).
 
 ```bash
 make setup

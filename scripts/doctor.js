@@ -53,7 +53,11 @@ function checkNode() {
   const major = Number(process.versions.node.split('.')[0]);
   const [min, max] = (range.match(/\d+/g) || []).map(Number);
   const ok = major >= min && (max === undefined || major < max);
-  return { ok, detail: `v${process.versions.node} (needs ${range})`, fix: `install Node ${min}` };
+  return {
+    ok,
+    detail: `v${process.versions.node} (needs ${range})`,
+    fix: 'sh scripts/check-node.sh (prints the install commands for this OS)',
+  };
 }
 
 /** @returns {Result} */

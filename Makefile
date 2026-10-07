@@ -8,7 +8,7 @@ ARGS ?=
 # Who the run is for (a key of aio.config.json assignees) instead of being asked.
 RUNAS ?=
 
-.PHONY: help test doctor setup config aio-post tunnel
+.PHONY: help test node-check doctor setup config aio-post tunnel
 
 # `make test random N`: the words after `test` arrive as extra goals, so
 # read N from them and turn both words into no-op targets.
@@ -33,10 +33,14 @@ help:
 test: doctor
 	@$(if $(RUNAS),RUN_AS=$(RUNAS) )node scripts/run-suite.js run $(if $(RANDOM_N),--random $(RANDOM_N) )$(ARGS)
 
-doctor:
+# Plain sh, so a missing or wrong Node is reported with install commands.
+node-check:
+	@sh scripts/check-node.sh
+
+doctor: node-check
 	@node scripts/doctor.js
 
-setup:
+setup: node-check
 	npm ci
 	npx playwright install chromium
 	@test -f .env.local || { cp .env.example .env.local && echo "created .env.local from .env.example, fill it in"; }
