@@ -30,8 +30,7 @@
  * on `#clientPortal/dashboard`.
  */
 
-const { execSync } = require('child_process');
-const { DB_DSN } = require('./qa3');
+const { dbExec } = require('./db');
 
 const { cfg } = require('./config');
 const { requireEnv } = require('./env');
@@ -51,7 +50,13 @@ const { requireEnv } = require('./env');
  */
 async function provisionClientPortalAccess(
   adminPage,
-  { firmCd, namePrefix = 'pepiCli', lastName = 'PortalCli', password = requireEnv('GEO_TEST_USER_PASSWORD'), emailDomain = 'geowealth.com' }
+  {
+    firmCd,
+    namePrefix = 'pepiCli',
+    lastName = 'PortalCli',
+    password = requireEnv('GEO_TEST_USER_PASSWORD'),
+    emailDomain = 'geowealth.com',
+  }
 ) {
   const baseURL = cfg.appUnderTest.url;
   const username = `${namePrefix}_${Date.now()}_${Math.floor(Math.random() * 1e6)}`;
@@ -139,17 +144,10 @@ async function provisionClientPortalAccess(
   // transaction. isLoginActive = !loginInactivatedFlag && ldapUid!=null
   // (UserManagerTrait), so restoring ldap_uid here is all that's needed;
   // entity_active_flag is already 1 and the hash is already set.
-  execSync(
-    `python3 -c "
-import os, oracledb
-c = oracledb.connect(user=os.environ['GEO_DB_USER'], password=os.environ['GEO_DB_PASSWORD'], dsn='${DB_DSN}')
-cur = c.cursor()
-cur.execute('UPDATE entity_tbl SET ldap_uid = :1, login_inactivated_flag = 0 WHERE entity_id = :2', ['${email}', '${clientUUID}'])
-c.commit()
-c.close()
-"`,
-    { timeout: 15_000 }
-  );
+  dbExec('UPDATE entity_tbl SET ldap_uid = :1, login_inactivated_flag = 0 WHERE entity_id = :2', [
+    email,
+    clientUUID,
+  ]);
 
   return { clientUUID, email, password, firstName, lastName, firmCd };
 }

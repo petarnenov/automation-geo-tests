@@ -29,9 +29,6 @@ const { tunnelStatus, ensureTunnel } = require('./db-tunnel');
 
 const REPO_ROOT = path.join(__dirname, '..');
 const PLAYWRIGHT = path.join(REPO_ROOT, 'node_modules', '.bin', 'playwright');
-// sitecustomize.py there switches oracledb to thick mode when ORACLE_CLIENT_LIB
-// is set (needed for the OCI DBs); without that var it does nothing.
-const PY_HELPERS = path.join(REPO_ROOT, 'tests', '_helpers', 'py');
 
 const bold = (s) => (process.stdout.isTTY ? `\x1b[1m${s}\x1b[0m` : s);
 
@@ -278,7 +275,6 @@ async function run(argv) {
         ...process.env,
         AIO_REPORT_RESULTS: '0',
         AIO_PENDING_FILE: PENDING_FILE,
-        PYTHONPATH: [PY_HELPERS, process.env.PYTHONPATH].filter(Boolean).join(path.delimiter),
       },
     });
     child.on('exit', (c, signal) => resolve(c ?? (signal ? 1 : 0)));

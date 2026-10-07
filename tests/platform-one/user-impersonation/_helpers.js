@@ -44,7 +44,8 @@
  */
 
 const { test, expect } = require('@playwright/test');
-const { cfg, login, DB_DSN } = require('../../_helpers/qa3');
+const { cfg, login } = require('../../_helpers/qa3');
+const { dbQuery } = require('../../_helpers/db');
 
 const IMPERSONATE_HREF = /firmAdmin\/userImpersonation/;
 const FIRM_CD_GEOWEALTH = 1;
@@ -373,28 +374,19 @@ const TIM1_ENTITY_ID = '4502746CD9044636A78C804DBF3F70BF';
  * @returns {number} count of matching rows where LOGIN_SUCCESS_FLAG = 1
  */
 function countTim1ImpersonationEventsSince(sinceIsoUtc) {
-  const { execSync } = require('child_process');
-  const py = `
-import os, oracledb
-from datetime import datetime, timedelta
-c = oracledb.connect(user=os.environ['GEO_DB_USER'], password=os.environ['GEO_DB_PASSWORD'], dsn='${DB_DSN}')
-cur = c.cursor()
-# Oracle DB column is DATE (no tz) written in the app server's local zone,
-# which differs per env (qa4 UTC-ish, qabis1 ET = UTC-4). Widen the lower
-# bound by a day: callers diff against a baseline taken with the same bound,
-# so the delta still counts only new rows, whatever the zone.
-since = datetime.fromisoformat('${sinceIsoUtc.replace('Z', '+00:00')}').replace(tzinfo=None) - timedelta(days=1)
-cur.execute('''
-  select count(*) from login_history_tbl
-   where impersonated_by = :1
-     and login_success_flag = 1
-     and login_attempted_date > :2
-''', ['${TIM1_ENTITY_ID}', since])
-print(cur.fetchone()[0])
-c.close()
-`;
-  const out = execSync(`python3 -c "${py.replace(/"/g, '\\"')}"`, { timeout: 15_000 });
-  return parseInt(out.toString().trim(), 10);
+  // Oracle DB column is DATE (no tz) written in the app server's local zone,
+  // which differs per env (qa4 UTC-ish, qabis1 ET = UTC-4). Widen the lower
+  // bound by a day: callers diff against a baseline taken with the same bound,
+  // so the delta still counts only new rows, whatever the zone.
+  const sinceUtcWallClock = new Date(sinceIsoUtc).toISOString().slice(0, 19).replace('T', ' ');
+  const [[count]] = dbQuery(
+    `select count(*) from login_history_tbl
+      where impersonated_by = :1
+        and login_success_flag = 1
+        and login_attempted_date > TO_DATE(:2, 'YYYY-MM-DD HH24:MI:SS') - 1`,
+    [TIM1_ENTITY_ID, sinceUtcWallClock]
+  );
+  return Number(count);
 }
 
 module.exports = {

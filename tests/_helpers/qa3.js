@@ -12,6 +12,7 @@ const { cfg } = require('./config');
 const { requireEnv } = require('./env');
 
 const { resolveDbDsn } = require('./db-dsn');
+const { dbQuery, dbExec } = require('./db');
 
 const DB_DSN = resolveDbDsn();
 
@@ -409,7 +410,10 @@ async function gotoAccountUnmanagedAssets(page, householdUuid, accountUuid) {
   await expect(async () => {
     await page.goto(deepUrl);
     const outcome = await Promise.race([
-      ready.first().waitFor({ state: 'visible', timeout: 15_000 }).then(() => 'ready'),
+      ready
+        .first()
+        .waitFor({ state: 'visible', timeout: 15_000 })
+        .then(() => 'ready'),
       permDenied.waitFor({ state: 'visible', timeout: 15_000 }).then(() => 'perm'),
     ]);
     if (outcome === 'perm') {
@@ -424,14 +428,19 @@ async function gotoAccountUnmanagedAssets(page, householdUuid, accountUuid) {
         for (let i = 0; i < 12; i++) {
           try {
             const form = new FormData();
-            form.append('filter', JSON.stringify([{ property: 'searchTargetCd', value: 'household' }]));
+            form.append(
+              'filter',
+              JSON.stringify([{ property: 'searchTargetCd', value: 'household' }])
+            );
             form.append('isCfDefinition', 'true');
             const r = await fetch('/react/clientDirectory.do?reactRequest=true', {
               method: 'POST',
               body: form,
             });
             const d = await r.json();
-            if ((d.hits || []).some((h) => (h.entityID || '').toUpperCase() === hhUuid.toUpperCase())) {
+            if (
+              (d.hits || []).some((h) => (h.entityID || '').toUpperCase() === hhUuid.toUpperCase())
+            ) {
               return true;
             }
           } catch (e) {
@@ -512,18 +521,7 @@ async function createGwAdmin(name) {
   // The backend forces mfaRequiredFlag=true for GW Admins (GEO-3694).
   // Disable it directly in the DB so the login flow doesn't require a
   // passcode — test environments have no real email delivery.
-  const { execSync } = require('child_process');
-  execSync(
-    `python3 -c "
-import os, oracledb
-c = oracledb.connect(user=os.environ['GEO_DB_USER'], password=os.environ['GEO_DB_PASSWORD'], dsn='${DB_DSN}')
-cur = c.cursor()
-cur.execute('UPDATE entity_tbl SET mfa_required_flag = 0 WHERE entity_id = :1', ['${userId}'])
-c.commit()
-c.close()
-"`,
-    { timeout: 15_000 }
-  );
+  dbExec('UPDATE entity_tbl SET mfa_required_flag = 0 WHERE entity_id = :1', [userId]);
 
   return {
     userId,
@@ -553,26 +551,16 @@ function expireUserPassword(entityId, daysAgo = 91) {
   if (!Number.isInteger(daysAgo) || daysAgo < 0) {
     throw new Error(`expireUserPassword: daysAgo must be a non-negative integer (got ${daysAgo})`);
   }
-  const { execSync } = require('child_process');
-  execSync(
-    `python3 -c "
-import os, oracledb
-c = oracledb.connect(user=os.environ['GEO_DB_USER'], password=os.environ['GEO_DB_PASSWORD'], dsn='${DB_DSN}')
-cur = c.cursor()
-# Use MERGE so the same call works whether or not a row already exists.
-cur.execute('''
-    MERGE INTO entity_pswd_change_tbl t
-    USING (SELECT :1 AS entity_id FROM dual) s
-    ON (t.entity_id = s.entity_id)
-    WHEN MATCHED THEN
-        UPDATE SET change_date = TRUNC(SYSDATE - ${daysAgo})
-    WHEN NOT MATCHED THEN
-        INSERT (entity_id, change_date) VALUES (s.entity_id, TRUNC(SYSDATE - ${daysAgo}))
-''', ['${entityId}'])
-c.commit()
-c.close()
-"`,
-    { timeout: 15_000 }
+  // Use MERGE so the same call works whether or not a row already exists.
+  dbExec(
+    `MERGE INTO entity_pswd_change_tbl t
+       USING (SELECT :id AS entity_id FROM dual) s
+       ON (t.entity_id = s.entity_id)
+     WHEN MATCHED THEN
+       UPDATE SET change_date = TRUNC(SYSDATE - :days)
+     WHEN NOT MATCHED THEN
+       INSERT (entity_id, change_date) VALUES (s.entity_id, TRUNC(SYSDATE - :days))`,
+    { id: entityId, days: daysAgo }
   );
 }
 
@@ -589,25 +577,11 @@ c.close()
  * @returns {number|null}  epoch milliseconds, or null
  */
 function getLastPasswordChangeMs(entityId) {
-  const { execSync } = require('child_process');
-  const out = execSync(
-    `python3 -c "
-import os, oracledb, sys
-c = oracledb.connect(user=os.environ['GEO_DB_USER'], password=os.environ['GEO_DB_PASSWORD'], dsn='${DB_DSN}')
-cur = c.cursor()
-cur.execute('SELECT MAX(change_date) FROM entity_pswd_change_tbl WHERE entity_id = :1', ['${entityId}'])
-row = cur.fetchone()
-c.close()
-if row and row[0] is not None:
-    print(int(row[0].timestamp() * 1000))
-else:
-    print('')
-"`,
-    { timeout: 15_000 }
-  )
-    .toString()
-    .trim();
-  return out === '' ? null : Number(out);
+  const [[changed]] = dbQuery(
+    'SELECT MAX(change_date) FROM entity_pswd_change_tbl WHERE entity_id = :1',
+    [entityId]
+  );
+  return changed ? Date.parse(changed) : null;
 }
 
 /**
@@ -624,18 +598,10 @@ else:
  * @param {string} parentEntityId  the user whose password drives the sync
  */
 function linkUserTo(linkedEntityId, parentEntityId) {
-  const { execSync } = require('child_process');
-  execSync(
-    `python3 -c "
-import os, oracledb
-c = oracledb.connect(user=os.environ['GEO_DB_USER'], password=os.environ['GEO_DB_PASSWORD'], dsn='${DB_DSN}')
-cur = c.cursor()
-cur.execute('UPDATE entity_tbl SET linked_gw_user = :1 WHERE entity_id = :2', ['${parentEntityId}', '${linkedEntityId}'])
-c.commit()
-c.close()
-"`,
-    { timeout: 15_000 }
-  );
+  dbExec('UPDATE entity_tbl SET linked_gw_user = :1 WHERE entity_id = :2', [
+    parentEntityId,
+    linkedEntityId,
+  ]);
 }
 
 /**
@@ -707,18 +673,7 @@ async function createFirmUser({ name, gwAdminFlag = false, firmCd = 1, emailAddr
   const userId = (data.messages && data.messages[0]) || null;
 
   if (gwAdminFlag) {
-    const { execSync } = require('child_process');
-    execSync(
-      `python3 -c "
-import os, oracledb
-c = oracledb.connect(user=os.environ['GEO_DB_USER'], password=os.environ['GEO_DB_PASSWORD'], dsn='${DB_DSN}')
-cur = c.cursor()
-cur.execute('UPDATE entity_tbl SET mfa_required_flag = 0 WHERE entity_id = :1', ['${userId}'])
-c.commit()
-c.close()
-"`,
-      { timeout: 15_000 }
-    );
+    dbExec('UPDATE entity_tbl SET mfa_required_flag = 0 WHERE entity_id = :1', [userId]);
   }
 
   return { userId, username, password, emailAddress: email, firstName, lastName };
@@ -733,22 +688,11 @@ c.close()
  * @returns {string|null}
  */
 function getUserPrimaryEmail(entityId) {
-  const { execSync } = require('child_process');
-  const out = execSync(
-    `python3 -c "
-import os, oracledb
-c = oracledb.connect(user=os.environ['GEO_DB_USER'], password=os.environ['GEO_DB_PASSWORD'], dsn='${DB_DSN}')
-cur = c.cursor()
-cur.execute('SELECT email FROM entity_email_tbl WHERE entity_id = :1 AND primary_email_flag = 1', ['${entityId}'])
-row = cur.fetchone()
-c.close()
-print(row[0] if row else '')
-"`,
-    { timeout: 15_000 }
-  )
-    .toString()
-    .trim();
-  return out === '' ? null : out;
+  const rows = dbQuery(
+    'SELECT email FROM entity_email_tbl WHERE entity_id = :1 AND primary_email_flag = 1',
+    [entityId]
+  );
+  return rows.length && rows[0][0] ? rows[0][0] : null;
 }
 
 /**
@@ -764,18 +708,10 @@ function patchUserPrimaryEmail(entityId, email) {
   if (!/^[^@\s]+@[^@\s]+$/.test(email)) {
     throw new Error(`patchUserPrimaryEmail: invalid email '${email}'`);
   }
-  const { execSync } = require('child_process');
-  execSync(
-    `python3 -c "
-import os, oracledb
-c = oracledb.connect(user=os.environ['GEO_DB_USER'], password=os.environ['GEO_DB_PASSWORD'], dsn='${DB_DSN}')
-cur = c.cursor()
-cur.execute('UPDATE entity_email_tbl SET email = :1 WHERE entity_id = :2 AND primary_email_flag = 1', ['${email}', '${entityId}'])
-c.commit()
-c.close()
-"`,
-    { timeout: 15_000 }
-  );
+  dbExec('UPDATE entity_email_tbl SET email = :1 WHERE entity_id = :2 AND primary_email_flag = 1', [
+    email,
+    entityId,
+  ]);
 }
 
 /**
@@ -795,18 +731,7 @@ c.close()
 function createLostPasswordLink(entityId) {
   const crypto = require('crypto');
   const linkId = crypto.randomUUID().replace(/-/g, '').toUpperCase();
-  const { execSync } = require('child_process');
-  execSync(
-    `python3 -c "
-import os, oracledb
-c = oracledb.connect(user=os.environ['GEO_DB_USER'], password=os.environ['GEO_DB_PASSWORD'], dsn='${DB_DSN}')
-cur = c.cursor()
-cur.execute('INSERT INTO user_link_tbl (link_id, user_id) VALUES (:1, :2)', ['${linkId}', '${entityId}'])
-c.commit()
-c.close()
-"`,
-    { timeout: 15_000 }
-  );
+  dbExec('INSERT INTO user_link_tbl (link_id, user_id) VALUES (:1, :2)', [linkId, entityId]);
   return linkId;
 }
 
@@ -865,7 +790,10 @@ async function ensureBillingSpec(firmCd, { name, bucket, page } = {}) {
           if (Array.isArray(v)) v.forEach((iv) => form.append(k, JSON.stringify(iv)));
           else if (v !== null && v !== undefined) form.append(k, String(v));
         }
-        const res = await fetch('/react/createUpdateBillingSpec.do', { method: 'POST', body: form });
+        const res = await fetch('/react/createUpdateBillingSpec.do', {
+          method: 'POST',
+          body: form,
+        });
         const data = await res.json();
         if (!data.success) return { error: `create failed: ${JSON.stringify(data).slice(0, 200)}` };
         return { id: data.billingSpecificationID };
@@ -938,7 +866,11 @@ async function resolveBillableHousehold({ minAccounts = 1, page } = {}) {
         `resolveBillableHousehold: no active household with >=${minAccounts} account(s) found (${(hits || []).length} total)`
       );
     }
-    return { uuid: pick.entityID, name: pick.displayName, accountsCount: Number(pick.accountsCount) };
+    return {
+      uuid: pick.entityID,
+      name: pick.displayName,
+      accountsCount: Number(pick.accountsCount),
+    };
   };
 
   if (page) {

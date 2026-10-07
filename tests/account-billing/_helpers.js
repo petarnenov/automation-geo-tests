@@ -134,22 +134,13 @@ async function saveEditBillingSettings(page) {
 
 /** Rows in ENTITY_BILLING_DATA_HIST_TBL for an entity — grows by one per committed save. */
 function billingHistCount(entityId) {
-  const { execFileSync } = require('child_process');
-  const { DB_DSN } = require('../_helpers/qa3');
-  const out = execFileSync(
-    'python3',
-    [
-      '-c',
-      `import os, oracledb,sys
-c=oracledb.connect(user=os.environ['GEO_DB_USER'],password=os.environ['GEO_DB_PASSWORD'],dsn='${DB_DSN}')
-cur=c.cursor()
-cur.execute("SELECT COUNT(*) FROM entity_billing_data_hist_tbl WHERE entity_id=:1",[sys.argv[1]])
-print(cur.fetchone()[0])`,
-      entityId,
-    ],
+  const { dbQuery } = require('../_helpers/db');
+  const [[count]] = dbQuery(
+    'SELECT COUNT(*) FROM entity_billing_data_hist_tbl WHERE entity_id = :1',
+    [entityId],
     { timeout: 60_000 }
   );
-  return Number(String(out).trim());
+  return Number(count);
 }
 
 /**
@@ -184,7 +175,8 @@ async function submitClientBillingSettings(page, submit) {
     return;
   }
 
-  if (!entityId) throw new Error(`editBillingClientSettings 504 and no entity id in URL ${page.url()}`);
+  if (!entityId)
+    throw new Error(`editBillingClientSettings 504 and no entity id in URL ${page.url()}`);
   const lostDialog = page.getByText(/Communication to Server lost/i).first();
   if (await lostDialog.isVisible().catch(() => false)) {
     await page.getByRole('button', { name: 'Close', exact: true }).last().click();

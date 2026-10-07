@@ -5,7 +5,7 @@
  *
  * Usage: node scripts/debug-noperm-advisor.js <firmCd> <advisorLoginName> <clientLastNamePrefix>
  */
-const { execSync } = require('child_process');
+const { dbExec } = require('../tests/_helpers/db');
 const { chromium } = require('playwright');
 
 const firmCd = Number(process.argv[2] || 1246);
@@ -17,17 +17,9 @@ const baseUrl = cfg.appUnderTest.url;
 const PASSWORD = cfg.appUnderTest.password;
 
 function setGwAdminFlag(loginName, flag) {
-  execSync(
-    `python3 -c "
-import os, oracledb
-c = oracledb.connect(user=os.environ['GEO_DB_USER'], password=os.environ['GEO_DB_PASSWORD'], dsn='dbhost:1521/ORCL12VM')
-cur = c.cursor()
-cur.execute('UPDATE entity_tbl SET gw_admin_flag = :1 WHERE ldap_uid = :2', [${flag}, '${loginName}'])
-c.commit()
-c.close()
-"`,
-    { timeout: 15_000 }
-  );
+  dbExec('UPDATE entity_tbl SET gw_admin_flag = :1 WHERE ldap_uid = :2', [flag, loginName], {
+    dsn: 'dbhost:1521/ORCL12VM',
+  });
 }
 
 (async () => {
@@ -47,21 +39,28 @@ c.close()
     console.log('Logged in as', advisorLogin, '→ URL:', page.url());
 
     // Navigate to manageContacts for the firm
-    await page.goto(`${baseUrl}react/indexReact.do#platformOne/firmAdmin/contactManagement/manageContacts/${firmCd}`);
+    await page.goto(
+      `${baseUrl}react/indexReact.do#platformOne/firmAdmin/contactManagement/manageContacts/${firmCd}`
+    );
     await page.waitForLoadState('networkidle');
     console.log('After nav URL:', page.url());
 
     // Search client
     const searchBox = page.locator('input[placeholder*="Enter Client or Household"]');
     if ((await searchBox.count()) === 0) {
-      console.log('Search box not found — likely no Platform One access. Body:', (await page.locator('body').innerText()).slice(0, 200));
+      console.log(
+        'Search box not found — likely no Platform One access. Body:',
+        (await page.locator('body').innerText()).slice(0, 200)
+      );
       return;
     }
     await searchBox.click();
     await searchBox.fill(clientLastNamePrefix);
     await page.waitForTimeout(2500);
 
-    const row = page.locator('.clientAutocompleteSearchRow___dumCz', { hasText: clientLastNamePrefix }).first();
+    const row = page
+      .locator('.clientAutocompleteSearchRow___dumCz', { hasText: clientLastNamePrefix })
+      .first();
     if ((await row.count()) === 0) {
       console.log('No row matched — search dropdown empty.');
       return;
@@ -71,7 +70,9 @@ c.close()
     await page.waitForTimeout(2000);
 
     const after = await page.evaluate(() => {
-      const buttons = [...document.querySelectorAll('button, a[role=button], a.button, [class*="Button"]')]
+      const buttons = [
+        ...document.querySelectorAll('button, a[role=button], a.button, [class*="Button"]'),
+      ]
         .filter((b) => b.offsetParent !== null)
         .map((b) => (b.innerText || '').trim())
         .filter((t) => t && t.length < 60)

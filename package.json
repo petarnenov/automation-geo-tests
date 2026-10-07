@@ -23,6 +23,7 @@
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-playwright": "^2.10.1",
     "globals": "^17.4.0",
+    "oracledb": "^7.0.1",
     "prettier": "^3.8.1"
   }
 }
