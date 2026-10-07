@@ -2,6 +2,7 @@
 #   make test ARGS="tests/billing-runs --workers=2"
 #   make test ARGS="-g C25017"
 #   make test RUNAS=grish
+#   make test random 5        5 tests picked at random from the suite
 
 ARGS ?=
 # Who the run is for (a key of aio.config.json assignees) instead of being asked.
@@ -9,14 +10,26 @@ RUNAS ?=
 
 .PHONY: help test config aio-post tunnel
 
+# `make test random N`: the words after `test` arrive as extra goals, so
+# read N from them and turn both words into no-op targets.
+ifeq (random,$(word 2,$(MAKECMDGOALS)))
+RANDOM_N := $(word 3,$(MAKECMDGOALS))
+ifeq (,$(RANDOM_N))
+$(error usage: make test random <count>)
+endif
+random $(RANDOM_N):
+	@:
+endif
+
 help:
 	@echo "make test [ARGS=...] [RUNAS=who]  choose who runs it (required), show what will run, confirm (default No), start DB tunnel, run, confirm AIO post (default Yes)"
+	@echo "make test random N    same, on N tests picked at random from the suite"
 	@echo "make config           show app URL, DB, AIO cycle, green status and comment"
 	@echo "make tunnel           start the DB SSH tunnel (DB_TUNNEL_* in .env.local) if it is down"
 	@echo "make aio-post         post the results saved by the last run to AIO"
 
 test:
-	@$(if $(RUNAS),RUN_AS=$(RUNAS) )node scripts/run-suite.js run $(ARGS)
+	@$(if $(RUNAS),RUN_AS=$(RUNAS) )node scripts/run-suite.js run $(if $(RANDOM_N),--random $(RANDOM_N) )$(ARGS)
 
 config:
 	@node scripts/run-suite.js config

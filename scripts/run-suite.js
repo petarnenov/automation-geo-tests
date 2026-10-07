@@ -5,6 +5,8 @@
  *
  *   node scripts/run-suite.js config            show the current configuration
  *   node scripts/run-suite.js run [pw args...]  confirm, run, then confirm the AIO post
+ *   node scripts/run-suite.js run --random N [pw args...]
+ *                                               same, on N tests picked at random
  *
  * `run` lists what would execute (count, app, DB, AIO cycle, the status and
  * comment greens will get) and asks before starting — default No. Playwright
@@ -13,6 +15,7 @@
  * default Yes. Exit code is Playwright's.
  */
 
+const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
 const readline = require('readline');
@@ -117,8 +120,38 @@ function listTests(args) {
     if (/No tests found/.test(out)) return { tests: 0, files: 0, caseIds: [] };
     throw new Error(`playwright --list failed:\n${out.slice(-1500)}`);
   }
-  const caseIds = [...out.matchAll(/›[^\n]*?\bC(\d+)\b/g)].map((m) => Number(m[1]));
-  return { tests: Number(total[1]), files: Number(total[2]), caseIds };
+  // "  [chromium] › billing-runs/C25020.spec.js:34:1 › @regression C25020 ..."
+  const entries = [...out.matchAll(/^\s*\[[^\]]+\] › (\S+?):(\d+):\d+ › (.+)$/gm)].map((m) => ({
+    file: m[1],
+    // Paths in the listing are relative to testDir; the CLI wants them from the root.
+    location: `tests/${m[1]}:${m[2]}`,
+    title: m[3],
+  }));
+  return { tests: Number(total[1]), files: Number(total[2]), entries };
+}
+
+/** Case ids (the Cxxxxx in titles) of the listed tests. */
+const caseIdsOf = (entries) =>
+  entries
+    .map((e) => (e.title.match(/\bC(\d+)\b/) || [])[1])
+    .filter(Boolean)
+    .map(Number);
+
+/**
+ * Pick n of the listed tests uniformly at random.
+ *
+ * @template T
+ * @param {T[]} items
+ * @param {number} n
+ * @returns {T[]}
+ */
+function pickRandom(items, n) {
+  const pool = [...items];
+  for (let i = pool.length - 1; i > 0; i -= 1) {
+    const j = crypto.randomInt(i + 1);
+    [pool[i], pool[j]] = [pool[j], pool[i]];
+  }
+  return pool.slice(0, n);
 }
 
 /**
@@ -179,18 +212,43 @@ async function chooseRunAs() {
   }
 }
 
-async function run(args) {
+async function run(argv) {
+  let args = argv;
+  let randomN = 0;
+  if (args[0] === '--random') {
+    randomN = Number(args[1]);
+    if (!Number.isInteger(randomN) || randomN < 1) {
+      console.error(`--random needs a positive whole number, got "${args[1] ?? ''}".`);
+      return 2;
+    }
+    args = args.slice(2);
+  }
+
   if (!(await chooseRunAs())) return 1;
   console.log(bold('\nConfiguration'));
   const { aio, mapping } = await printConfig();
 
-  const listed = listTests(args);
-  const unique = [...new Set(listed.caseIds)];
+  let listed = listTests(args);
+  let suiteSize = '';
+  if (randomN) {
+    const picked = pickRandom(listed.entries, randomN);
+    suiteSize = ` (random ${picked.length} of ${listed.tests})`;
+    listed = {
+      tests: picked.length,
+      files: new Set(picked.map((e) => e.file)).size,
+      entries: picked,
+    };
+    args = [...args, ...picked.map((e) => e.location)];
+  }
+  const unique = [...new Set(caseIdsOf(listed.entries))];
   const mapped = mapping ? unique.filter((id) => mapping.has(id)).length : 0;
   console.log(bold('\nRun'));
-  console.log(`  Tests         ${listed.tests} in ${listed.files} files`);
+  console.log(`  Tests         ${listed.tests} in ${listed.files} files${suiteSize}`);
+  if (randomN) {
+    for (const e of listed.entries) console.log(`                ${e.title}`);
+  }
   console.log(`  AIO-mapped    ${mapped} of ${unique.length} case ids`);
-  console.log(`  Args          ${args.length ? args.join(' ') : '(none)'}`);
+  if (!randomN) console.log(`  Args          ${args.length ? args.join(' ') : '(none)'}`);
   console.log(
     `  Greens get    ${aio.statusNames.passed} + "${commentFor('passed', aio.assignee.name)}" in ${aio.cycleKey}`
   );
