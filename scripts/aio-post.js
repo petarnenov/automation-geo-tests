@@ -84,9 +84,13 @@ async function cycleCaseKeys(token, { projectKey, cycleKey }) {
  */
 async function postBatch(token, { projectKey, cycleKey }, testRuns) {
   // createNewRun=false updates the run already sitting in the cycle rather than
-  // stacking a second one on top of it.
+  // stacking a second one on top of it. assigneeMode=OVERRIDE replaces an
+  // existing assignee (DEFAULT only fills an empty one), but it also clears the
+  // assignee when assigneeToID is missing, so it is sent only when every run has one.
+  const override = testRuns.every((r) => r.assigneeToID) ? '&assigneeMode=OVERRIDE' : '';
   const endpoint =
-    `/project/${projectKey}/testcycle/${cycleKey}` + '/bulk/testrun/update?createNewRun=false';
+    `/project/${projectKey}/testcycle/${cycleKey}` +
+    `/bulk/testrun/update?createNewRun=false${override}`;
 
   for (let i = 0; i <= BACKOFFS_MS.length; i += 1) {
     try {
