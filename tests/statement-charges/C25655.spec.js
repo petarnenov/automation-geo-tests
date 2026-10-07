@@ -19,7 +19,7 @@
  *
  * Implementation notes:
  *   - Routes: hash deep-link is the same end state as the sidebar drill and
- *     is what every other @pepi spec under tests/billing-specs uses, so we
+ *     is what every other @regression spec under tests/billing-specs uses, so we
  *     skip the sidebar in favour of #platformOne/billingCenter/statementCharges.
  *   - Grid id: GwGridPersist mounts as "StatementChargesIdP1" on Platform One
  *     (see StatementChargesGrid.js:19). Column 1 is Firm (lockPosition:'left',
@@ -93,7 +93,7 @@ async function readHeaderOrder(page) {
   });
 }
 
-test('@pepi C25655 Statement Charges - Save new grid view as default', async ({ page }) => {
+test('@regression C25655 Statement Charges - Save new grid view as default', async ({ page }) => {
   test.setTimeout(180_000);
 
   await loginPlatformOneTim1Fresh(page);

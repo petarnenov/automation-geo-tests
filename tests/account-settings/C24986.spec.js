@@ -27,7 +27,7 @@ const UPDATE_PASSWORD_URL = '/react/updatePassword.do';
 
 test.setTimeout(120_000);
 
-test('@pepi C24986 Password change - mismatched new passwords show inline error (UI smoke)', async ({
+test('@regression C24986 Password change - mismatched new passwords show inline error (UI smoke)', async ({
   page,
   context,
 }) => {

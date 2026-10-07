@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Idempotent runtime seed for the Billing Runs grid (@pepi billing-runs specs).
+"""Idempotent runtime seed for the Billing Runs grid (@regression billing-runs specs).
 
 Clones a known in-window, single-run, one-history template billing and overrides
 the fields a given spec needs, so a Completed/In-Progress/partial-re-run master

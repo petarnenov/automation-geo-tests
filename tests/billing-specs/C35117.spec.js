@@ -24,7 +24,7 @@ const SPECS_URL = `/react/indexReact.do#platformOne/billingCenter/specifications
 const FEE_PERIOD_HINT = 'Periodic, not Annual';
 
 test(
-  '@pepi C35117 Min/Max fee fields display the per billing period hint on Create New Billing Spec',
+  '@regression C35117 Min/Max fee fields display the per billing period hint on Create New Billing Spec',
   {
     annotation: [
       { type: 'aio', description: 'GEO-TC-11840' },

@@ -149,7 +149,7 @@ async function clickRowAction(page, centerRow, title) {
   else await icon.click({ force: true });
 }
 
-test('@pepi C22307 Statement Charges - Edit a statement charge', async ({ page }) => {
+test('@regression C22307 Statement Charges - Edit a statement charge', async ({ page }) => {
   test.setTimeout(180_000);
 
   const desc = `PepiC22307-${Date.now()}`;

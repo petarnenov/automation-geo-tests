@@ -66,7 +66,7 @@ function readAdvisorOptions(page) {
   });
 }
 
-test("@pepi C22289 Statement Charges - Filter by the 'Firm Name' of an inactive firm", async ({ page }) => {
+test("@regression C22289 Statement Charges - Filter by the 'Firm Name' of an inactive firm", async ({ page }) => {
   test.setTimeout(180_000);
 
   const desc = `PepiC22289-${Date.now()}`;

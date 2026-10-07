@@ -33,7 +33,7 @@ const { seedBillingRun } = require('../_helpers/billing-seed');
 const BILLING_RUNS_URL = '/react/indexReact.do#platformOne/billingCenter/runs';
 const SEED_TEMPLATE_NAME = 'C25019 Partial Seed';
 
-test('@pepi C25019 Billing History Replacement for Target Accounts', async ({ page }) => {
+test('@regression C25019 Billing History Replacement for Target Accounts', async ({ page }) => {
   test.setTimeout(180_000);
 
   // Seed a Completed run with a PARTIAL_RE_RUN=1 history row (the '*' status

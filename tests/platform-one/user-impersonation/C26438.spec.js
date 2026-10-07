@@ -25,7 +25,9 @@ const {
   FIRM_CD_GEOWEALTH,
 } = require('./_helpers');
 
-test('@pepi C26438 Platform One Impersonate grid sorts by Name (Positive)', async ({ page }) => {
+test('@regression C26438 Platform One Impersonate grid sorts by Name (Positive)', async ({
+  page,
+}) => {
   test.setTimeout(180_000);
 
   await gotoImpersonatePageAsTim1(page);

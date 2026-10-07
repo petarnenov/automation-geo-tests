@@ -89,7 +89,7 @@ async function survivingSeeds(page, prefix) {
   return rows.filter((r) => (r.description || '').startsWith(prefix)).map((r) => r.billingStatementChargeID);
 }
 
-test('@pepi C22315 Statement Charges - Bulk Delete', async ({ page }) => {
+test('@regression C22315 Statement Charges - Bulk Delete', async ({ page }) => {
   test.setTimeout(180_000);
 
   const prefix = `PepiC22315-${Date.now()}`;

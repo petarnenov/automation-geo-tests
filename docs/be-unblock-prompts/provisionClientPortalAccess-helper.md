@@ -125,7 +125,7 @@ const { test, expect } = require('@playwright/test');
 const { loginPlatformOneAdmin, login: qaLogin } = require('../_helpers/qa3');
 const { provisionClientPortalAccess } = require('../_helpers/client-portal');
 
-test('@pepi C26254 ...', async ({ browser, page, workerFirm }) => {
+test('@regression C26254 ...', async ({ browser, page, workerFirm }) => {
   await loginPlatformOneAdmin(page);
   const clientA = await provisionClientPortalAccess(page, { firmCd: workerFirm.firmCd });
   const clientG = await provisionClientPortalAccess(page, { firmCd: workerFirm.firmCd });

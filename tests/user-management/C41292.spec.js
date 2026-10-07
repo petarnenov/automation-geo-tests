@@ -33,7 +33,7 @@ const UPDATE_USER_URL = '/platformOne/editUserProfile.do';
 
 test.setTimeout(180_000);
 
-test('@pepi C41292 Edit User modal GW Admin - valid email update persists after save (UI smoke + DB)', async ({
+test('@regression C41292 Edit User modal GW Admin - valid email update persists after save (UI smoke + DB)', async ({
   page,
 }) => {
   const user = await createGwAdmin('pepiPersist');

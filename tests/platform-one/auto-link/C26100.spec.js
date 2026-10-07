@@ -11,7 +11,7 @@
 const { test } = require('@playwright/test');
 const { runAutoLinkCreateUserSmoke } = require('./_helpers');
 
-test('@pepi C26100 Platform One Auto-link - matching, delink and link again (UI smoke)', async ({
+test('@regression C26100 Platform One Auto-link - matching, delink and link again (UI smoke)', async ({
   page,
 }) => {
   await runAutoLinkCreateUserSmoke({ page, firmCode: 3 });

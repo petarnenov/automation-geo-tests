@@ -87,7 +87,7 @@ async function clearGridColumnFilters(page) {
   });
 }
 
-test('@pepi C22310 Statement Charges - At least one field must change to copy a charge', async ({ page }) => {
+test('@regression C22310 Statement Charges - At least one field must change to copy a charge', async ({ page }) => {
   test.setTimeout(180_000);
 
   const desc = `PepiC22310-${Date.now()}`;

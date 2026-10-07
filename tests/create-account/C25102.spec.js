@@ -54,7 +54,10 @@ const { buildBulkAccountsXlsx } = require('../_helpers/build-bulk-accounts-xlsx'
 
 const CREATE_ACCOUNT_URL = '/react/indexReact.do#platformOne/backOffice/createAccount';
 
-test('@pepi C25102 Create accounts using different CLIENT types', async ({ page, workerFirm }) => {
+test('@regression C25102 Create accounts using different CLIENT types', async ({
+  page,
+  workerFirm,
+}) => {
   test.setTimeout(240_000);
 
   const stamp = Date.now();
@@ -107,7 +110,7 @@ test('@pepi C25102 Create accounts using different CLIENT types', async ({ page,
     await submitBtn.click();
 
     // Both rows mount in the grid even though one will fail validation later.
-    // 60s — bulk-upload backend can lag 30-50s when the full @pepi suite runs
+    // 60s — bulk-upload backend can lag 30-50s when the full @regression suite runs
     // 8 workers in parallel across multiple feature areas (account-billing,
     // merge-prospect retry loops, etc.) saturating qa2 server side.
     await expect(page.locator('.ag-row[row-index="0"]')).toBeVisible({

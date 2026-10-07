@@ -25,7 +25,7 @@ const { buildBucketXlsx } = require('../../_helpers/build-bucket-xlsx');
 
 const ERROR_RX = validationErrorRegex('not.*match');
 
-test('@pepi C25380 Bucket Exclusions - wrong values trigger validation', async ({
+test('@regression C25380 Bucket Exclusions - wrong values trigger validation', async ({
   page,
   workerFirm,
 }) => {

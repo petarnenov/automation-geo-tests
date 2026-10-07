@@ -17,7 +17,7 @@ const { test } = require('@playwright/test');
 const { loginPlatformOneAdmin, uploadBillingBucketExclusions } = require('../_helpers/qa3');
 const { buildBucketXlsx } = require('../_helpers/build-bucket-xlsx');
 
-test('@pepi C25791 Bucket Exclusions - Set All Accts to I column is optional (column omitted)', async ({
+test('@regression C25791 Bucket Exclusions - Set All Accts to I column is optional (column omitted)', async ({
   page,
   workerFirm,
 }) => {
@@ -32,7 +32,7 @@ test('@pepi C25791 Bucket Exclusions - Set All Accts to I column is optional (co
   await uploadBillingBucketExclusions(page, workerFirm.firmCd, xlsx);
 });
 
-test('@pepi C25791 Bucket Exclusions - Set All Accts to I column is optional (explicit N)', async ({
+test('@regression C25791 Bucket Exclusions - Set All Accts to I column is optional (explicit N)', async ({
   page,
   workerFirm,
 }) => {

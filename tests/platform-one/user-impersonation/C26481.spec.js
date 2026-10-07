@@ -19,7 +19,7 @@ const {
 const LARGE_FIRM_CD = 5;
 const SEARCH_BUDGET_MS = 5_000;
 
-test('@pepi C26481 Platform One Impersonate search performance for large firm 5 (Non-functional)', async ({
+test('@regression C26481 Platform One Impersonate search performance for large firm 5 (Non-functional)', async ({
   page,
 }) => {
   test.setTimeout(180_000);

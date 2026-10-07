@@ -34,7 +34,11 @@ const { buildBulkAccountsXlsx } = require('../_helpers/build-bulk-accounts-xlsx'
 
 const CREATE_ACCOUNT_URL = '/react/indexReact.do#platformOne/backOffice/createAccount';
 
-test('@pepi C24943 Create new account using upload', async ({ page, context, workerFirm }) => {
+test('@regression C24943 Create new account using upload', async ({
+  page,
+  context,
+  workerFirm,
+}) => {
   test.setTimeout(240_000);
 
   const stamp = Date.now();

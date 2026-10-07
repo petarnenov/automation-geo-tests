@@ -14,7 +14,7 @@ const {
   FIRM_CD_GEOWEALTH,
 } = require('./_helpers');
 
-test('@pepi C26427 Platform One Impersonate user list loads when firm selected (Positive)', async ({
+test('@regression C26427 Platform One Impersonate user list loads when firm selected (Positive)', async ({
   page,
 }) => {
   test.setTimeout(180_000);

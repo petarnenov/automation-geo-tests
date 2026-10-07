@@ -32,7 +32,7 @@ const { loginPlatformOneAdmin } = require('../_helpers/qa3');
 const FIRM_CODE = 1;
 const SPECS_URL = `/react/indexReact.do#platformOne/billingCenter/specifications/${FIRM_CODE}`;
 
-test('@pepi C25084 Billing Spec Grid Shows Account Min/Max Columns', async ({ page }) => {
+test('@regression C25084 Billing Spec Grid Shows Account Min/Max Columns', async ({ page }) => {
   test.setTimeout(180_000);
 
   await loginPlatformOneAdmin(page);

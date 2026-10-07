@@ -31,7 +31,7 @@ const UPDATE_PASSWORD_URL = '/react/updatePassword.do';
 
 test.setTimeout(180_000);
 
-test('@pepi C24979 Password change flow from notification (UI smoke)', async ({
+test('@regression C24979 Password change flow from notification (UI smoke)', async ({
   page,
   context,
 }) => {

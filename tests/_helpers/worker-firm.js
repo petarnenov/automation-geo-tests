@@ -1,6 +1,6 @@
 // @ts-check
 /**
- * Per-worker dummy firm provisioning for the @pepi suite.
+ * Per-worker dummy firm provisioning for the @regression suite.
  *
  * Creates a fresh isolated firm via /qa/createDummyFirm.do once per Playwright
  * worker, then exposes a flattened, test-friendly view of the firm's data.
@@ -12,7 +12,7 @@
  * Wired into the test runner via the monkey-patch in playwright.config.js, so
  * specs can use it as a worker-scoped fixture:
  *
- *   test('@pepi …', async ({ page, workerFirm }) => {
+ *   test('@regression …', async ({ page, workerFirm }) => {
  *     await uploadBillingBucketExclusions(page, workerFirm.firmCd, xlsxBuffer);
  *   });
  */
@@ -285,7 +285,7 @@ async function provisionProspectInPlace(page, context, workerFirm, opts = {}) {
   // to the new prospect's overview. Wait for the modal text — it's the
   // earliest deterministic signal that the create round-trip is done.
   // Replaces an earlier blind waitForTimeout(3_000).
-  // 60s — under full @pepi suite parallel load (8 workers all spinning up
+  // 60s — under full @regression suite parallel load (8 workers all spinning up
   // dummy firms + provisioning prospects), qa2 can queue create-prospect
   // requests serially server-side. Verified in a parallel run where the
   // failure snapshot showed the modal visible at timeout time, meaning the

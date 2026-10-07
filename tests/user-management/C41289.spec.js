@@ -22,7 +22,7 @@ const {
 
 test.setTimeout(180_000);
 
-test('@pepi C41289 Edit User modal GW Admin - @geowealth.com.evil suffix-spoof blocks Save (UI smoke)', async ({
+test('@regression C41289 Edit User modal GW Admin - @geowealth.com.evil suffix-spoof blocks Save (UI smoke)', async ({
   page,
 }) => {
   const user = await createGwAdmin('pepiSpoofB');

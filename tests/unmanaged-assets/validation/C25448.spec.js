@@ -18,7 +18,7 @@
 const { test } = require('@playwright/test');
 const { validRowFor, uploadAndExpectError } = require('../_helpers');
 
-test('@pepi C25448 Unmanaged Assets - missing Account UUID triggers validation', async ({
+test('@regression C25448 Unmanaged Assets - missing Account UUID triggers validation', async ({
   page,
   workerFirm,
 }) => {
@@ -28,7 +28,7 @@ test('@pepi C25448 Unmanaged Assets - missing Account UUID triggers validation',
   await uploadAndExpectError(page, workerFirm, [row], 'missingAccountUuid');
 });
 
-test('@pepi C25448 Unmanaged Assets - missing Instrument UUID triggers validation', async ({
+test('@regression C25448 Unmanaged Assets - missing Instrument UUID triggers validation', async ({
   page,
   workerFirm,
 }) => {
@@ -38,7 +38,7 @@ test('@pepi C25448 Unmanaged Assets - missing Instrument UUID triggers validatio
   await uploadAndExpectError(page, workerFirm, [row], 'missingInstrumentUuid');
 });
 
-test('@pepi C25448 Unmanaged Assets - missing Action triggers validation', async ({
+test('@regression C25448 Unmanaged Assets - missing Action triggers validation', async ({
   page,
   workerFirm,
 }) => {

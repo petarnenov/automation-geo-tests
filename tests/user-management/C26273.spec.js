@@ -52,7 +52,7 @@ const { selectFirmInTypeAhead } = require('../_helpers/ui');
 
 test.setTimeout(360_000);
 
-test('@pepi C26273 Non-deactivated portal user stays logged in after another user is deactivated', async ({
+test('@regression C26273 Non-deactivated portal user stays logged in after another user is deactivated', async ({
   browser,
   page,
 }) => {

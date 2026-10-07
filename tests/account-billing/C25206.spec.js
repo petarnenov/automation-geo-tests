@@ -57,7 +57,7 @@ const SYMBOL_PATTERN = /MSFT|Microsoft/i;
 // MSFT-related option chains.
 const SYMBOL_OPTION_TEXT = 'Microsoft';
 
-test('@pepi C25206 Account Unmanaged Assets - Create Exclude from Performance', async ({
+test('@regression C25206 Account Unmanaged Assets - Create Exclude from Performance', async ({
   page,
   context,
 }) => {

@@ -38,7 +38,7 @@ const SEED_TARGET_JSON =
 const WARNING_RX =
   /Billing will be re-run for all accounts in the household and the history updated for all of the household.?s accounts\./i;
 
-test('@pepi C25067 Correct Client Target Type Displayed by Billing Type', async ({ page }) => {
+test('@regression C25067 Correct Client Target Type Displayed by Billing Type', async ({ page }) => {
   test.setTimeout(180_000);
 
   // Pre-condition (per case): a Completed, unpublished, Client-target billing

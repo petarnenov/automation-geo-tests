@@ -38,7 +38,7 @@ const {
 
 test.setTimeout(360_000);
 
-test('@pepi C26254 Non-deactivated Client remains logged in Advisor Portal after another Client is disabled', async ({
+test('@regression C26254 Non-deactivated Client remains logged in Advisor Portal after another Client is disabled', async ({
   browser,
   page,
   workerFirm,
@@ -89,7 +89,7 @@ test('@pepi C26254 Non-deactivated Client remains logged in Advisor Portal after
 
   await test.step('Step 6: Open EditClient page for Client A by direct URL', async () => {
     // The qa4 contact-search indexer can lag 60-180 s after a fresh
-    // /ux/createClient.do, especially under @pepi parallel load — the
+    // /ux/createClient.do, especially under @regression parallel load — the
     // autocomplete path is flaky. Skip it: the EditClient route per
     // PlatformOne Router (Router.js:278) + buildContactUrls is
     // `contactManagement/<entityTypeCd>/<firmCd>/<entityID>/editClient`.

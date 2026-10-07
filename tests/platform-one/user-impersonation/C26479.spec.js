@@ -18,7 +18,7 @@ const { login } = require('../../_helpers/qa3');
 
 const GW_ADMINS_PATH = path.join(__dirname, '..', '..', '.auth', 'gwadmins.json');
 
-test('@pepi C26479 Platform One Impersonate direct URL blocked for unauthorized user (Negative)', async ({
+test('@regression C26479 Platform One Impersonate direct URL blocked for unauthorized user (Negative)', async ({
   page,
   context,
 }) => {

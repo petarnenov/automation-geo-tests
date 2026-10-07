@@ -88,7 +88,7 @@ async function clearGridColumnFilters(page) {
 const selectedCount = (page) => page.locator('.ag-center-cols-container .ag-row[aria-selected="true"]').count();
 const clearSelectionBtn = (page) => page.getByRole('button', { name: 'Clear Selection' });
 
-test('@pepi C22314 Statement Charges - Clear Selection', async ({ page }) => {
+test('@regression C22314 Statement Charges - Clear Selection', async ({ page }) => {
   test.setTimeout(180_000);
 
   const prefix = `PepiC22314-${Date.now()}`;

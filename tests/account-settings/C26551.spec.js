@@ -23,7 +23,7 @@ const { login, createGwAdmin, expireUserPassword } = require('../_helpers/qa3');
 
 test.setTimeout(180_000);
 
-test('@pepi C26551 Login as fresh user after expired user attempted (UI smoke)', async ({
+test('@regression C26551 Login as fresh user after expired user attempted (UI smoke)', async ({
   page,
   context,
 }) => {

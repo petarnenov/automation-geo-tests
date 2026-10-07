@@ -20,7 +20,7 @@
 
 const { test } = require('@playwright/test');
 
-test('@pepi C26085 Platform One Merge Prospect - empty client + permissions disabled, site 1', async () => {
+test('@regression C26085 Platform One Merge Prospect - empty client + permissions disabled, site 1', async () => {
   test.fixme(
     true,
     'Cannot automate without a user/firm where MERGE PROSPECT permission is disabled — see header comment.'

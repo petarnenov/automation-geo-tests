@@ -22,7 +22,7 @@
 const { test } = require('@playwright/test');
 const { runImpersonateMenuVisibilityCheck } = require('./_helpers');
 
-test('@pepi C26424 Platform One Impersonate menu visible for site 1 with permission (Positive)', async ({
+test('@regression C26424 Platform One Impersonate menu visible for site 1 with permission (Positive)', async ({
   page,
 }) => {
   await runImpersonateMenuVisibilityCheck({ page });

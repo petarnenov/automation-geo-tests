@@ -11,7 +11,7 @@
 const { test } = require('@playwright/test');
 const { runAutoLinkCreateUserSmoke } = require('./_helpers');
 
-test('@pepi C26080 Platform One Auto-link - non-matching email triggers no link (UI smoke)', async ({
+test('@regression C26080 Platform One Auto-link - non-matching email triggers no link (UI smoke)', async ({
   page,
 }) => {
   await runAutoLinkCreateUserSmoke({ page, firmCode: 3 });

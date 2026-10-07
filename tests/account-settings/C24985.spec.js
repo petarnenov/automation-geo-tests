@@ -35,7 +35,7 @@ const NEW_PASSWORD = 'NewPass123!';
 
 test.setTimeout(180_000);
 
-test('@pepi C24985 Forgot Password resets the 90-day timer (UI smoke + DB)', async ({
+test('@regression C24985 Forgot Password resets the 90-day timer (UI smoke + DB)', async ({
   page,
   context,
 }) => {

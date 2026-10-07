@@ -48,7 +48,7 @@ const SPEC_B = '55 BPS-Flows';
 // firm 106. retries: 1 rides out a collision.
 test.describe.configure({ retries: 1 });
 
-test('@pepi C41496 Account spec change creates history record with USER', async ({
+test('@regression C41496 Account spec change creates history record with USER', async ({
   page,
   context,
 }) => {

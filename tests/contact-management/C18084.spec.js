@@ -11,6 +11,6 @@
 const { test } = require('@playwright/test');
 const { runEditContactAbort } = require('./_helpers');
 
-test('@pepi C18084 Manage Contacts - Cancel Editing Client', async ({ page }) => {
+test('@regression C18084 Manage Contacts - Cancel Editing Client', async ({ page }) => {
   await runEditContactAbort({ page, kind: 'client', action: 'Cancel' });
 });

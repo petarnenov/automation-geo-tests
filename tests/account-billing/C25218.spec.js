@@ -151,7 +151,7 @@ async function dismissExcludeModalIfPresent(page, bucketHeaderRe, { timeoutMs = 
   return true;
 }
 
-test('@pepi C25218 Household Exclude from billing - Admin and Non-Admin', async ({
+test('@regression C25218 Household Exclude from billing - Admin and Non-Admin', async ({
   page,
   context,
   workerFirm,

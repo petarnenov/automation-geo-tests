@@ -1,6 +1,6 @@
 // @ts-check
 /**
- * Shared helpers for the bucket-exclusions @pepi specs.
+ * Shared helpers for the bucket-exclusions @regression specs.
  *
  * Several specs (C25363, C25364, C25377, C25789) reuse the same "default
  * happy-path" Bucket Exclusions row set: HouseHold=Y on bucket 1, with the

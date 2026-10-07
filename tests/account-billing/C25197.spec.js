@@ -120,7 +120,7 @@ async function clickExcludeRadio(page, formKey, value) {
 // Phase 2.2 (history rows for non-admin) is dropped because the history
 // belongs to the dummy firm, which tyler can't see; the Edit-button-hidden
 // check still covers the role gating.
-test('@pepi C25197 Account Exclude from billing - Admin and Non-Admin', async ({
+test('@regression C25197 Account Exclude from billing - Admin and Non-Admin', async ({
   page,
   context,
   workerFirm,

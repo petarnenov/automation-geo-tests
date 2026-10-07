@@ -19,7 +19,7 @@
 const { test, expect } = require('@playwright/test');
 const { loginAsTim1Fresh } = require('./_helpers');
 
-test('@pepi C26477 Platform One Back Office Impersonate Employees page accessible (Smoke)', async ({
+test('@regression C26477 Platform One Back Office Impersonate Employees page accessible (Smoke)', async ({
   page,
 }) => {
   test.setTimeout(180_000);

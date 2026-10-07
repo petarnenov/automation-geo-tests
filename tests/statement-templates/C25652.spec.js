@@ -77,7 +77,7 @@ async function readHeaderOrder(page) {
   });
 }
 
-test('@pepi C25652 Statement Templates - Save new grid view as default', async ({ page }) => {
+test('@regression C25652 Statement Templates - Save new grid view as default', async ({ page }) => {
   test.setTimeout(180_000);
 
   await loginPlatformOneTim1Fresh(page);

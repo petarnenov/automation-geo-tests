@@ -94,7 +94,7 @@ async function openStatementCharges(page) {
   await expect(page.locator('.ag-header-cell[col-id]').first()).toBeVisible({ timeout: 30_000 });
 }
 
-test("@pepi C22319 Statement Charges - Filter by 'Split Advisor(s)'", async ({ page }) => {
+test("@regression C22319 Statement Charges - Filter by 'Split Advisor(s)'", async ({ page }) => {
   test.setTimeout(180_000);
 
   await loginPlatformOneTim1Fresh(page);

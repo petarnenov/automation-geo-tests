@@ -24,7 +24,7 @@ const {
 
 test.setTimeout(180_000);
 
-test('@pepi C41286 Edit User modal GW Admin - mixed-case @GeoWealth.COM is accepted (UI smoke)', async ({
+test('@regression C41286 Edit User modal GW Admin - mixed-case @GeoWealth.COM is accepted (UI smoke)', async ({
   page,
 }) => {
   const user = await createGwAdmin('pepiMixedCase');

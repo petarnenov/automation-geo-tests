@@ -37,7 +37,7 @@ const BILLING_RUNS_URL = '/react/indexReact.do#platformOne/billingCenter/runs';
 const WARNING_RX =
   /Billing will be re-run for all accounts in the household and the history updated for all of the household.?s accounts\./i;
 
-test('@pepi C25066 Correct Account Target Type Displayed by Billing Type', async ({ page }) => {
+test('@regression C25066 Correct Account Target Type Displayed by Billing Type', async ({ page }) => {
   test.setTimeout(180_000);
 
   // tim1 (role Admins), not the worker GW Admin (role 529 "All Employees"):

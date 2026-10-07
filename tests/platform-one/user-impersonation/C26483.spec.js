@@ -16,7 +16,7 @@ const {
   FIRM_CD_FALLBACK,
 } = require('./_helpers');
 
-test('@pepi C26483 Platform One Impersonated user from other firm lands on Advisor Portal (Positive)', async ({
+test('@regression C26483 Platform One Impersonated user from other firm lands on Advisor Portal (Positive)', async ({
   page,
 }) => {
   test.setTimeout(180_000);

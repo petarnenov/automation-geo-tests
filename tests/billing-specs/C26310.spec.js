@@ -105,7 +105,7 @@
 
 const { test } = require('@playwright/test');
 
-test('@pepi C26310 View billing spec update history with before/after details', async () => {
+test('@regression C26310 View billing spec update history with before/after details', async () => {
   test.fixme(
     true,
     'Blocked on GEO-7055 (BE - Billing Spec view History, status To Do). ' +

@@ -40,7 +40,7 @@ const { openEditUserModal, MODAL_SUBMIT_NAME } = require('./_helpers');
 
 test.setTimeout(240_000);
 
-test('@pepi C26555 Edit user name propagates to NCC grid in Advisor Portal', async ({ page }) => {
+test('@regression C26555 Edit user name propagates to NCC grid in Advisor Portal', async ({ page }) => {
   const initialFirstName = 'pepiNcc';
   const editedFirstName = `pepiNccEdit${Math.floor(Math.random() * 1e6)
     .toString(36)

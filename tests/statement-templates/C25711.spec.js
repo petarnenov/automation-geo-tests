@@ -45,7 +45,7 @@ const VIEW_NAME = `Custom filter view C25711 ${Date.now()}`;
 // const TEMPLATE_NAME = 'templateName' is a newer rename not yet on qa4).
 const FILTERED_COL_ID = 'statementName';
 
-test('@pepi C25711 Statement Templates - save default view with custom filters', async ({ page }) => {
+test('@regression C25711 Statement Templates - save default view with custom filters', async ({ page }) => {
   test.setTimeout(180_000);
 
   await loginPlatformOneTim1Fresh(page);

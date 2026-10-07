@@ -13,7 +13,7 @@
  *   it would send and stops. A reporter that writes into a shared regression
  *   cycle should not start doing so just because someone pulled the branch.
  * - Tests are matched to AIO cases through the TestRail id in the title
- *   (`@pepi C25207 ...`), resolved to an AIO key (GEO-TC-11933) via the mapping
+ *   (`@regression C25207 ...`), resolved to an AIO key (GEO-TC-11933) via the mapping
  *   file produced by scripts/map-pepi-to-aio.js. Tests without a C-id, or whose
  *   C-id is not in the mapping, are skipped and listed in the summary.
  * - Results for cases that are not in the cycle are dropped before posting.

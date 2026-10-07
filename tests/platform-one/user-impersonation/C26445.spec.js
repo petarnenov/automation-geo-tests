@@ -18,7 +18,7 @@ const {
   FIRM_CD_GEOWEALTH,
 } = require('./_helpers');
 
-test('@pepi C26445 Platform One Impersonate search returns matching users (Positive)', async ({
+test('@regression C26445 Platform One Impersonate search returns matching users (Positive)', async ({
   page,
 }) => {
   test.setTimeout(180_000);

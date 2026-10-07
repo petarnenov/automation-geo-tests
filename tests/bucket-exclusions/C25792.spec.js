@@ -33,7 +33,7 @@ const {
 } = require('../_helpers/qa3');
 const { buildBucketXlsx } = require('../_helpers/build-bucket-xlsx');
 
-test('@pepi C25792 Bucket Exclusions - account record after hh/client overrides the setting', async ({
+test('@regression C25792 Bucket Exclusions - account record after hh/client overrides the setting', async ({
   page,
   context,
   workerFirm,

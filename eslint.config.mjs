@@ -1,4 +1,4 @@
-// ESLint flat config for the @pepi Playwright test suite.
+// ESLint flat config for the @regression Playwright test suite.
 // Loaded by ESLint 9+ automatically; works regardless of package.json `type`.
 //
 // Scope:
@@ -88,7 +88,7 @@ export default [
     files: ['tests/**/*.js', 'tests/**/*.mjs'],
     rules: {
       ...playwright.configs['flat/recommended'].rules,
-      // Allow conditional logic in tests — many @pepi specs branch on captured
+      // Allow conditional logic in tests — many @regression specs branch on captured
       // state (e.g. flip Yes↔No, set baseline if missing). The default rule is
       // too strict for state-machine-style tests.
       'playwright/no-conditional-in-test': 'off',

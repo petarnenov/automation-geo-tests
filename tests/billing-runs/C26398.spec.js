@@ -55,7 +55,7 @@
 
 const { test } = require('@playwright/test');
 
-test('@pepi C26398 Billing Runs UI Post/Unpost Mgr Fees actions and Mgr Fees Posted column', async () => {
+test('@regression C26398 Billing Runs UI Post/Unpost Mgr Fees actions and Mgr Fees Posted column', async () => {
   test.fixme(
     true,
     'Blocked by https://geowealth.atlassian.net/browse/GEO-26556 — GEO-15882 feature ' +

@@ -15,7 +15,7 @@
 const { test } = require('@playwright/test');
 const { runAutoLinkCreateUserSmoke } = require('./_helpers');
 
-test('@pepi C26077 Platform One Auto-link - new GW Admin user with matching Site 1 account (UI smoke)', async ({
+test('@regression C26077 Platform One Auto-link - new GW Admin user with matching Site 1 account (UI smoke)', async ({
   page,
 }) => {
   await runAutoLinkCreateUserSmoke({ page, firmCode: 3 });

@@ -25,7 +25,7 @@ const UPDATE_PASSWORD_URL = '/react/updatePassword.do';
 
 test.setTimeout(180_000);
 
-test('@pepi C24988 Password Change - new password meets all rules (UI smoke)', async ({
+test('@regression C24988 Password Change - new password meets all rules (UI smoke)', async ({
   page,
   context,
 }) => {

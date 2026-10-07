@@ -23,7 +23,7 @@ const { login, createGwAdmin, expireUserPassword } = require('../_helpers/qa3');
 
 test.setTimeout(120_000);
 
-test('@pepi C24982 Expiration notification shows immediately on login (UI smoke)', async ({
+test('@regression C24982 Expiration notification shows immediately on login (UI smoke)', async ({
   page,
   context,
 }) => {

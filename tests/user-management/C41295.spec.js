@@ -25,7 +25,7 @@ const {
 
 test.setTimeout(180_000);
 
-test('@pepi C41295 Edit User modal GW Admin - valid → invalid email is blocked and not persisted (UI smoke)', async ({
+test('@regression C41295 Edit User modal GW Admin - valid → invalid email is blocked and not persisted (UI smoke)', async ({
   page,
 }) => {
   const user = await createGwAdmin('pepiRevert');

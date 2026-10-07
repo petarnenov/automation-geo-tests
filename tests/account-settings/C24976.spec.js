@@ -24,7 +24,7 @@ const { login, createGwAdmin, expireUserPassword } = require('../_helpers/qa3');
 
 test.setTimeout(300_000);
 
-test('@pepi C24976 Expiration notification countdown days 76 to 89 (UI smoke)', async ({
+test('@regression C24976 Expiration notification countdown days 76 to 89 (UI smoke)', async ({
   page,
   context,
 }) => {

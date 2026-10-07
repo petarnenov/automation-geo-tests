@@ -14,7 +14,7 @@ const { test } = require('@playwright/test');
 const { loginPlatformOneAdmin, uploadBillingBucketExclusions } = require('../_helpers/qa3');
 const { buildDefaultXlsx } = require('./_helpers');
 
-test('@pepi C25377 Bucket Exclusions - correctly filled template uploaded via file explorer', async ({
+test('@regression C25377 Bucket Exclusions - correctly filled template uploaded via file explorer', async ({
   page,
   workerFirm,
 }) => {

@@ -18,7 +18,7 @@
 const { test, expect } = require('@playwright/test');
 const { gotoImpersonatePageAsTim1 } = require('./_helpers');
 
-test('@pepi C26426 Platform One Impersonate firm dropdown is mounted (Positive)', async ({
+test('@regression C26426 Platform One Impersonate firm dropdown is mounted (Positive)', async ({
   page,
 }) => {
   test.setTimeout(180_000);

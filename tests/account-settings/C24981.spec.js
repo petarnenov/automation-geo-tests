@@ -27,7 +27,7 @@ const UPDATE_PASSWORD_URL = '/react/updatePassword.do';
 
 test.setTimeout(240_000);
 
-test('@pepi C24981 Linked account password sync across users (UI smoke)', async ({
+test('@regression C24981 Linked account password sync across users (UI smoke)', async ({
   page,
   context,
 }) => {

@@ -34,7 +34,7 @@ const { buildBulkAccountsXlsx } = require('../_helpers/build-bulk-accounts-xlsx'
 
 const CREATE_ACCOUNT_URL = '/react/indexReact.do#platformOne/backOffice/createAccount';
 
-test('@pepi C25065 Create new accounts using an upload file with missing data', async ({
+test('@regression C25065 Create new accounts using an upload file with missing data', async ({
   page,
   workerFirm,
 }) => {

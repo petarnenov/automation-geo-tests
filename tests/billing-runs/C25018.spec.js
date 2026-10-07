@@ -46,7 +46,7 @@ const GET_ROWS_PATH = '/platformOne/getNewBillingRows.do';
 const EXECUTE_PATH = '/bo/executeBillingRuns.do';
 const SEARCH_ENTITY_PATH = '/platformOne/searchBillingTargetEntity.do';
 
-test('@pepi C25018 Billing Status Progression', async ({ page }) => {
+test('@regression C25018 Billing Status Progression', async ({ page }) => {
   test.setTimeout(240_000);
 
   await loginPlatformOneAdmin(page);

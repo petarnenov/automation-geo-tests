@@ -73,7 +73,7 @@ const FIRM_106_CLIENT_UUID = 'A80D472B04874979AAA3D8C3FFE9BD3A';
 const FIRM_106_ACCOUNT_UUID = '5588D454741342FBB9AABA8FF17A85EE';
 const FIRM_106_UA_URL = `/react/indexReact.do#/client/1/${FIRM_106_CLIENT_UUID}/accounts/${FIRM_106_ACCOUNT_UUID}/unmanagedAssets`;
 
-test('@pepi C25208 Account Unmanaged Assets - Create Exclude from Billing', async ({
+test('@regression C25208 Account Unmanaged Assets - Create Exclude from Billing', async ({
   page,
   context,
   workerFirm,

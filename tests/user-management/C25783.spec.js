@@ -53,7 +53,7 @@ const {
 
 test.setTimeout(240_000);
 
-test('@pepi C25783 Edit user name propagates to Platform One Impersonate grid', async ({ page }) => {
+test('@regression C25783 Edit user name propagates to Platform One Impersonate grid', async ({ page }) => {
   // Use alpha-only first names (validators.isValidCommonName rejects digits).
   const initialFirstName = 'pepiName';
   const editedFirstName = `pepiEdit${Math.floor(Math.random() * 1e6).toString(36).replace(/[^a-z]/gi, '').slice(0, 6) || 'abc'}`;

@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // @ts-check
 /**
- * Ensures every Playwright @pepi test's TestRail test instance in a given run
+ * Ensures every Playwright @regression test's TestRail test instance in a given run
  * carries the "Pepi" TEST-LEVEL label (the "Test Labels" column in the run
  * grid).
  *
@@ -45,7 +45,7 @@ if (!user || !password) {
 }
 
 function collectPepiCaseIds(dir) {
-  const re = /@pepi\s+C(\d+)\b/g;
+  const re = /@regression\s+C(\d+)\b/g;
   const ids = new Set();
   function walk(d) {
     for (const entry of fs.readdirSync(d, { withFileTypes: true })) {
@@ -92,7 +92,7 @@ async function getCaseToTestMap(runId) {
 
 (async () => {
   const caseIds = collectPepiCaseIds(TESTS_DIR);
-  console.log(`[sync-pepi-test-labels] run=${runId}  @pepi cases in repo=${caseIds.length}`);
+  console.log(`[sync-pepi-test-labels] run=${runId}  @regression cases in repo=${caseIds.length}`);
 
   const caseToTest = await getCaseToTestMap(runId);
   const need = [];
@@ -106,7 +106,7 @@ async function getCaseToTestMap(runId) {
     need.push(t.id);
   }
   if (missingFromRun.length) {
-    console.warn(`[sync-pepi-test-labels] ${missingFromRun.length} @pepi case(s) NOT present in run ${runId}: ${missingFromRun.map(n => 'C' + n).join(', ')}`);
+    console.warn(`[sync-pepi-test-labels] ${missingFromRun.length} @regression case(s) NOT present in run ${runId}: ${missingFromRun.map(n => 'C' + n).join(', ')}`);
   }
   console.log(`[sync-pepi-test-labels] already labeled: ${already}, need update: ${need.length}`);
   if (need.length === 0) { console.log('[sync-pepi-test-labels] nothing to do.'); return; }
@@ -151,7 +151,7 @@ async function getCaseToTestMap(runId) {
       const t = caseToTestAfter.get(cid);
       if (t && (t.labels || []).some((l) => Number(l.id) === PEPI_LABEL_ID)) labeled++;
     }
-    console.log(`[sync-pepi-test-labels] verify: ${labeled}/${caseIds.length} @pepi cases have test-level Pepi in run ${runId}.`);
+    console.log(`[sync-pepi-test-labels] verify: ${labeled}/${caseIds.length} @regression cases have test-level Pepi in run ${runId}.`);
   } finally {
     await browser.close();
   }

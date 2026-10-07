@@ -24,7 +24,7 @@ const {
 
 test.setTimeout(180_000);
 
-test('@pepi C41288 Edit User modal GW Admin - @evilgeowealth.com suffix-spoof blocks Save (UI smoke)', async ({
+test('@regression C41288 Edit User modal GW Admin - @evilgeowealth.com suffix-spoof blocks Save (UI smoke)', async ({
   page,
 }) => {
   const user = await createGwAdmin('pepiSpoofA');

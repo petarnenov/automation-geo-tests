@@ -51,7 +51,7 @@
 
 const { test } = require('@playwright/test');
 
-test('@pepi C26060 Platform One Merge Prospect - empty client + permissions disabled, site 61', async () => {
+test('@regression C26060 Platform One Merge Prospect - empty client + permissions disabled, site 61', async () => {
   test.fixme(
     true,
     'Fresh firm-61 GW Admin still has MERGE_PROSPECTS — no qa4 user/firm combo with ' +

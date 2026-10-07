@@ -47,7 +47,7 @@ const CLIENT_UUID = 'A80D472B04874979AAA3D8C3FFE9BD3A';
 const ACCOUNT_UUID = '5588D454741342FBB9AABA8FF17A85EE';
 const UA_URL = `/react/indexReact.do#/client/1/${CLIENT_UUID}/accounts/${ACCOUNT_UUID}/unmanagedAssets`;
 
-test('@pepi C25207 Account Unmanaged Assets - Update Exclude from Performance', async ({
+test('@regression C25207 Account Unmanaged Assets - Update Exclude from Performance', async ({
   page,
   context,
 }) => {

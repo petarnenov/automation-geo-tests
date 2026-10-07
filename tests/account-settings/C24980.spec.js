@@ -30,7 +30,7 @@ const UPDATE_PASSWORD_URL = '/react/updatePassword.do';
 
 test.setTimeout(180_000);
 
-test('@pepi C24980 Password history restriction rejects reuse (UI smoke)', async ({
+test('@regression C24980 Password history restriction rejects reuse (UI smoke)', async ({
   page,
   context,
 }) => {

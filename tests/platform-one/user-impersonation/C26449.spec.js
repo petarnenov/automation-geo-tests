@@ -20,7 +20,7 @@ const {
   FIRM_CD_GEOWEALTH,
 } = require('./_helpers');
 
-test('@pepi C26449 Platform One Launch Advisor Portal impersonation (Positive)', async ({
+test('@regression C26449 Platform One Launch Advisor Portal impersonation (Positive)', async ({
   page,
 }) => {
   test.setTimeout(180_000);

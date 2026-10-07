@@ -25,7 +25,7 @@ const {
 } = require('../_helpers/qa3');
 const { buildXlsxFor, APPLE_SYMBOL } = require('./_helpers');
 
-test('@pepi C26075 Unmanaged Assets - Remove All (RA action) clears all exclusion records', async ({
+test('@regression C26075 Unmanaged Assets - Remove All (RA action) clears all exclusion records', async ({
   page,
   context,
   workerFirm,

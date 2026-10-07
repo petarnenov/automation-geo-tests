@@ -32,7 +32,9 @@ const {
 
 test.setTimeout(180_000);
 
-test('@pepi C41284 Edit User modal GW Admin - malformed email blocks Save', async ({ page }) => {
+test('@regression C41284 Edit User modal GW Admin - malformed email blocks Save', async ({
+  page,
+}) => {
   // Alpha-only firstName (validators.isValidCommonName rejects digits) —
   // ensures only the email validation gates Save in this run.
   const user = await createGwAdmin('pepiBlockSave');

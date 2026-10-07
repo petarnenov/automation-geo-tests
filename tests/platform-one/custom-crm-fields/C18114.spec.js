@@ -96,7 +96,7 @@ async function expectAddTypeFooter(page) {
   expect(disabled, 'Add button is disabled with no Entity Type selected').toBe(true);
 }
 
-test('@pepi C18114 Custom CRM Fields - "Custom Fields" page availability', async ({
+test('@regression C18114 Custom CRM Fields - "Custom Fields" page availability', async ({
   page,
   workerFirm,
 }) => {

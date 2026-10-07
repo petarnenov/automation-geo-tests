@@ -5,11 +5,11 @@
   "engines": {
     "node": ">=24 <25"
   },
-  "description": "GeoWealth Playwright automation, scoped to TestRail Run 175 cases tagged @pepi",
+  "description": "GeoWealth Playwright automation, tagged @regression",
   "scripts": {
     "test": "playwright test",
-    "test:pepi": "playwright test --grep @pepi",
-    "test:pepi:dry": "AIO_REPORT_RESULTS=0 playwright test --grep @pepi",
+    "test:regression": "playwright test --grep @regression",
+    "test:regression:dry": "AIO_REPORT_RESULTS=0 playwright test --grep @regression",
     "report": "playwright show-report",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",

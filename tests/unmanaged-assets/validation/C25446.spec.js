@@ -12,7 +12,7 @@
 const { test } = require('@playwright/test');
 const { validRowFor, uploadAndExpectError } = require('../_helpers');
 
-test('@pepi C25446 Unmanaged Assets - invalid data triggers validation', async ({
+test('@regression C25446 Unmanaged Assets - invalid data triggers validation', async ({
   page,
   workerFirm,
 }) => {

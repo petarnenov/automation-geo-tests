@@ -27,7 +27,7 @@ const ALL_BUCKETS = [
 ];
 
 test(
-  '@pepi C35119 Min/Max per billing period hint is consistent across all billing bucket types',
+  '@regression C35119 Min/Max per billing period hint is consistent across all billing bucket types',
   {
     annotation: [
       { type: 'aio', description: 'GEO-TC-11841' },

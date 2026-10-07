@@ -33,7 +33,7 @@ const {
 
 const GW_ADMINS_PATH = path.join(__dirname, '..', '..', '.auth', 'gwadmins.json');
 
-test('@pepi C26453 Platform One Check for impersonated user roles cross-browser (Positive)', async () => {
+test('@regression C26453 Platform One Check for impersonated user roles cross-browser (Positive)', async () => {
   test.setTimeout(240_000);
 
   const gwadmins = JSON.parse(fs.readFileSync(GW_ADMINS_PATH, 'utf8')).admins;

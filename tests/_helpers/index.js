@@ -1,6 +1,6 @@
 // @ts-check
 /**
- * Single-import barrel for the @pepi suite.
+ * Single-import barrel for the @regression suite.
  *
  * Usage in a spec:
  *

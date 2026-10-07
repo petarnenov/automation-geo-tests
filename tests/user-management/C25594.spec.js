@@ -39,7 +39,7 @@ const {
 
 test.setTimeout(240_000);
 
-test('@pepi C25594 Impersonate newly created user', async ({ page }) => {
+test('@regression C25594 Impersonate newly created user', async ({ page }) => {
   // createGwAdmin creates a firm-1 GW Admin Employee — surfaces in the
   // Non-Customer Contacts directory (`isNonCustomer` covers both EMPLOYEE
   // and VENDOR_CONTACT typeCds, per @Utils/helpers/clientTypes).

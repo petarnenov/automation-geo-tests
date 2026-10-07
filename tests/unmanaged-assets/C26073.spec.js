@@ -41,7 +41,7 @@ const EXPECTED = {
   internalMM: 'Unmanaged', // xlsx L=5
 };
 
-test('@pepi C26073 Unmanaged Assets - Update/Add (U action) creates a new exclusion record', async ({
+test('@regression C26073 Unmanaged Assets - Update/Add (U action) creates a new exclusion record', async ({
   page,
   context,
   workerFirm,

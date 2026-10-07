@@ -29,7 +29,7 @@ const SPECS_URL = '/react/indexReact.do#platformOne/billingCenter/specifications
 const ACTIVE_FIRM = 1;
 
 test(
-  '@pepi C18414 Billing Specifications page availability',
+  '@regression C18414 Billing Specifications page availability',
   {
     annotation: [
       { type: 'aio', description: 'GEO-TC-11788' },

@@ -167,7 +167,7 @@ async function getVisibleRichSelectOptions(page) {
   return [...seen].map((t) => t.trim());
 }
 
-test('@pepi C24941 Open Account UI elements', async ({ page }) => {
+test('@regression C24941 Open Account UI elements', async ({ page }) => {
   test.setTimeout(180_000);
 
   await test.step('Load Create Account page as Platform One admin', async () => {

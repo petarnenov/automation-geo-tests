@@ -50,7 +50,7 @@ const ENTITY_TYPE_INDIVIDUAL = 1;
 
 test.setTimeout(300_000);
 
-test('@pepi C26277 Failed deactivation does not log out the Client from Platform One', async ({
+test('@regression C26277 Failed deactivation does not log out the Client from Platform One', async ({
   browser,
   page,
   workerFirm,

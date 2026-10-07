@@ -16,7 +16,7 @@ const {
   FIRM_CD_GEOWEALTH,
 } = require('./_helpers');
 
-test('@pepi C26448 Platform One Impersonate Advisor Portal button per row (Positive)', async ({
+test('@regression C26448 Platform One Impersonate Advisor Portal button per row (Positive)', async ({
   page,
 }) => {
   test.setTimeout(180_000);

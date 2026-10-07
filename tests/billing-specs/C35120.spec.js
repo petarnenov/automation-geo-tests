@@ -41,7 +41,7 @@ const FEE_PERIOD_HINT = 'Periodic, not Annual';
 
 test.setTimeout(300_000);
 
-test('@pepi C35120 Regression: Min/Max fee fields retain functionality after label update', async ({
+test('@regression C35120 Regression: Min/Max fee fields retain functionality after label update', async ({
   page,
   workerFirm,
 }) => {

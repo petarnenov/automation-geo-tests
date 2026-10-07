@@ -104,7 +104,7 @@ async function clickCreateAndConfirm(page) {
   await page.getByRole('button', { name: 'OK', exact: true }).click();
 }
 
-test('@pepi C24997 Create new accounts using grid input and bulk upload', async ({
+test('@regression C24997 Create new accounts using grid input and bulk upload', async ({
   page,
   context,
   workerFirm,

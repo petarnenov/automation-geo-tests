@@ -31,7 +31,7 @@ const UPDATE_PASSWORD_URL = '/react/updatePassword.do';
 
 test.setTimeout(180_000);
 
-test('@pepi C24978 Password change resets the 90-day timer (UI smoke + DB)', async ({
+test('@regression C24978 Password change resets the 90-day timer (UI smoke + DB)', async ({
   page,
   context,
 }) => {

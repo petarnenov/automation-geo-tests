@@ -24,7 +24,7 @@ const {
 
 test.setTimeout(180_000);
 
-test('@pepi C41290 Edit User modal non-GW Admin - any valid email allows Save (UI smoke)', async ({
+test('@regression C41290 Edit User modal non-GW Admin - any valid email allows Save (UI smoke)', async ({
   page,
 }) => {
   const user = await createFirmUser({ name: 'pepiNonAdmin', gwAdminFlag: false });

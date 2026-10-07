@@ -24,7 +24,7 @@ const EXACT_ERROR_TEXT = 'GW_Admin users must use a @geowealth.com email address
 
 test.setTimeout(180_000);
 
-test('@pepi C41293 Edit User modal GW Admin - inline error copy matches exact text (UI smoke)', async ({
+test('@regression C41293 Edit User modal GW Admin - inline error copy matches exact text (UI smoke)', async ({
   page,
 }) => {
   const user = await createGwAdmin('pepiExactCopy');

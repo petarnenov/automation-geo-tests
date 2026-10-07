@@ -33,7 +33,7 @@
 const { test } = require('@playwright/test');
 
 test.fixme(
-  '@pepi C26381 Unmanaged Assets history shows a Create record for newly added assets',
+  '@regression C26381 Unmanaged Assets history shows a Create record for newly added assets',
   async () => {
     // Pending GEO-22458 deploy on qa4. The audit grid currently
     // renders "Unmanaged Assets Data is not available" because the BE

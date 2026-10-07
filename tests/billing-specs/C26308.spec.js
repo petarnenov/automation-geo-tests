@@ -99,7 +99,7 @@ async function copySpecFromFirm1ToWorker(page, workerFirm, newSpecName) {
   ).toBeVisible({ timeout: 120_000 });
 }
 
-test('@pepi C26308 Bulk delete unused billing spec on the worker firm grid', async ({
+test('@regression C26308 Bulk delete unused billing spec on the worker firm grid', async ({
   page,
   workerFirm,
 }) => {

@@ -21,7 +21,7 @@ const { loginPlatformOneAdmin } = require('../_helpers/qa3');
 const PAGE_URL = '/react/indexReact.do#platformOne/billingCenter/proposalFeeRates';
 
 test(
-  '@pepi C19068 Fee Rate - Requires Permission to Edit is unchecked by default',
+  '@regression C19068 Fee Rate - Requires Permission to Edit is unchecked by default',
   { annotation: [{ type: 'aio', description: 'GEO-TC-11953' }] },
   async ({ page, workerFirm }) => {
     test.setTimeout(180_000);

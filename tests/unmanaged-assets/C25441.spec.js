@@ -18,7 +18,7 @@ const { test } = require('@playwright/test');
 const { loginPlatformOneAdmin, uploadUnmanagedAssetsExclusions } = require('../_helpers/qa3');
 const { buildXlsxFor } = require('./_helpers');
 
-test('@pepi C25441 Unmanaged Assets - template added and uploaded via drag & drop', async ({
+test('@regression C25441 Unmanaged Assets - template added and uploaded via drag & drop', async ({
   page,
   workerFirm,
 }) => {

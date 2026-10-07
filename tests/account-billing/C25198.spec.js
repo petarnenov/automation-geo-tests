@@ -49,7 +49,7 @@ const EXPECTED_CARD_FRAGMENT = /7\.00\s*%[\s\S]*Exp\.\s*Date:\s*06\/15\/2027/;
 
 // HYBRID isolation: Phase 1 uses workerFirm (race-free), Phase 2 stays on
 // firm 106 + tyler (read-only check, no race). See C25193 for full rationale.
-test('@pepi C25198 Account Adjustment/Expiration Date - Percent', async ({
+test('@regression C25198 Account Adjustment/Expiration Date - Percent', async ({
   page,
   context,
   workerFirm,

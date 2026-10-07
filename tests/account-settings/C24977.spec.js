@@ -24,7 +24,7 @@ const { login, createGwAdmin, expireUserPassword } = require('../_helpers/qa3');
 
 test.setTimeout(120_000);
 
-test('@pepi C24977 Forced password reset on day 90 (UI smoke)', async ({ page, context }) => {
+test('@regression C24977 Forced password reset on day 90 (UI smoke)', async ({ page, context }) => {
   let admin;
 
   await test.step('Provision a GW Admin with a 90-day-old password', async () => {

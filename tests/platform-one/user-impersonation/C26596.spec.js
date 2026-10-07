@@ -17,7 +17,7 @@ const {
   terminateImpersonationFromUserMenu,
 } = require('./_helpers');
 
-test('@pepi C26596 Advisor Portal Launch impersonation from AP entry point (Positive)', async ({
+test('@regression C26596 Advisor Portal Launch impersonation from AP entry point (Positive)', async ({
   page,
 }) => {
   test.setTimeout(180_000);

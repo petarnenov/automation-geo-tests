@@ -46,7 +46,10 @@ const { loginPlatformOneAdmin } = require('../_helpers/qa3');
 const FIRM_A = 1;
 const FIRM_A_URL = `/react/indexReact.do#platformOne/billingCenter/specifications/${FIRM_A}`;
 
-test('@pepi C26306 Copy a billing specification to another firm', async ({ page, workerFirm }) => {
+test('@regression C26306 Copy a billing specification to another firm', async ({
+  page,
+  workerFirm,
+}) => {
   const FIRM_B = workerFirm.firmCd;
   const FIRM_B_DISPLAY = workerFirm.firmName;
   const FIRM_B_URL = `/react/indexReact.do#platformOne/billingCenter/specifications/${FIRM_B}`;

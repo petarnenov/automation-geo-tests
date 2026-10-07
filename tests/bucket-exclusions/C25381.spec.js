@@ -29,7 +29,7 @@ const { buildBucketXlsx } = require('../_helpers/build-bucket-xlsx');
 
 const ACTIONS = ['Y', 'N', 'I', 'Y', 'N', 'I']; // bucket 1..6
 
-test('@pepi C25381 Bucket Exclusions - all 6 buckets accept Y/N/I excluded actions', async ({
+test('@regression C25381 Bucket Exclusions - all 6 buckets accept Y/N/I excluded actions', async ({
   page,
   context,
   workerFirm,

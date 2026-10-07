@@ -16,7 +16,7 @@ const { gotoImpersonatePageAsTim1 } = require('./_helpers');
 const LARGE_FIRM_CD = 5;
 const LOAD_BUDGET_MS = 30_000;
 
-test('@pepi C26480 Platform One Impersonate load performance for large firm 5 (Non-functional)', async ({
+test('@regression C26480 Platform One Impersonate load performance for large firm 5 (Non-functional)', async ({
   page,
 }) => {
   test.setTimeout(180_000);

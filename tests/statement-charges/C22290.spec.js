@@ -50,7 +50,7 @@ async function openStatementCharges(page) {
   await expect(page.locator('.ag-header-cell[col-id]').first()).toBeVisible({ timeout: 30_000 });
 }
 
-test("@pepi C22290 Statement Charges - Filter by the 'Firm Name' of an active firm", async ({
+test("@regression C22290 Statement Charges - Filter by the 'Firm Name' of an active firm", async ({
   page,
 }) => {
   test.setTimeout(180_000);

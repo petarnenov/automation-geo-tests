@@ -33,7 +33,7 @@ const { cfg, login } = require('../_helpers/qa3');
 
 const ACCESS_SET_LIST_URL = '/bo/accessSetList.do';
 
-test('@pepi C26629 Employee Access Set cannot be removed from the list', async ({
+test('@regression C26629 Employee Access Set cannot be removed from the list', async ({
   page,
   context,
 }) => {

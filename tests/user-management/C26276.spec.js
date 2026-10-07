@@ -40,7 +40,7 @@ const { selectFirmInTypeAhead } = require('../_helpers/ui');
 
 test.setTimeout(360_000);
 
-test('@pepi C26276 Direct URL access after deactivation redirects deactivated user to login', async ({
+test('@regression C26276 Direct URL access after deactivation redirects deactivated user to login', async ({
   browser,
   page,
 }) => {

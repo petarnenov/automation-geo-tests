@@ -5,7 +5,7 @@
  * yet implemented end-to-end. Each generated spec carries the case title, refs,
  * preconds, and steps as a header comment so the implementor has full context
  * inside the file. The body uses test.fixme() so the test is grep-able under
- * @pepi but does not actually execute (and therefore does not produce a result
+ * @regression but does not actually execute (and therefore does not produce a result
  * the TestRail reporter would post).
  *
  * Run once: `node scripts/scaffold-pepi-specs.js`
@@ -142,7 +142,7 @@ function buildBody(c) {
   return `
 const { test } = require('@playwright/test');
 
-test('@pepi C${c.id} ${title.replace(/'/g, "\\'")}', async () => {
+test('@regression C${c.id} ${title.replace(/'/g, "\\'")}', async () => {
   test.fixme(true, 'Scaffold only — see header comment for blockers.');
 });
 `;

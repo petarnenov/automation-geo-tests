@@ -28,7 +28,7 @@ const { login, createGwAdmin, expireUserPassword } = require('../_helpers/qa3');
 
 test.setTimeout(120_000);
 
-test('@pepi C24984 Password expiry notification cannot be ignored on day 90 (UI smoke)', async ({
+test('@regression C24984 Password expiry notification cannot be ignored on day 90 (UI smoke)', async ({
   page,
   context,
 }) => {

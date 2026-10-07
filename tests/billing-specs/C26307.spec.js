@@ -33,7 +33,7 @@ const { loginPlatformOneAdmin } = require('../_helpers/qa3');
 const FIRM_CODE = 1;
 const SPECS_URL = `/react/indexReact.do#platformOne/billingCenter/specifications/${FIRM_CODE}`;
 
-test('@pepi C26307 Export multiple billing specifications using bulk Export', async ({
+test('@regression C26307 Export multiple billing specifications using bulk Export', async ({
   page,
 }) => {
   test.setTimeout(180_000);
@@ -96,7 +96,7 @@ test('@pepi C26307 Export multiple billing specifications using bulk Export', as
     // eslint-disable-next-line no-console
     console.log(`[C26307] downloaded: ${JSON.stringify(suggested)}`);
 
-    // Saving the file would write to disk; for the @pepi suite we only
+    // Saving the file would write to disk; for the @regression suite we only
     // need to confirm the download event fired.  We still call
     // `path()` (it returns null on failure → throws) to guarantee the
     // payload is non-empty.

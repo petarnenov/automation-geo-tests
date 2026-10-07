@@ -23,7 +23,7 @@ const { login, createGwAdmin, expireUserPassword } = require('../_helpers/qa3');
 
 test.setTimeout(120_000);
 
-test('@pepi C24983 Expiration notification is dismissible in warning window (UI smoke)', async ({
+test('@regression C24983 Expiration notification is dismissible in warning window (UI smoke)', async ({
   page,
   context,
 }) => {

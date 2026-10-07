@@ -18,7 +18,7 @@ const {
 
 const FIRM_74 = 74;
 
-test('@pepi C26482 Platform One Impersonated user from firm74 lands on Manager Portal (Positive)', async ({
+test('@regression C26482 Platform One Impersonated user from firm74 lands on Manager Portal (Positive)', async ({
   page,
 }) => {
   test.setTimeout(180_000);

@@ -25,7 +25,7 @@ const {
 
 test.setTimeout(180_000);
 
-test('@pepi C41287 Edit User modal GW Admin - non-@geowealth.com email blocks Save (UI smoke)', async ({
+test('@regression C41287 Edit User modal GW Admin - non-@geowealth.com email blocks Save (UI smoke)', async ({
   page,
 }) => {
   const user = await createGwAdmin('pepiBlockSave');

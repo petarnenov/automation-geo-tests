@@ -145,7 +145,9 @@ function parseBillingSpecExport(buf) {
   return { headers, rowsByCol };
 }
 
-test('@pepi C25085 Billing Spec Upload/Download Includes Account Min/Max', async ({ page }) => {
+test('@regression C25085 Billing Spec Upload/Download Includes Account Min/Max', async ({
+  page,
+}) => {
   test.setTimeout(180_000);
 
   await loginPlatformOneAdmin(page);

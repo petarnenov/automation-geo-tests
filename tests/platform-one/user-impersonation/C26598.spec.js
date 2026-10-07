@@ -15,7 +15,7 @@ const {
   terminateImpersonationFromUserMenu,
 } = require('./_helpers');
 
-test('@pepi C26598 Advisor Portal Terminate impersonation returns to P1 Impersonate page (Positive)', async ({
+test('@regression C26598 Advisor Portal Terminate impersonation returns to P1 Impersonate page (Positive)', async ({
   page,
 }) => {
   test.setTimeout(180_000);

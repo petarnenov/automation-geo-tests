@@ -17,7 +17,7 @@ const {
   FIRM_CD_GEOWEALTH,
 } = require('./_helpers');
 
-test('@pepi C26450 Platform One Terminate impersonation returns to P1 Impersonate page (Positive)', async ({
+test('@regression C26450 Platform One Terminate impersonation returns to P1 Impersonate page (Positive)', async ({
   page,
 }) => {
   test.setTimeout(180_000);

@@ -11,7 +11,7 @@
 const { test } = require('@playwright/test');
 const { validRowFor, uploadAndExpectError } = require('../_helpers');
 
-test('@pepi C25451 Unmanaged Assets - invalid Action value triggers validation', async ({
+test('@regression C25451 Unmanaged Assets - invalid Action value triggers validation', async ({
   page,
   workerFirm,
 }) => {

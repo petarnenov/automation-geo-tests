@@ -22,7 +22,7 @@ const { loginPlatformOneAdmin } = require('../_helpers/qa3');
 const PAGE_URL = '/react/indexReact.do#platformOne/billingCenter/proposalFeeRates';
 
 test(
-  '@pepi C19066 Fee Rate - only active firms appear in the Proposal Fee Rate dropdown',
+  '@regression C19066 Fee Rate - only active firms appear in the Proposal Fee Rate dropdown',
   { annotation: [{ type: 'aio', description: 'GEO-TC-11949' }] },
   async ({ page }) => {
     test.setTimeout(180_000);

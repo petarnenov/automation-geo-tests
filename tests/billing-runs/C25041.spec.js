@@ -33,7 +33,7 @@ const { loginPlatformOneTim1Fresh } = require('../_helpers/qa3');
 const SEED_NAME = 'C25041 Advisor Seed';
 const BILLING_RUNS_URL = '/react/indexReact.do#platformOne/billingCenter/runs';
 
-test('@pepi C25041 Correct Advisor Target Types Displayed by Billing Type', async ({ page }) => {
+test('@regression C25041 Correct Advisor Target Types Displayed by Billing Type', async ({ page }) => {
   test.setTimeout(180_000);
 
   // tim1 (role Admins), not the worker GW Admin (role 529 "All Employees"):

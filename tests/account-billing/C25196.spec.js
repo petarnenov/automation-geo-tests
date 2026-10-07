@@ -49,7 +49,10 @@ const SPEC_B = '55 BPS-Flows';
 // remaining, a per-spec retry rides out the rare collision.
 test.describe.configure({ retries: 1 });
 
-test('@pepi C25196 Spec Name/Active Date - Admin and Non-Admin', async ({ page, context }) => {
+test('@regression C25196 Spec Name/Active Date - Admin and Non-Admin', async ({
+  page,
+  context,
+}) => {
   test.setTimeout(240_000);
 
   /** @type {string} */

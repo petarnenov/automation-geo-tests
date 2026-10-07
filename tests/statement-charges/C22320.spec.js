@@ -33,7 +33,7 @@
  * is a genuine, non-trivial narrowing.
  *
  * Assertions are set-based against the same-reload snapshot, NOT exact counts
- * against the initial load: other @pepi specs create statement charges in
+ * against the initial load: other @regression specs create statement charges in
  * parallel, so an exact count captured a minute earlier goes stale (seen as
  * 290 vs 292 in the 8-worker run).
  *
@@ -95,7 +95,7 @@ async function filterByStatus(page, status) {
   return (await (await respP).json()).rows || [];
 }
 
-test("@pepi C22320 Statement Charges - Filter by 'Status'", async ({ page }) => {
+test("@regression C22320 Statement Charges - Filter by 'Status'", async ({ page }) => {
   test.setTimeout(180_000);
 
   await loginPlatformOneTim1Fresh(page);

@@ -1,6 +1,6 @@
 // @ts-check
 /**
- * Runtime seed for the Billing Runs grid used by the @pepi billing-runs specs.
+ * Runtime seed for the Billing Runs grid used by the @regression billing-runs specs.
  *
  * qa4 lacks billing runs in the states these specs assert (a partial-re-run
  * carrying the '*' marker, an In-Progress run with an error message, a

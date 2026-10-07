@@ -55,7 +55,7 @@ const STATEMENT_TEMPLATES_URL =
 
 const VIEW_NAME = `Custom filter view C25708 ${Date.now()}`;
 
-test('@pepi C25708 Statement Charges - save default view with custom filters', async ({ page }) => {
+test('@regression C25708 Statement Charges - save default view with custom filters', async ({ page }) => {
   test.setTimeout(180_000);
 
   await loginPlatformOneTim1Fresh(page);

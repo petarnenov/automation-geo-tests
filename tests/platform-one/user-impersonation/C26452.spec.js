@@ -23,7 +23,7 @@ const {
   FIRM_CD_GEOWEALTH,
 } = require('./_helpers');
 
-test('@pepi C26452 Platform One Failure to create impersonated session (Negative)', async ({
+test('@regression C26452 Platform One Failure to create impersonated session (Negative)', async ({
   page,
 }) => {
   test.setTimeout(180_000);

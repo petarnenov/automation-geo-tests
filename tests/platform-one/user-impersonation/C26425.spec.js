@@ -19,7 +19,7 @@ const { expandOperationsGroup, hoverFirmAdminGroup } = require('./_helpers');
 
 const GW_ADMINS_PATH = path.join(__dirname, '..', '..', '.auth', 'gwadmins.json');
 
-test('@pepi C26425 Platform One Impersonate menu NOT visible for site 1 without permission (Negative)', async ({
+test('@regression C26425 Platform One Impersonate menu NOT visible for site 1 without permission (Negative)', async ({
   page,
   context,
 }) => {

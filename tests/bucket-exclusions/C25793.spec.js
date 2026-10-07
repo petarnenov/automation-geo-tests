@@ -72,7 +72,7 @@ async function uploadAndExpectError(page, workerFirm, rows, label) {
   });
 }
 
-test('@pepi C25793 Bucket Exclusions - both HH and Account in same row triggers error', async ({
+test('@regression C25793 Bucket Exclusions - both HH and Account in same row triggers error', async ({
   page,
   workerFirm,
 }) => {
@@ -92,14 +92,14 @@ test('@pepi C25793 Bucket Exclusions - both HH and Account in same row triggers 
   );
 });
 
-test('@pepi C25793 Bucket Exclusions - empty data file (header only) triggers error', async ({
+test('@regression C25793 Bucket Exclusions - empty data file (header only) triggers error', async ({
   page,
   workerFirm,
 }) => {
   await uploadAndExpectError(page, workerFirm, [], 'empty');
 });
 
-test('@pepi C25793 Bucket Exclusions - numeric EXCLUDED value triggers error', async ({
+test('@regression C25793 Bucket Exclusions - numeric EXCLUDED value triggers error', async ({
   page,
   workerFirm,
 }) => {

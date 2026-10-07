@@ -21,7 +21,7 @@
   },
   "playwright": {
     "runner": "playwright",
-    "labelFilter": "pepi",
-    "note": "Playwright изпълнява само тестове, маркирани с label/tag 'pepi' (напр. @pepi в test title или test.describe)."
+    "labelFilter": "regression",
+    "note": "Playwright изпълнява само тестове, маркирани с tag @regression в test title или test.describe. Тагът е маркер на сюитата, не на човек: кой пуска run-а се избира в make test (aio.config.json assignees)."
   }
 }

@@ -44,7 +44,7 @@ const BUCKETS = [
   { bucketKey: 'internalMoneyManager', spec: 'Top Fee' },
 ];
 
-test('@pepi C40951 Spec Active date when creating a new household', async ({
+test('@regression C40951 Spec Active date when creating a new household', async ({
   page,
   context,
 }) => {

@@ -69,7 +69,7 @@ playwrightTest.test = baseTest.extend({
 
 const { cfg } = require('./tests/_helpers/config');
 
-const labelTag = `@${cfg.playwright.labelFilter}`; // "@pepi"
+const labelTag = `@${cfg.playwright.labelFilter}`; // "@regression"
 
 module.exports = defineConfig({
   testDir: './tests',
@@ -84,7 +84,7 @@ module.exports = defineConfig({
   // account-billing) headroom: with N workers waiting on a single lock and
   // each lock-holder running ~90s, the last worker still has budget to spare.
   timeout: 600_000,
-  // Only run cases marked with the configured label tag (e.g. @pepi).
+  // Only run cases marked with the configured label tag (e.g. @regression).
   grep: new RegExp(labelTag),
   // Run global setup once per `playwright test` invocation: log in as tim1
   // and save the storage state. Each test then reuses that session.
@@ -113,7 +113,7 @@ module.exports = defineConfig({
       // Manage UA dialog (and other wide multi-column forms) render their
       // rightmost columns off-screen at Desktop Chrome's default 1280px width,
       // which makes React-onClick option picks unreliable. A wider viewport
-      // keeps every combo + its dropdown in view for all @pepi specs.
+      // keeps every combo + its dropdown in view for all @regression specs.
       use: { ...devices['Desktop Chrome'], viewport: { width: 1920, height: 1080 } },
     },
   ],

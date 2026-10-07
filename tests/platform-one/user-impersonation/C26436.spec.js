@@ -17,7 +17,7 @@ const {
   FIRM_CD_FALLBACK,
 } = require('./_helpers');
 
-test('@pepi C26436 Platform One Impersonate switching firms reloads user list (Positive)', async ({
+test('@regression C26436 Platform One Impersonate switching firms reloads user list (Positive)', async ({
   page,
 }) => {
   test.setTimeout(180_000);

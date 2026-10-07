@@ -45,7 +45,7 @@ const {
 
 const CREATE_ACCOUNT_URL = '/react/indexReact.do#platformOne/backOffice/createAccount';
 
-test('@pepi C24940 Create new account manually', async ({ page, context, workerFirm }) => {
+test('@regression C24940 Create new account manually', async ({ page, context, workerFirm }) => {
   test.setTimeout(240_000);
 
   const accountNumber = `PA${Date.now()}`;

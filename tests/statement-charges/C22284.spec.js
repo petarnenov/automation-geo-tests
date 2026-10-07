@@ -104,7 +104,7 @@ function readHeaderOrder(page) {
   });
 }
 
-test('@pepi C22284 Statement Charges - Grid sorting, filtering and column availability', async ({ page }) => {
+test('@regression C22284 Statement Charges - Grid sorting, filtering and column availability', async ({ page }) => {
   test.setTimeout(180_000);
 
   await test.step('Open Statement Charges and reset the grid view state', async () => {

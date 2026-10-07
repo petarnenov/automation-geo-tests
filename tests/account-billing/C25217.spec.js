@@ -167,7 +167,7 @@ async function setDateViaSpinbuttons(page, sectionId, mmddyyyy) {
 // specs can race. One retry rides out collisions.
 test.describe.configure({ retries: 1 });
 
-test('@pepi C25217 Household Spec Name/Active Date - Admin and Non-Admin', async ({
+test('@regression C25217 Household Spec Name/Active Date - Admin and Non-Admin', async ({
   page,
   context,
 }) => {

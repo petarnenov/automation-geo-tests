@@ -26,7 +26,7 @@ const { buildBucketXlsx } = require('../../_helpers/build-bucket-xlsx');
 
 const ERROR_RX = validationErrorRegex();
 
-test('@pepi C25378 Bucket Exclusions - missing required fields trigger validation', async ({
+test('@regression C25378 Bucket Exclusions - missing required fields trigger validation', async ({
   page,
   workerFirm,
 }) => {

@@ -34,7 +34,7 @@ const {
 } = require('../_helpers/qa3');
 const { buildDefaultXlsx } = require('./_helpers');
 
-test('@pepi C25789 Bucket Exclusions - Set All Accts to I = Y propagates to all accounts', async ({
+test('@regression C25789 Bucket Exclusions - Set All Accts to I = Y propagates to all accounts', async ({
   page,
   context,
   workerFirm,

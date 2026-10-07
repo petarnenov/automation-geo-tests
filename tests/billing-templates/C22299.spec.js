@@ -116,7 +116,7 @@ test.afterEach(() => {
   releaseFiltersLock?.();
 });
 
-test('@pepi C22299 Billing Templates - Delete Filters', async ({ page }) => {
+test('@regression C22299 Billing Templates - Delete Filters', async ({ page }) => {
   test.setTimeout(180_000);
 
   /** @type {{id:string,name:string}} */ let fDefault; // marked default, then deleted

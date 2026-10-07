@@ -14,7 +14,7 @@ const {
   FIRM_CD_GEOWEALTH,
 } = require('./_helpers');
 
-test('@pepi C26437 Platform One Impersonate grid shows correct columns + user data (Positive)', async ({
+test('@regression C26437 Platform One Impersonate grid shows correct columns + user data (Positive)', async ({
   page,
 }) => {
   test.setTimeout(180_000);

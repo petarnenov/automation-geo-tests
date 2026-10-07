@@ -148,7 +148,7 @@ test.afterEach(() => {
   releaseFiltersLock?.();
 });
 
-test('@pepi C22298 Billing Templates - Default Filters', async ({ page }) => {
+test('@regression C22298 Billing Templates - Default Filters', async ({ page }) => {
   test.setTimeout(180_000);
 
   /** @type {{id:string,name:string}} */ let fA; // starts as the default

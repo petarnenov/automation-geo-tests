@@ -38,7 +38,7 @@ const { loginPlatformOneAdmin } = require('../_helpers/qa3');
 const SEED_NAME = 'C25048 Household Seed';
 const BILLING_RUNS_URL = '/react/indexReact.do#platformOne/billingCenter/runs';
 
-test('@pepi C25048 Correct Household Target Types Displayed by Billing Type', async ({ page }) => {
+test('@regression C25048 Correct Household Target Types Displayed by Billing Type', async ({ page }) => {
   test.setTimeout(180_000);
 
   // Pre-condition row, seeded so the case doesn't depend on env history.

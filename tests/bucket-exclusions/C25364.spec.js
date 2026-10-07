@@ -22,7 +22,7 @@ const { loginPlatformOneAdmin, uploadBillingBucketExclusions } = require('../_he
 const { buildBucketXlsx } = require('../_helpers/build-bucket-xlsx');
 const { buildDefaultXlsx } = require('./_helpers');
 
-test('@pepi C25364 Bucket Exclusions - multiple templates uploaded via drag and drop', async ({
+test('@regression C25364 Bucket Exclusions - multiple templates uploaded via drag and drop', async ({
   page,
   workerFirm,
 }) => {

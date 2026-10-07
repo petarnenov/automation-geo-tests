@@ -38,7 +38,7 @@ const { loginPlatformOneAdmin } = require('../_helpers/qa3');
 const SEED_NAME = 'C25017 Household Seed';
 const BILLING_RUNS_URL = '/react/indexReact.do#platformOne/billingCenter/runs';
 
-test('@pepi C25017 Run Button Activation Upon Valid Selection', async ({ page }) => {
+test('@regression C25017 Run Button Activation Upon Valid Selection', async ({ page }) => {
   test.setTimeout(180_000);
 
   // Pre-condition row, seeded so the case doesn't depend on env history.

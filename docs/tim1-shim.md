@@ -153,4 +153,4 @@ If you skip step 3, the next run reuses the previous env's `tim1.json` and the w
 - **You are testing GW Admin–specific flows** (User Management, Edit User modal, anything where `loggedUser.gwAdminFlag` is checked). Real GW Admins have all permissions auto-granted; `tim1` does not. The shim works for merge-prospect / account-billing / account-settings because `tim1` happens to have the right permissions in firm 1 already.
 - **You explicitly want to assert "permission disabled" branches** (e.g. C26060 / C26085). The shim hides those branches behind `tim1`'s effectively-omnipotent permissions.
 
-For everything else in the `@pepi` scope today, the shim is the path of least resistance whenever `createGwAdmin` is broken.
+For everything else in the `@regression` scope today, the shim is the path of least resistance whenever `createGwAdmin` is broken.

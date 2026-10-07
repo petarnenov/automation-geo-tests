@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 // @ts-check
 /**
- * Ensures every Playwright @pepi test has its corresponding TestRail case
+ * Ensures every Playwright @regression test has its corresponding TestRail case
  * tagged with the "Pepi" test label.
  *
- * Source of truth for @pepi case IDs: the `Cxxxxx` IDs embedded in each
- * `tests/**\/*.spec.js` test title that is tagged with @pepi.
+ * Source of truth for @regression case IDs: the `Cxxxxx` IDs embedded in each
+ * `tests/**\/*.spec.js` test title that is tagged with @regression.
  *
  * Source of truth for current case labels: `get_case/{id}` — TestRail's
  * case-level labels (these are what render in the "Test Labels" column of
@@ -13,7 +13,7 @@
  * applied per-run, which are a different thing.
  *
  * Behaviour:
- *   1. Extracts @pepi case IDs from the repo.
+ *   1. Extracts @regression case IDs from the repo.
  *   2. Reads current case-level labels via get_case.
  *   3. For any case where the Pepi label is missing, POSTs update_case
  *      preserving pre-existing labels and appending Pepi (id 22 in project 2).
@@ -88,7 +88,7 @@ async function trGetPaginated(endpoint, collectionKey) {
 }
 
 function collectPepiCaseIds(dir) {
-  const re = /@pepi\s+C(\d+)\b/g;
+  const re = /@regression\s+C(\d+)\b/g;
   const ids = new Set();
   /** @param {string} d */
   function walk(d) {
@@ -110,7 +110,7 @@ function collectPepiCaseIds(dir) {
 
 (async () => {
   const caseIds = collectPepiCaseIds(TESTS_DIR);
-  console.log(`[sync-pepi-labels] found ${caseIds.length} @pepi case IDs in tests/`);
+  console.log(`[sync-pepi-labels] found ${caseIds.length} @regression case IDs in tests/`);
   if (caseIds.length === 0) {
     console.log('[sync-pepi-labels] nothing to do.');
     return;
@@ -153,7 +153,7 @@ function collectPepiCaseIds(dir) {
   );
 
   if (toUpdate.length === 0) {
-    console.log('[sync-pepi-labels] nothing to write — every @pepi case is already tagged Pepi.');
+    console.log('[sync-pepi-labels] nothing to write — every @regression case is already tagged Pepi.');
     return;
   }
 

@@ -116,7 +116,10 @@ async function openBillingTemplates(page) {
   await expect(page.locator('.ag-header-cell[col-id]').first()).toBeVisible({ timeout: 30_000 });
 }
 
-test('@pepi C22296 Billing Templates - Filters are saved per user', async ({ page, context }) => {
+test('@regression C22296 Billing Templates - Filters are saved per user', async ({
+  page,
+  context,
+}) => {
   test.setTimeout(180_000);
 
   /** @type {string} */

@@ -30,7 +30,7 @@ const {
 } = require('../_helpers/qa3');
 const { buildBucketXlsx } = require('../_helpers/build-bucket-xlsx');
 
-test('@pepi C25790 Bucket Exclusions - Set All Accts to I = N: HH-level upload accepted', async ({
+test('@regression C25790 Bucket Exclusions - Set All Accts to I = N: HH-level upload accepted', async ({
   page,
   context,
   workerFirm,

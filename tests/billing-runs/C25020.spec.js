@@ -31,7 +31,7 @@ const { loginPlatformOneAdmin } = require('../_helpers/qa3');
 
 const BILLING_RUNS_URL = '/react/indexReact.do#platformOne/billingCenter/runs';
 
-test('@pepi C25020 Totals Update for Full Billing Run', async ({ page }) => {
+test('@regression C25020 Totals Update for Full Billing Run', async ({ page }) => {
   test.setTimeout(180_000);
 
   await loginPlatformOneAdmin(page);

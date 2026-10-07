@@ -49,7 +49,7 @@ const SEED_TEMPLATE_NAME = 'C25014 Firm Target Seed';
 const FIRM_TARGET_JSON =
   '{"targets":[{"targetCd":"firm","targets":[]}],"buckets":["1","2","3","4","5","6"]}';
 
-test('@pepi C25014 Correct Firm Target Types Displayed by Billing Type', async ({ page }) => {
+test('@regression C25014 Correct Firm Target Types Displayed by Billing Type', async ({ page }) => {
   test.setTimeout(240_000);
 
   // Completed (2) + unpublished (0) + firm-target, created now → always inside

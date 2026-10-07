@@ -70,7 +70,7 @@ function readFirstSheet(buf) {
 }
 
 test(
-  '@pepi C18986 Billing Specification - Bulk Export',
+  '@regression C18986 Billing Specification - Bulk Export',
   { annotation: [{ type: 'aio', description: 'GEO-TC-11791' }] },
   async ({ page }) => {
     test.setTimeout(180_000);

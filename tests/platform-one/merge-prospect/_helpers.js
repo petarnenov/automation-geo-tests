@@ -92,7 +92,7 @@ async function runMergeProspectSmoke({ page, workerFirm, prospect }) {
       .locator('.clientAutocompleteSearchRow___dumCz', { hasText: clientLastName })
       .first();
     // qa2's contact search indexer lags 30-150s for a freshly-created dummy
-    // firm, especially under full @pepi suite load (8 workers + the
+    // firm, especially under full @regression suite load (8 workers + the
     // account-billing batch all spinning up dummy firms in parallel). A
     // single fill + 30s wait races the indexer and surfaces "No results for
     // this search". Re-type the query every ~10s so each attempt re-issues

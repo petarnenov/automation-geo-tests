@@ -67,7 +67,7 @@ function nextMonthDate(mmddyyyy) {
   return `${mm}/${dd}/${yyyy}`;
 }
 
-test('@pepi C25193 Account Billing Inception Date - Admin and Non-Admin', async ({
+test('@regression C25193 Account Billing Inception Date - Admin and Non-Admin', async ({
   page,
   context,
   workerFirm,

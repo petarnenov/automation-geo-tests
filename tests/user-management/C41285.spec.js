@@ -25,7 +25,7 @@ const {
 
 test.setTimeout(180_000);
 
-test('@pepi C41285 Edit User modal GW Admin - valid @geowealth.com email allows Save (UI smoke)', async ({
+test('@regression C41285 Edit User modal GW Admin - valid @geowealth.com email allows Save (UI smoke)', async ({
   page,
 }) => {
   // `validators.isValidCommonName` (EditUserModal's givenName field)

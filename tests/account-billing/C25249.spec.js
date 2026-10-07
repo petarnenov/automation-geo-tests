@@ -22,7 +22,7 @@ const {
 
 const NEW_INACTIVE_DATE = '06/30/2031';
 
-test('@pepi C25249 Account Advisor Split - Update', async ({ page, context }) => {
+test('@regression C25249 Account Advisor Split - Update', async ({ page, context }) => {
   test.setTimeout(240_000);
 
   await test.step('Phase 1: admin updates Advisor Split Inactive Date', async () => {

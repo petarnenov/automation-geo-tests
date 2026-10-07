@@ -128,7 +128,7 @@ async function firmRows(page) {
   return (await (await page.request.post(GET, { multipart: { firmCd: String(SEED_FIRM) } })).json()).rows || [];
 }
 
-test('@pepi C22316 Statement Charges - Copy a statement charge after editing all its data', async ({ page }) => {
+test('@regression C22316 Statement Charges - Copy a statement charge after editing all its data', async ({ page }) => {
   test.setTimeout(180_000);
 
   const srcDesc = `PepiC22316src-${Date.now()}`;

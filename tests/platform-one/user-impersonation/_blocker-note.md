@@ -17,7 +17,7 @@ captures the residual fixme'd specs and exactly what each needs.
 | Case | Title | Why not |
 |---|---|---|
 | C26452 | Failure to create impersonated session (Negative) | TestRail step 7 is literally "Stop the useragents before user impersonation". That's a Jenkins / ops action with no Playwright surface. If a Jenkins job ID for the stop sequence becomes available, this could be revisited as a fixture-style precondition; the user's call (2026-06-10) is to leave this as fixme with this note. |
-| C26480 | Load performance for large firms (Non-functional) | Acceptance is "no worse than current loading time" — needs a defined baseline + a designated large firm + a perf budget. Belongs to a dedicated perf job, not the @pepi smoke run. |
+| C26480 | Load performance for large firms (Non-functional) | Acceptance is "no worse than current loading time" — needs a defined baseline + a designated large firm + a perf budget. Belongs to a dedicated perf job, not the @regression smoke run. |
 | C26481 | Search/filter performance for large firm (Non-functional) | Same as C26480 — needs typing-latency budget + large firm fixture. |
 
 ## What's currently green

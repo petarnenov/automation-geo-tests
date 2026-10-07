@@ -45,7 +45,7 @@ const CREATE_ACCOUNT_URL = '/react/indexReact.do#platformOne/backOffice/createAc
 // firm. Validated server-side via `NEntityDAO.getNEntity()` which returns null.
 const BOGUS_CLIENT_UUID = 'DEADBEEFDEADBEEFDEADBEEFDEADBEEF';
 
-test('@pepi C24996 Create new accounts with wrong data', async ({ page, workerFirm }) => {
+test('@regression C24996 Create new accounts with wrong data', async ({ page, workerFirm }) => {
   test.setTimeout(180_000);
 
   const accountNumber = `PW${Date.now()}`;

@@ -70,7 +70,7 @@ function toMMDDYYYY(ms) {
   return `${mm}/${dd}/${d.getUTCFullYear()}`;
 }
 
-test("@pepi C22317 Statement Charges - Filter by 'End Date'", async ({ page }) => {
+test("@regression C22317 Statement Charges - Filter by 'End Date'", async ({ page }) => {
   test.setTimeout(180_000);
 
   await loginPlatformOneTim1Fresh(page);

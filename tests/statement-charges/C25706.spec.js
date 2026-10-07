@@ -42,7 +42,7 @@ const STATEMENT_CHARGES_URL = '/react/indexReact.do#platformOne/billingCenter/st
 const SYSTEM_VIEW_LABEL = 'System View';
 const SYSTEM_VIEW_DEFAULT_LABEL = `${SYSTEM_VIEW_LABEL} - default`;
 
-test('@pepi C25706 Statement Charges - default system view sort order', async ({ page }) => {
+test('@regression C25706 Statement Charges - default system view sort order', async ({ page }) => {
   test.setTimeout(180_000);
 
   await loginPlatformOneTim1Fresh(page);

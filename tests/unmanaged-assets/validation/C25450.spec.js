@@ -11,7 +11,7 @@
 const { test } = require('@playwright/test');
 const { validRowFor, uploadAndExpectError } = require('../_helpers');
 
-test('@pepi C25450 Unmanaged Assets - inconsistent Ignore Firm per Account triggers validation', async ({
+test('@regression C25450 Unmanaged Assets - inconsistent Ignore Firm per Account triggers validation', async ({
   page,
   workerFirm,
 }) => {

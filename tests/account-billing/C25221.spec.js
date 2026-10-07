@@ -73,7 +73,7 @@ async function setDateViaSpinbuttons(page, sectionId, mmddyyyy) {
   await setSpin('year', y);
 }
 
-test('@pepi C25221 Household Adjustment/Expiration Date - Amount', async ({
+test('@regression C25221 Household Adjustment/Expiration Date - Amount', async ({
   page,
   context,
   workerFirm,

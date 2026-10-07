@@ -11,7 +11,7 @@
 const { test } = require('@playwright/test');
 const { runAutoLinkCreateUserSmoke } = require('./_helpers');
 
-test('@pepi C26094 Platform One Auto-link - new user with empty email (UI smoke)', async ({
+test('@regression C26094 Platform One Auto-link - new user with empty email (UI smoke)', async ({
   page,
 }) => {
   await runAutoLinkCreateUserSmoke({ page, firmCode: 3 });

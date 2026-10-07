@@ -1,6 +1,6 @@
 // @ts-check
 /**
- * Shared helpers for the unmanaged-assets @pepi specs.
+ * Shared helpers for the unmanaged-assets @regression specs.
  *
  * Apple Inc is treated as a globally-available instrument on every qa firm
  * (validated 2026-04-08 and recorded as a project decision); per-test isolation

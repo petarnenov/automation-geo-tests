@@ -53,7 +53,7 @@ const DEACTIVATE_PATH = '/platformOne/usersActivateDeactivate.do';
 
 test.setTimeout(360_000);
 
-test('@pepi C26274 Failed deactivation does not log out the User from Platform One', async ({
+test('@regression C26274 Failed deactivation does not log out the User from Platform One', async ({
   browser,
   page,
 }) => {

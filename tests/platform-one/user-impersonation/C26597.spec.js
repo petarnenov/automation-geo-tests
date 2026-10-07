@@ -14,7 +14,7 @@ const {
   openAPUserActionsMenu,
 } = require('./_helpers');
 
-test('@pepi C26597 Advisor Portal Impersonate action visible from AP entry point (Positive)', async ({
+test('@regression C26597 Advisor Portal Impersonate action visible from AP entry point (Positive)', async ({
   page,
 }) => {
   test.setTimeout(180_000);

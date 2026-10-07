@@ -53,7 +53,7 @@ const SEED_NAME = 'C26330 No Targets Seed';
 const FIRST_LINE_RX = /Accounts were skipped due to error\./i;
 const REST_RX = /Click in the detailed view\./i;
 
-test('@pepi C26330 Billing Run with no targets shows explanatory message in Progress status', async ({ page }) => {
+test('@regression C26330 Billing Run with no targets shows explanatory message in Progress status', async ({ page }) => {
   test.setTimeout(180_000);
 
   // Seed the In-Progress + error_json run (data-only, stays status=3) on the

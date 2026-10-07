@@ -24,7 +24,7 @@ const {
 } = require('../_helpers/qa3');
 const { buildXlsxFor, APPLE_SYMBOL } = require('./_helpers');
 
-test('@pepi C26074 Unmanaged Assets - Delete (D action) removes an existing exclusion record', async ({
+test('@regression C26074 Unmanaged Assets - Delete (D action) removes an existing exclusion record', async ({
   page,
   context,
   workerFirm,

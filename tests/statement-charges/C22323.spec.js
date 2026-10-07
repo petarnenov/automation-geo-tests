@@ -35,7 +35,7 @@ const URL = '/react/indexReact.do#platformOne/billingCenter/statementCharges';
 const GET = '/react/getBillingStatementCharges.do';
 const CREATE = '/react/createUpdateBillingStatementCharge.do';
 
-test('@pepi C22323 Statement Charges - Mandatory fields in Create New Charge (AUM)', async ({ page }) => {
+test('@regression C22323 Statement Charges - Mandatory fields in Create New Charge (AUM)', async ({ page }) => {
   test.setTimeout(180_000);
 
   await test.step('Open Statement Charges', async () => {

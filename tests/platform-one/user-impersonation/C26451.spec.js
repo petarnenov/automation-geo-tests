@@ -29,7 +29,7 @@ const {
   FIRM_CD_GEOWEALTH,
 } = require('./_helpers');
 
-test('@pepi C26451 Platform One Impersonation session & audit behaviour (Positive)', async ({
+test('@regression C26451 Platform One Impersonation session & audit behaviour (Positive)', async ({
   page,
 }) => {
   test.setTimeout(180_000);

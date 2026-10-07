@@ -16,7 +16,7 @@ const { loginPlatformOneAdmin } = require('../../_helpers/qa3');
 
 const WRONG_FILE = path.join(__dirname, '..', '..', 'fixtures', 'wrong-format.txt');
 
-test('@pepi C25379 Bucket Exclusions - wrong file format triggers validation', async ({
+test('@regression C25379 Bucket Exclusions - wrong file format triggers validation', async ({
   page,
   workerFirm,
 }) => {

@@ -31,7 +31,7 @@ const {
 
 test.setTimeout(180_000);
 
-test('@pepi C41291 Edit User modal GW Admin - legacy invalid stored email keeps form invalid (UI smoke)', async ({
+test('@regression C41291 Edit User modal GW Admin - legacy invalid stored email keeps form invalid (UI smoke)', async ({
   page,
 }) => {
   const user = await createGwAdmin('pepiLegacy');

@@ -192,7 +192,7 @@ async function saveEditClientBillingSettings(page) {
 // the adviser bucket between captures and asserts. One retry rides it out.
 test.describe.configure({ retries: 1 });
 
-test('@pepi C25243 Client Spec Name/Active Date - Admin and Non-Admin', async ({
+test('@regression C25243 Client Spec Name/Active Date - Admin and Non-Admin', async ({
   page,
   context,
 }) => {

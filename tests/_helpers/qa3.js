@@ -1,6 +1,6 @@
 // @ts-check
 /**
- * Shared qa3 actions for the @pepi suite. Keep this surface intentionally small —
+ * Shared qa3 actions for the @regression suite. Keep this surface intentionally small —
  * each helper is one focused step that several specs reuse.
  */
 
@@ -270,7 +270,7 @@ async function _uploadExclusionsXlsx(page, { url, firmCode, file, defaultName })
   // `primary___xxxx` / `button___xxxx`. Use text content.
   const proceedText = page.getByText(/are you sure you want to proceed/i).first();
   const successText = page.getByText(/imported successfully/i).first();
-  // 180s — under full @pepi parallel load (8 workers), qa2/qa4 queues
+  // 180s — under full @regression parallel load (8 workers), qa2/qa4 queues
   // bulk-exclusions uploads serially backend-side, so the success
   // message can surface 100-150s after the click.
   const winner = await Promise.race([
@@ -402,7 +402,7 @@ async function gotoAccountUnmanagedAssets(page, householdUuid, accountUuid) {
   const permDenied = page.getByText(/do not have permission to view this Client/i).first();
   // For freshly-seeded dummy firms, the BE's advisor-permission cache
   // sometimes lags the login response by several seconds (qa4 under
-  // @pepi load is the worst offender). The FE caches that initial
+  // @regression load is the worst offender). The FE caches that initial
   // "permission denied" response per-session, so a vanilla deep-URL
   // retry doesn't recover — we have to navigate the advisor away first
   // (dashboard) and back to the deep URL.

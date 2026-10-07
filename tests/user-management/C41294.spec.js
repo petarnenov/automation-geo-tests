@@ -24,7 +24,7 @@ const {
 
 test.setTimeout(180_000);
 
-test('@pepi C41294 Edit User modal GW Admin - invalid email blocks save no confirmation (UI smoke)', async ({
+test('@regression C41294 Edit User modal GW Admin - invalid email blocks save no confirmation (UI smoke)', async ({
   page,
 }) => {
   const user = await createGwAdmin('pepiNoConfirm');

@@ -15,7 +15,7 @@ const { uploadUrl } = require('../_helpers');
 
 const WRONG_FILE = path.join(__dirname, '..', '..', 'fixtures', 'wrong-format.txt');
 
-test('@pepi C25447 Unmanaged Assets - wrong file format triggers validation', async ({
+test('@regression C25447 Unmanaged Assets - wrong file format triggers validation', async ({
   page,
   workerFirm,
 }) => {

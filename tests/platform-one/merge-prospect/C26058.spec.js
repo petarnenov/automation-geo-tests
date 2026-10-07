@@ -15,7 +15,7 @@
 const { test } = require('@playwright/test');
 const { runMergeProspectSmokeWithProvisionedProspect } = require('./_helpers');
 
-test('@pepi C26058 Platform One Merge Prospect - client with accounts + prospect with data, site 61 (UI smoke)', async ({
+test('@regression C26058 Platform One Merge Prospect - client with accounts + prospect with data, site 61 (UI smoke)', async ({
   page,
   workerFirm,
   context,

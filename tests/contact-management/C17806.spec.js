@@ -50,7 +50,7 @@ async function expectMenuItems(page, menuId, label) {
   await expect(page.getByRole('link', { name: 'Prospect', exact: true })).toHaveCount(0);
 }
 
-test('@pepi C17806 Contact Management - Manage Contacts page availability', async ({
+test('@regression C17806 Contact Management - Manage Contacts page availability', async ({
   page,
   workerFirm,
 }) => {

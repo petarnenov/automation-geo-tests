@@ -67,7 +67,7 @@ async function setDateViaSpinbuttons(page, sectionId, mmddyyyy) {
 
 test.describe.configure({ retries: 1 });
 
-test('@pepi C25246 Client Adjustment/Expiration Date - Amount', async ({
+test('@regression C25246 Client Adjustment/Expiration Date - Amount', async ({
   page,
   context,
 }) => {

@@ -93,7 +93,7 @@ async function selectFirm1(page) {
     .evaluate((el) => /** @type {HTMLElement} */ (el).click());
 }
 
-test('@pepi C22322 Statement Charges - Create a statement charge from firm 1', async ({ page }) => {
+test('@regression C22322 Statement Charges - Create a statement charge from firm 1', async ({ page }) => {
   test.setTimeout(180_000);
 
   const desc = `PepiC22322-${Date.now()}`;

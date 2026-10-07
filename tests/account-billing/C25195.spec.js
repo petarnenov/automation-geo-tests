@@ -40,7 +40,7 @@ const {
 // accounts. Each dummy firm client has 2-3 accounts named accnum-YYYY...-N-M;
 // the combo renders them as "{accountTitle} ({accountNum})" which for dummy
 // firms boils down to "{num} ({num})" since title === num.
-test('@pepi C25195 Account for Billing - Admin and Non-Admin', async ({
+test('@regression C25195 Account for Billing - Admin and Non-Admin', async ({
   page,
   context,
   workerFirm,

@@ -65,7 +65,7 @@ async function setCommissionFee(page, value) {
 
 // HYBRID isolation: Phase 1 uses workerFirm (race-free), Phase 2 stays on
 // firm 106 + tyler (read-only check, no race). See C25193 for full rationale.
-test('@pepi C25201 Account Commission Fee - Admin and Non-Admin', async ({
+test('@regression C25201 Account Commission Fee - Admin and Non-Admin', async ({
   page,
   context,
   workerFirm,

@@ -53,7 +53,7 @@ const INACTIVE_DATE = '12/31/2030';
 // a per-spec retry rides out the rare collision.
 test.describe.configure({ retries: 1 });
 
-test('@pepi C25200 Account Advisor Split - Create', async ({ page, context }) => {
+test('@regression C25200 Account Advisor Split - Create', async ({ page, context }) => {
   test.setTimeout(240_000);
 
   await test.step('Phase 1: admin sets Advisor Entity Split', async () => {

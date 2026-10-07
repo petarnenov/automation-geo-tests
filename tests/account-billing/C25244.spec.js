@@ -191,7 +191,7 @@ async function dismissExcludeModalIfPresent(page, bucketHeaderRe, { timeoutMs = 
 // specs can race. One retry rides out collisions.
 test.describe.configure({ retries: 1 });
 
-test('@pepi C25244 Client Exclude from billing - Admin and Non-Admin', async ({
+test('@regression C25244 Client Exclude from billing - Admin and Non-Admin', async ({
   page,
   context,
 }) => {

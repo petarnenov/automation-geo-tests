@@ -125,7 +125,7 @@ async function chargeExists(page, chargeId) {
   return rows.some((r) => r.billingStatementChargeID === chargeId);
 }
 
-test('@pepi C22308 Statement Charges - Delete a single Statement Charge', async ({ page }) => {
+test('@regression C22308 Statement Charges - Delete a single Statement Charge', async ({ page }) => {
   test.setTimeout(180_000);
 
   const desc = `PepiC22308-${Date.now()}`;

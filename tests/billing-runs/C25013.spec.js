@@ -43,7 +43,7 @@ const BILLING_RUNS_URL = '/react/indexReact.do#platformOne/billingCenter/runs';
 const reRunButton = (page) =>
   page.locator('button', { hasText: /^Re Run$/ }).first();
 
-test('@pepi C25013 Partial Re-run Action Visibility for Eligible Billings', async ({ page }) => {
+test('@regression C25013 Partial Re-run Action Visibility for Eligible Billings', async ({ page }) => {
   test.setTimeout(240_000);
 
   await loginPlatformOneAdmin(page);
