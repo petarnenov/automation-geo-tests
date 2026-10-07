@@ -8,7 +8,7 @@ ARGS ?=
 # Who the run is for (a key of aio.config.json assignees) instead of being asked.
 RUNAS ?=
 
-.PHONY: help test config aio-post tunnel
+.PHONY: help test doctor setup config aio-post tunnel
 
 # `make test random N`: the words after `test` arrive as extra goals, so
 # read N from them and turn both words into no-op targets.
@@ -24,12 +24,23 @@ endif
 help:
 	@echo "make test [ARGS=...] [RUNAS=who]  choose who runs it (required), show what will run, confirm (default No), start DB tunnel, run, confirm AIO post (default Yes)"
 	@echo "make test random N    same, on N tests picked at random from the suite"
+	@echo "make doctor           check Node, packages, browser, Oracle driver, .env.local, AIO token, DB client/tunnel (make test runs it first)"
+	@echo "make setup            install what doctor checks for: npm ci, Playwright Chromium, .env.local from .env.example"
 	@echo "make config           show app URL, DB, AIO cycle, green status and comment"
 	@echo "make tunnel           start the DB SSH tunnel (DB_TUNNEL_* in .env.local) if it is down"
 	@echo "make aio-post         post the results saved by the last run to AIO"
 
-test:
+test: doctor
 	@$(if $(RUNAS),RUN_AS=$(RUNAS) )node scripts/run-suite.js run $(if $(RANDOM_N),--random $(RANDOM_N) )$(ARGS)
+
+doctor:
+	@node scripts/doctor.js
+
+setup:
+	npm ci
+	npx playwright install chromium
+	@test -f .env.local || { cp .env.example .env.local && echo "created .env.local from .env.example, fill it in"; }
+	@node scripts/doctor.js
 
 config:
 	@node scripts/run-suite.js config
